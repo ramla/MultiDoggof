@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://dllnicip3gged"]
+
+[ext_resource type="Script" path="res://antiadmiral.gd" id="1_4r21f"]
+[ext_resource type="Texture2D" uid="uid://bo6r0w1yv88wu" path="res://Assets/HEROS8bit_Dog Idle D.png" id="2_mt5eg"]
+[ext_resource type="PackedScene" uid="uid://brpv0wwkkq08a" path="res://view_distance.tscn" id="3_6wbrm"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u3tdl"]
+radius = 6.0
+
+[node name="Antiadmiral" type="CharacterBody2D" groups=["Enemy"]]
+collision_layer = 255
+collision_mask = 255
+script = ExtResource("1_4r21f")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_mt5eg")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 16)
+
+[node name="CollisionPhysical" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_u3tdl")
+
+[node name="ViewDistance" parent="." instance=ExtResource("3_6wbrm")]
+
+[node name="Timer" type="Timer" parent="."]
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

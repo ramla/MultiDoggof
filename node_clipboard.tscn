@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bu6ym5sugu20o"]
+
+[ext_resource type="Script" path="res://overseer.gd" id="1_t1h4a"]
+
+[node name="NodeClipboard" type="Node2D"]
+script = ExtResource("1_t1h4a")

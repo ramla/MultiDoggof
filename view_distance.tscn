@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://brpv0wwkkq08a"]
+
+[ext_resource type="Script" path="res://view_distance.gd" id="1_hupn0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6oefe"]
+radius = 48.0104
+
+[node name="ViewDistance" type="Area2D"]
+collision_mask = 2
+script = ExtResource("1_hupn0")
+
+[node name="CollisionVisual" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_6oefe")

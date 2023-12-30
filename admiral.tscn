@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://c3ym1pshojv58"]
+
+[ext_resource type="Script" path="res://admiral.gd" id="1_p1akf"]
+[ext_resource type="Texture2D" uid="uid://bo6r0w1yv88wu" path="res://Assets/HEROS8bit_Dog Idle D.png" id="2_ip6h3"]
+[ext_resource type="PackedScene" uid="uid://brpv0wwkkq08a" path="res://view_distance.tscn" id="3_pav7m"]
+[ext_resource type="PackedScene" uid="uid://dujquj8r863hi" path="res://recon.tscn" id="4_rlpmn"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_q7fj7"]
+radius = 6.0
+
+[node name="Admiral" type="CharacterBody2D" groups=["Player"]]
+collision_layer = 255
+collision_mask = 255
+script = ExtResource("1_p1akf")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_ip6h3")
+region_enabled = true
+region_rect = Rect2(0, 0, 16, 16)
+
+[node name="CollisionPhysical" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_q7fj7")
+
+[node name="ViewDistance" parent="." instance=ExtResource("3_pav7m")]
+
+[node name="Recon" parent="." instance=ExtResource("4_rlpmn")]

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://dq02d7ku86vxp"]
+
+[ext_resource type="Script" path="res://game.gd" id="1_y58qk"]
+[ext_resource type="PackedScene" uid="uid://lwla2t4uganw" path="res://level.tscn" id="2_76n7g"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_y58qk")
+
+[node name="Level" parent="." instance=ExtResource("2_76n7g")]
+
+[node name="Team1" type="Node2D" parent="."]
+
+[node name="Team2" type="Node2D" parent="."]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
