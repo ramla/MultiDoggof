@@ -18,6 +18,7 @@ var spawn = Vector2.ZERO
 var game_settings
 var t_color
 var blue: bool #aka is_blue aka is_player_or_ally
+var entity_playername = "How'd this happen"
 var local_id
 var entity_id
 var is_player
@@ -87,11 +88,12 @@ func get_speed(delta):
 	speed = clamp(speed, 0, MAX_SPEED)
 	return(speed)
 
-func init(id, playername, team, local_team, in_local_id, in_settings):
+func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	set_multiplayer_authority(id)
 	game_settings = in_settings
 	entity_id = id
 	local_id = in_local_id
+	entity_playername = in_playername
 	if local_id == entity_id:
 		blue = true
 		is_player = true
@@ -121,11 +123,11 @@ func init(id, playername, team, local_team, in_local_id, in_settings):
 	print("Init done @ ", local_id, ". Self: ", self, ", team: ", team, ", local_team: ", local_team)
 	pass
 
-func set_visual(blue: bool):
+func set_visual(is_blue: bool):
 	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
 	var nonblue_texture = load("res://Assets/ENEMIES8bit_Blob Idle.png")
 	
-	if blue:
+	if is_blue:
 		$Sprite2D["texture"] = blue_texture
 	else:
 		$Sprite2D["texture"] = nonblue_texture
@@ -144,7 +146,7 @@ func apply_fog_of_war():
 
 func _on_fog_of_war_timer_timeout(spotted_entity_id):
 	print("FOW timer activation on ", entity_id, " at ", local_id)
-	fog_of_war_timer.stop
+	fog_of_war_timer.stop()
 	admirals[spotted_entity_id].hide()
 	if Overseer.debug["wallhack"]:
 		admirals[spotted_entity_id].show()

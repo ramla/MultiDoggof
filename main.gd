@@ -1,7 +1,3 @@
-#TODO: gettaa pelaajan ip jotta pääsee takasi: enet.get_peer(peer_id).get_remote_address()
-#TODO: resetoi ready lobbyyn liittyessä, träkkää unready count, total hesitation time, who arrived early at a turning point/defining moment/crossroads, who made an uninformed decision, who made wrong decisions (ready before all arrived)??
-#TODO: päivitä nimi kirjoittaessa kenttään (timer+ifchanged/signal(text_changed/text_set/focus_exited?)
-#TODO: broadcast host selected game settings, constants & other gameplay variables
 
 extends Control
 
@@ -41,16 +37,14 @@ func _ready():
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	multiplayer.multiplayer_peer = peer
 	serverinstance.connect("player_disconnected", _on_player_disconnected)
 	$Game.hide()
-	#TODO:connect game_over _on_game_over
 	ticktimer.connect("timeout", _on_tick)
 	ticktimer.wait_time = 5
 	add_child(ticktimer)
 	ticktimer.start()
 
-func _process(delta):
+func _process(_delta):
 	all_ready = true
 	all_in_team = true
 	team1_count = 0
@@ -101,7 +95,6 @@ func _on_host_buttonpress():
 			local_ready = true
 			local_team = -1
 		add_child(serverinstance)
-		multiplayer.multiplayer_peer = peer
 		addressbox.text = "Lobby started!"
 		infobox.text = "Server bound to all interfaces: " + str(IP.get_local_addresses())
 		hosting = true
@@ -110,7 +103,6 @@ func _on_host_buttonpress():
 			local_playername = "Hostcuck"
 		local_id = multiplayer.get_unique_id()
 		update_player(local_id, local_osid, local_playername, local_ready, local_team)
-
 	else:
 		serverinstance.terminate()
 		remove_child(serverinstance)
@@ -131,9 +123,6 @@ func _on_join_buttonpress():
 	multiplayer.multiplayer_peer = peer
 	local_id = multiplayer.get_unique_id()
 	print("created client, multiplayer.is_server() returns ",multiplayer.is_server())
-	
-func _on_cause(selection):
-	pass
 
 func upnp_setup():
 	var upnp = UPNP.new()
@@ -141,8 +130,8 @@ func upnp_setup():
 	upnp.add_port_mapping(port)
 	print("Server IP: " + upnp.query_external_address())
 
-func launch(game_settings, playerbase):
-	$Game.reset(game_settings, playerbase, local_team, local_id)
+func launch(new_game_settings, new_playerbase):
+	$Game.reset(new_game_settings, new_playerbase, local_team, local_id)
 	$Menu.hide()
 	$Game.show()
 	
@@ -183,14 +172,10 @@ func update_player(multi_id, os_id, playername, is_ready = false, team = get_tea
 		"is_ready" = is_ready,
 		"team" = team
 		}
-
-@rpc("any_peer")
-func announce_team(multi_id, team):
-	pass
-	
-@rpc("any_peer")
-func announce_message(multi_id, message):
-	pass
+	#
+#@rpc("any_peer")
+#func announce_message(multi_id, message):
+	#pass
 
 func get_team_least_players():
 	var teamdelta = 0

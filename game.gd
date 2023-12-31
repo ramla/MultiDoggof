@@ -20,12 +20,9 @@ var running = false
 func _ready():
 	self.local_id = get_tree().get_multiplayer().get_unique_id()
 	self.hosting = get_tree().get_multiplayer().is_server()
-	#TODO:
-	# connect successful attack
-	# connect successful recon
 	pass
-	
-func _process(delta):
+
+func _process(_delta):
 	pass
 
 func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
@@ -46,22 +43,15 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 	running = true
 	#start_round_timer_chain()
 	return
-	
+
 func spawn(new_admirals):
 	for id in new_admirals:
 		var admiral = new_admirals[id]
 		var admiral_instance = admiral_scene.instantiate()
-		#TODO: if no team, kick or spectate (game setting)
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
 	return
-
-func _on_successful_attack(attack):
-	pass
-
-func _on_successful_recon(information):
-	pass
 
 func handle_disconnected_player(id):
 	if running:

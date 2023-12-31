@@ -29,6 +29,3 @@ func terminate():
 	print("Terminating server")
 	#TODO: disconnect/inform clients before terminating
 	peer.close()
-
-func _process(delta):
-	pass

@@ -1,4 +1,3 @@
-#TODO: basic pistelasku
 
 extends Node
 
