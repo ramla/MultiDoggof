@@ -8,11 +8,10 @@ script = ExtResource("1_y58qk")
 
 [node name="Level" parent="." instance=ExtResource("2_76n7g")]
 
-[node name="Team1" type="Node2D" parent="."]
-
-[node name="Team2" type="Node2D" parent="."]
+[node name="Admirals" type="Node2D" parent="."]
 
 [node name="HUD" type="CanvasLayer" parent="."]
 visible = false
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+spawn_path = NodePath("../Admirals")

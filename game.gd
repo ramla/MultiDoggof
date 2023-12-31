@@ -2,11 +2,13 @@ extends Node2D
 
 signal game_over
 
-var t1_admirals = {}
-var t2_admirals = {}
-
+var admirals = {}
+var t1_color
+var t2_color
+var game_settings
 var admiral_scene = preload("res://admiral.tscn")
-var admiral_entity = admiral_scene.instantiate()
+var local_id
+var hosting
 
 #TODO:
 #var pre_round_timer jtnjtn 
@@ -14,6 +16,8 @@ var admiral_entity = admiral_scene.instantiate()
 #var post_round_timer
 
 func _ready():
+	self.local_id = get_tree().get_multiplayer().get_unique_id()
+	self.hosting = get_tree().get_multiplayer().is_server()
 	#TODO:
 	# connect successful attack
 	# connect successful recon
@@ -22,27 +26,31 @@ func _ready():
 func _process(delta):
 	pass
 
-func reset(game_settings,admirals):
-	for t1_admirals in $Team1.get_children():
-		$Team1.remove_child(admiral_entity)
-	for t2_admirals in $Team2.get_children():
-		$Team2.remove_child(admiral_entity)
+func reset(new_game_settings,new_admirals,local_team):
+	for n in $Admirals.get_children():
+		$Admirals.remove_child(n)
+	game_settings = new_game_settings
+	if local_team == -1:
+		t1_color = game_settings["blue"]
+		t2_color = game_settings["red"]
+	else:
+		t1_color = game_settings["red"]
+		t2_color = game_settings["blue"]
 	
-	team_up_new(admirals)
-		#$Team1.add_child(admiral_entity)
-		#$Team2.add_child(admiral_entity)
+	spawn(new_admirals)
 	$HUD.show()
+	return
 	
-func team_up_new(admirals):
-	t1_admirals = {}
-	t2_admirals = {}
-	for id in admirals:
-		var admiral = admirals[id]
-		if admiral["team"] == -1:
-			t1_admirals[id] = admiral
-		if admiral["team"] == 1:
-			t2_admirals[id] = admiral
-		#TODO: if no team kick or spectate (game setting)
+func spawn(new_admirals):
+	for id in new_admirals:
+		var admiral = new_admirals[id]
+		var admiral_instance = admiral_scene.instantiate()
+		#TODO: if no team, kick or spectate (game setting)
+		admiral_instance.init(id, admiral["playername"], admiral["team"], game_settings["admiral"])
+		$Admirals.add_child(admiral_instance)
+		admirals[id] = admiral_instance
+	return
+
 
 func _on_successful_attack(attack):
 	pass

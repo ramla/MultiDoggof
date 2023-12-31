@@ -22,3 +22,4 @@ func _on_view_distance_spotted(spotter, target):
 func _on_timer_timeout():
 	hide()
 	$Timer.stop()
+	

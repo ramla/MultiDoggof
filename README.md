@@ -7,8 +7,8 @@ Initial locked in goals before adding major new ones:
 - DONE Basic networking
 - DONE Lobby
 - DONE Teams
-- Spawning of players
-- Movement synced over network
+- DONE Spawning of players
+- Movement synced over network. Simplify movement after checking how sync should wrok
 - Fog of war
 - Reconnaissance action
 - Visible ghosts of acquired information

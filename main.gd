@@ -14,6 +14,8 @@ var local_playername: String
 var local_ready = false
 var local_team = 0
 
+var playerbase = {}
+
 var ticktimer: Timer = Timer.new()
 var tick: int = -1
 
@@ -21,7 +23,7 @@ var game_settings = Overseer.game_settings
 var port = game_settings["port"]
 var default_team = 0
 var hosting = false
-var playerbase = {}
+var launched = false
 var all_ready = false
 var all_in_team = false
 var team1_count = 0
@@ -39,7 +41,7 @@ func _ready():
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
-	
+	multiplayer.multiplayer_peer = peer
 	$Game.hide()
 	#TODO:connect game_over _on_game_over
 	ticktimer.connect("timeout", _on_tick)
@@ -63,21 +65,25 @@ func _process(delta):
 	$Menu/GridContainer2/GridContainer2/PlayerCount1.text = str(team1_count)
 	$Menu/GridContainer2/GridContainer2/PlayerCount2.text = str(team2_count)
 	if local_team == -1:
-		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = Color(0,0,1,1)
-		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = Color(1,0,0,1)
+		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = game_settings["blue"]
+		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = game_settings["red"]
 	elif local_team == 1:
-		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = Color(1,0,0,1)
-		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = Color(0,0,1,1)
+		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = game_settings["red"]
+		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = game_settings["blue"]
 	else:
 		all_in_team = false
-	if all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
+	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
 		launch(game_settings, playerbase)
+		launched = true
 
 func _on_connection_failed():
 	print("Connection failed")
 	infobox.text = infobox.text + "\nConnection failed"
 
 func _on_connected_to_server():
+	if game_settings["quick_launch"]:
+		local_team = 1
+		local_ready = true
 	announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
 	infobox.text += "\nJoined lobby"
 
@@ -86,6 +92,9 @@ func _on_server_disconnected():
 
 func _on_host_buttonpress():
 	if not hosting:
+		if game_settings["quick_launch"]:
+			local_ready = true
+			local_team = -1
 		add_child(serverinstance)
 		multiplayer.multiplayer_peer = peer
 		addressbox.text = "Lobby started!"
@@ -106,7 +115,6 @@ func _on_host_buttonpress():
 		local_id = 0
 
 func _on_join_buttonpress():
-	print(hosting)
 	if addressbox.text == "":
 		infobox.text = "Address field empty"
 		return
@@ -129,7 +137,7 @@ func upnp_setup():
 	print("Server IP: " + upnp.query_external_address())
 
 func launch(game_settings, playerbase):
-	$Game.reset(game_settings, playerbase)
+	$Game.reset(game_settings, playerbase, local_team)
 	$Menu.hide()
 	$Game.show()
 	
@@ -140,6 +148,8 @@ func _on_game_over(scoring):
 	
 @rpc("any_peer")
 func announce_player(multi_id, os_id, playername, is_ready: bool = false, team: int = get_team_least_players()):
+	if game_settings["quick_launch"]:
+		is_ready = true
 	if playername == "":
 		playername = "Landcuck " + str(multi_id)
 	update_player(multi_id,os_id,playername.left(16),is_ready,team)
@@ -178,7 +188,7 @@ func announce_message(multi_id, message):
 	pass
 
 func get_team_least_players():
-	var teamdelta = 1
+	var teamdelta = 0
 	for id in playerbase:
 		var player = playerbase[id]
 		teamdelta += player["team"]
@@ -192,8 +202,8 @@ func get_team_least_players():
 
 func _on_tick():
 	tick += 1
-	print("tick ", tick)
-	printraw(": lobbyists @ ", local_id, ": ", playerbase)
+	#print("tick ", tick)
+	#print(": lobbyists @ ", local_id, ": ", playerbase)
 	
 func _on_ready_button_toggled(toggle_position):
 	local_ready = !toggle_position

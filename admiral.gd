@@ -14,6 +14,7 @@ var speed = 0
 var speed_input = 0
 var accel = 0
 var click_position = Vector2.ZERO
+var spawn = Vector2.ZERO
 #TODO make visible duration timer
 
 
@@ -22,6 +23,10 @@ func _ready():
 	click_position = Vector2(position.x, position.y)
 	
 func _physics_process(delta):
+	if is_multiplayer_authority():
+		do_moves(delta)
+
+func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
 		click_position = get_global_mouse_position()
 	
@@ -50,11 +55,13 @@ func _physics_process(delta):
 			$Recon/Area.disabled = true
 
 func get_input():
-	speed_input = Input.get_axis("down", "up")
-	return speed_input
+	if is_multiplayer_authority():
+		speed_input = Input.get_axis("down", "up")
+		return speed_input
 
 func get_speed(delta):
-	speed_input = get_input()
+	if is_multiplayer_authority():
+			speed_input = get_input()
 	if speed_input == 0:
 		return(speed)
 	else: 
@@ -65,6 +72,18 @@ func get_speed(delta):
 
 	speed = clamp(speed, 0, MAX_SPEED)
 	return(speed)
+
+func init(id, playername, team, admiral_settings):
+	set_multiplayer_authority(id)
+	print(#multiplayer.get_unique_id(), 
+	" created Admiral ", playername, " instance for authority ", id)
+	if team == -1:
+		spawn = admiral_settings["spawn_east"] + Vector2(0,randf_range(-100,100))
+	else:
+		spawn = admiral_settings["spawn_west"] + Vector2(0,randf_range(-100,100))
+	global_position = spawn
+	print(position, is_multiplayer_authority())
+	pass
 
 func _on_damage(attack):
 	pass	
