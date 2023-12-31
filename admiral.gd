@@ -15,6 +15,10 @@ var speed_input = 0
 var accel = 0
 var click_position = Vector2.ZERO
 var spawn = Vector2.ZERO
+var game_settings
+var t_color
+var blue: bool
+
 #TODO make visible duration timer
 
 
@@ -23,8 +27,7 @@ func _ready():
 	click_position = Vector2(position.x, position.y)
 	
 func _physics_process(delta):
-	if is_multiplayer_authority():
-		do_moves(delta)
+	do_moves(delta)
 
 func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
@@ -55,13 +58,11 @@ func do_moves(delta):
 			$Recon/Area.disabled = true
 
 func get_input():
-	if is_multiplayer_authority():
-		speed_input = Input.get_axis("down", "up")
-		return speed_input
+	speed_input = Input.get_axis("down", "up")
+	return speed_input
 
 func get_speed(delta):
-	if is_multiplayer_authority():
-			speed_input = get_input()
+	speed_input = get_input()
 	if speed_input == 0:
 		return(speed)
 	else: 
@@ -73,20 +74,32 @@ func get_speed(delta):
 	speed = clamp(speed, 0, MAX_SPEED)
 	return(speed)
 
-func init(id, playername, team, admiral_settings):
+func init(id, playername, team, local_team, in_settings):
 	set_multiplayer_authority(id)
-	print(#multiplayer.get_unique_id(), 
-	" created Admiral ", playername, " instance for authority ", id)
-	if team == -1:
-		spawn = admiral_settings["spawn_east"] + Vector2(0,randf_range(-100,100))
+	game_settings = in_settings
+	if local_team == team:
+		t_color = game_settings["blue"]
+		blue = true
 	else:
-		spawn = admiral_settings["spawn_west"] + Vector2(0,randf_range(-100,100))
+		t_color = game_settings["red"]
+		blue = false
+	set_visual(blue)
+	if team == -1:
+		spawn = game_settings["admiral"]["spawn_east"] + Vector2(0,randf_range(-100,100))
+	else:
+		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,randf_range(-100,100))
 	global_position = spawn
-	print(position, is_multiplayer_authority())
+
 	pass
 
-func _on_damage(attack):
-	pass	
+func set_visual(blue: bool):
+	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
+	var nonblue_texture = load("res://Assets/ENEMIES8bit_Blob Idle.png")
+	
+	if blue:
+		$Sprite2D["texture"] = blue_texture
+	else:
+		$Sprite2D["texture"] = nonblue_texture
 
 func hide_self():
 	$Admiral.hide()

@@ -4,6 +4,8 @@ var port = Overseer.game_settings["port"]
 var max_clients = Overseer.game_settings["max_clients"]
 @onready var peer = ENetMultiplayerPeer.new()
 
+signal player_disconnected
+
 func _ready():
 	multiplayer.peer_connected.connect(peer_connected)
 	multiplayer.peer_disconnected.connect(peer_disconnected)
@@ -19,6 +21,7 @@ func peer_connected(id):
 	print("Client connected: ", id)
 
 func peer_disconnected(id):
+	player_disconnected.emit(id)
 	#TODO: $Game.retire_admiral(id)
 	print("Client disconnected: ", id)
 	

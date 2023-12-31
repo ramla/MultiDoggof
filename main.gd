@@ -42,6 +42,7 @@ func _ready():
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	multiplayer.multiplayer_peer = peer
+	serverinstance.connect("player_disconnected", _on_player_disconnected)
 	$Game.hide()
 	#TODO:connect game_over _on_game_over
 	ticktimer.connect("timeout", _on_tick)
@@ -89,6 +90,10 @@ func _on_connected_to_server():
 
 func _on_server_disconnected():
 	print("Disconnected from server")
+	
+func _on_player_disconnected(id):
+	$Game.handle_disconnected_player(id)
+	pass
 
 func _on_host_buttonpress():
 	if not hosting:
@@ -107,7 +112,7 @@ func _on_host_buttonpress():
 		update_player(local_id, local_osid, local_playername, local_ready, local_team)
 
 	else:
-		$Server.terminate()
+		serverinstance.terminate()
 		remove_child(serverinstance)
 		addressbox.text = ""
 		infobox.text = "Lobby closed"
