@@ -4,8 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
 
 [node name="Recon" type="Area2D"]
-collision_layer = 2
-collision_mask = 2
+collision_layer = 4
 script = ExtResource("1_d7dpn")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

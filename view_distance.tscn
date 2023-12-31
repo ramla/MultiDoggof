@@ -1,13 +1,16 @@
 [gd_scene load_steps=3 format=3 uid="uid://brpv0wwkkq08a"]
 
-[ext_resource type="Script" path="res://view_distance.gd" id="1_hupn0"]
+[ext_resource type="Texture2D" uid="uid://cuuqt4aggnbll" path="res://Assets/item8BIT_lamp.png" id="2_prr7c"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6oefe"]
 radius = 48.0104
 
 [node name="ViewDistance" type="Area2D"]
-collision_mask = 2
-script = ExtResource("1_hupn0")
+collision_layer = 0
+collision_mask = 0
 
 [node name="CollisionVisual" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_6oefe")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_prr7c")

@@ -82,7 +82,7 @@ func _on_connection_failed():
 	infobox.text = infobox.text + "\nConnection failed"
 
 func _on_connected_to_server():
-	if game_settings["quick_launch"]:
+	if Overseer.debug["quick_launch"]:
 		local_team = 1
 		local_ready = true
 	announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
@@ -97,7 +97,7 @@ func _on_player_disconnected(id):
 
 func _on_host_buttonpress():
 	if not hosting:
-		if game_settings["quick_launch"]:
+		if Overseer.debug["quick_launch"]:
 			local_ready = true
 			local_team = -1
 		add_child(serverinstance)
@@ -142,7 +142,7 @@ func upnp_setup():
 	print("Server IP: " + upnp.query_external_address())
 
 func launch(game_settings, playerbase):
-	$Game.reset(game_settings, playerbase, local_team)
+	$Game.reset(game_settings, playerbase, local_team, local_id)
 	$Menu.hide()
 	$Game.show()
 	
@@ -153,7 +153,7 @@ func _on_game_over(scoring):
 	
 @rpc("any_peer")
 func announce_player(multi_id, os_id, playername, is_ready: bool = false, team: int = get_team_least_players()):
-	if game_settings["quick_launch"]:
+	if Overseer.debug["quick_launch"]:
 		is_ready = true
 	if playername == "":
 		playername = "Landcuck " + str(multi_id)

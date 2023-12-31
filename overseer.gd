@@ -3,8 +3,13 @@
 extends Node
 
 #TODO: lataa tiedostosta
-var game_settings = {
+#TODO: tallenna tiedostoon jos serveri
+
+var debug = {
 	"quick_launch" = true, #to quickly launch a game from two instances
+	"wallhack" = false
+	}
+var game_settings = {
 	"pre_round_length" = 5,
 	"round_length" = 15,
 	"post_round_length" = 5,

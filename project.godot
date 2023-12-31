@@ -19,6 +19,10 @@ config/icon="res://icon.svg"
 
 Overseer="*res://overseer.gd"
 
+[debug]
+
+gdscript/warnings/renamed_in_godot_4_hint=false
+
 [input]
 
 up={
@@ -75,5 +79,8 @@ toggle_radar={
 2d_render/layer_4="enemies"
 2d_render/layer_5="magic"
 2d_render/layer_6="los"
-2d_physics/layer_1="physical"
-2d_physics/layer_2="visual"
+2d_physics/layer_1="Terrain"
+2d_physics/layer_2="Player"
+2d_physics/layer_3="Ally"
+2d_physics/layer_4="Enemy"
+2d_physics/layer_5="Mission"

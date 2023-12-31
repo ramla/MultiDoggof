@@ -28,11 +28,12 @@ func _ready():
 func _process(delta):
 	pass
 
-func reset(new_game_settings,new_admirals,new_local_team):
+func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 	for n in $Admirals.get_children():
 		$Admirals.remove_child(n)
 	game_settings = new_game_settings
 	local_team = new_local_team
+	local_id = in_local_id
 	if local_team == -1:
 		t1_color = game_settings["blue"]
 		t2_color = game_settings["red"]
@@ -43,6 +44,7 @@ func reset(new_game_settings,new_admirals,new_local_team):
 	spawn(new_admirals)
 	$HUD.show()
 	running = true
+	#start_round_timer_chain()
 	return
 	
 func spawn(new_admirals):
@@ -50,11 +52,10 @@ func spawn(new_admirals):
 		var admiral = new_admirals[id]
 		var admiral_instance = admiral_scene.instantiate()
 		#TODO: if no team, kick or spectate (game setting)
-		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, game_settings)
+		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
 	return
-
 
 func _on_successful_attack(attack):
 	pass
