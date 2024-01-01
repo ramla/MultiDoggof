@@ -6,7 +6,8 @@ extends Node
 
 var debug = {
 	"quick_launch" = true, #to quickly launch a game from two instances
-	"wallhack" = false
+	"wallhack" = false,
+	"pace_up" = true,
 	}
 var game_settings = {
 	"pre_round_length" = 5,
@@ -20,5 +21,7 @@ var game_settings = {
 		"admiral" = {
 			"spawn_east" = Vector2(640,320),
 			"spawn_west" = Vector2(450,320),
-		}
+			"fog_of_war_speed" = 2,
+			"max_speed" = 50,
+		},
 	}

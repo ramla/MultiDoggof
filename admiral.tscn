@@ -39,8 +39,5 @@ shape = SubResource("CircleShape2D_q7fj7")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_aiu2a")
 
-[node name="FogOfWarTimer" type="Timer" parent="."]
-
 [connection signal="body_entered" from="ViewDistance" to="." method="_on_view_distance_body_entered"]
 [connection signal="body_exited" from="ViewDistance" to="." method="_on_view_distance_body_exited"]
-[connection signal="timeout" from="FogOfWarTimer" to="." method="_on_fog_of_war_timer_timeout"]

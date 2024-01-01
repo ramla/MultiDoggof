@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d18euxyroaj3h"]
+
+[ext_resource type="Script" path="res://fog_of_war_timer.gd" id="1_usrpn"]
+
+[node name="FogOfWarTimer" type="Timer"]
+script = ExtResource("1_usrpn")

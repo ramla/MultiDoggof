@@ -11,6 +11,7 @@ anchors_preset = 0
 script = ExtResource("1_v1c2x")
 
 [node name="Game" parent="." instance=ExtResource("2_c63ru")]
+visible = false
 
 [node name="Menu" type="MarginContainer" parent="."]
 layout_mode = 0

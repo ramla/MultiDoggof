@@ -5,12 +5,12 @@ signal destroyed
 var is_destroyed: bool = true
 
 #later get from instantiation call
-const MAX_SPEED = 50
+var max_speed = 50
 const MAX_ACCEL = 100
 const MAX_DECEL = 50
 const MAX_RATE = PI/10
 
-var speed = 0
+var speed = 10
 var speed_input = 0
 var accel = 0
 var click_position = Vector2.ZERO
@@ -25,8 +25,11 @@ var is_player
 var is_ally
 var is_enemy
 
+var timer_scene = preload("res://fog_of_war_timer.tscn")
+var fow_timer_instantiated = timer_scene.instantiate()
+var fog_of_war_timers: Dictionary = {}
+
 @onready var admirals = get_parent().get_parent().admirals
-@onready var fog_of_war_timer = get_node("FogOfWarTimer")
 @onready var view_distance = get_node("ViewDistance")
 
 #TODO make visible duration timer 
@@ -36,7 +39,6 @@ var is_enemy
 func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
-	print(get_parent())
 
 func _physics_process(delta):
 	do_moves(delta)
@@ -85,7 +87,7 @@ func get_speed(delta):
 		else:
 			speed += (delta * speed_input * MAX_DECEL)
 
-	speed = clamp(speed, 0, MAX_SPEED)
+	speed = clamp(speed, 10, max_speed)
 	return(speed)
 
 func init(id, in_playername, team, local_team, in_local_id, in_settings):
@@ -94,6 +96,8 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	entity_id = id
 	local_id = in_local_id
 	entity_playername = in_playername
+	if Overseer.debug["pace_up"]:
+		max_speed = max_speed * 2
 	if local_id == entity_id:
 		blue = true
 		is_player = true
@@ -144,22 +148,30 @@ func apply_fog_of_war():
 		$ViewDistance/Sprite2D.show()
 	return
 
-func _on_fog_of_war_timer_timeout(spotted_entity_id):
+func _on_return_fog_of_war(seen_entity_id):
 	print("FOW timer activation on ", entity_id, " at ", local_id)
-	fog_of_war_timer.stop()
-	admirals[spotted_entity_id].hide()
+	admirals[seen_entity_id].hide()
 	if Overseer.debug["wallhack"]:
-		admirals[spotted_entity_id].show()
+		admirals[seen_entity_id].show()
 
 func _on_view_distance_body_entered(body):
 	var spotted_entity_id = body.entity_id
-	print(spotted_entity_id, " been spotted by ", entity_id)
-	if !body.is_player:
+	print(spotted_entity_id, " been spotted by ", entity_id, " (body= ", body, "), body.get_owner() = ", body.get_owner())
+	if entity_id != spotted_entity_id:
 		admirals[spotted_entity_id].show()
 	else: print("should this really happen?")
 		#TODO: save direction & speed for ghost estimate?
 
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
-	fog_of_war_timer.start(spotted_entity_id)
+	print(spotted_entity_id, " left line of sight of ", entity_id)
+	if entity_id != spotted_entity_id:
+		if !fog_of_war_timers.has(spotted_entity_id):
+			self.add_child(fow_timer_instantiated)
+			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
+			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
+			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
+			print("connected ", spotted_entity_id, " fog of war")
+		fog_of_war_timers[spotted_entity_id].start()
+		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 	return

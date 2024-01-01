@@ -38,7 +38,9 @@ func _ready():
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	serverinstance.connect("player_disconnected", _on_player_disconnected)
-	$Game.hide()
+	if Overseer.debug["pace_up"]:
+		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
+		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
 	ticktimer.connect("timeout", _on_tick)
 	ticktimer.wait_time = 5
 	add_child(ticktimer)
