@@ -10,9 +10,9 @@ Initial locked in goals before adding major new ones:
 - DONE Spawning of players
 - DONE Movement synced over network. (MOVED TO FUTURE TODO: Simplify movement)
 - DONE Fog of war
-- Reconnaissance action
+- DONE Reconnaissance action
 - Visible ghosts of acquired information
 - Basic objectives
-- Attack action
+- HALFWAY THERE Attack action
 - Scorekeeping
 - Return to lobby
