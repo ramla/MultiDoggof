@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://dpcinvvi3iuq2"]
+
+[ext_resource type="Script" path="res://attack_mission.gd" id="1_6r3ls"]
+[ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="2_ocqwc"]
+
+[node name="AttackMission" type="Area2D"]
+collision_layer = 0
+collision_mask = 0
+script = ExtResource("1_6r3ls")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(77, 1)
+rotation = 1.5708
+scale = Vector2(4, 4)
+texture = ExtResource("2_ocqwc")
+
+[node name="Area" type="CollisionPolygon2D" parent="."]
+position = Vector2(-1, -1)
+scale = Vector2(1.5, 1.5)
+polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
+disabled = true

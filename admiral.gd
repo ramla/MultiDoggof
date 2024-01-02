@@ -9,6 +9,7 @@ var max_speed = 50
 const MAX_ACCEL = 100
 const MAX_DECEL = 50
 const MAX_RATE = PI/10
+var health = 3
 
 var speed = 10
 var speed_input = 0
@@ -30,9 +31,11 @@ var fow_timer_instantiated = timer_scene.instantiate()
 var fog_of_war_timers: Dictionary = {}
 
 @onready var admirals = get_parent().get_parent().admirals
-@onready var recon_area = $Recon/Area
+@onready var recon_area = $ReconMission/Area
 var view_distance: Area2D
 var recon: Area2D
+@onready var attack_area = $AttackMission/Area
+var attack: Area2D
 
 func _ready():
 	is_destroyed = false
@@ -40,6 +43,9 @@ func _ready():
 
 func _physics_process(delta):
 	do_moves(delta)
+	if is_player: 
+		recon_action()
+		attack_action()
 
 func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
@@ -52,8 +58,6 @@ func do_moves(delta):
 		velocity = target_position * speed
 		move_and_slide()
 		look_at(click_position)
-	
-	recon_action()
 
 func recon_action():
 	if Input.is_action_pressed("recon_action"):
@@ -67,6 +71,17 @@ func recon_action():
 	else:
 		recon.visible = false
 		recon_area.disabled = true
+
+func attack_action():
+	if Input.is_action_pressed("attack_action"):
+		attack.visible = true
+		attack_area.disabled = true
+		attack.look_at(get_global_mouse_position())
+		if Input.is_action_just_pressed("action_click"):
+			attack_area.disabled = false
+	else:
+		attack.visible = false
+		attack_area.disabled = true
 
 func get_input():
 	speed_input = Input.get_axis("down", "up")
@@ -92,10 +107,14 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	entity_playername = in_playername
 	set_multiplayer_authority(entity_id)
 	view_distance = $ViewDistance
-	recon = $Recon
+	recon = $ReconMission
+	attack = $AttackMission
+	recon.visible = false
+	attack.visible = false
 	if Overseer.debug["pace_up"]:
 		max_speed = max_speed * 2
 	recon.connect("body_entered", _on_recon_body_entered)
+	attack.connect("body_entered", _on_attack_body_entered)
 	view_distance.connect("body_entered", _on_view_distance_body_entered)
 	view_distance.connect("body_exited", _on_view_distance_body_exited)
 	print(view_distance)
@@ -106,6 +125,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 2
 		view_distance.collision_mask = 12
 		recon.collision_mask = 12
+		attack.collision_mask = 12
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -113,6 +133,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 4
 		view_distance.collision_mask = 8
 		recon.collision_mask = 8
+		attack.collision_mask = 8
 	else:
 		blue = false
 		is_enemy = true
@@ -120,6 +141,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 8
 		view_distance.collision_mask = 16
 		recon.collision_mask = 16
+		attack.collision_mask = 16
 	set_visual(blue)
 	if team == -1:
 		spawn = game_settings["admiral"]["spawn_east"] + Vector2(0,randf_range(-100,100))
@@ -186,3 +208,24 @@ func _on_recon_body_entered(body):
 		fog_of_war_timers[spotted_entity_id].start()
 		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 	else: print("should this really happen? (recon)")
+
+func _on_attack_body_entered(body):
+	var spotted_entity_id = body.entity_id
+	print(spotted_entity_id, "'s attacker spotted ", entity_id)
+	if entity_id != spotted_entity_id:
+		take_damage.rpc_id(spotted_entity_id, spotted_entity_id)
+	else: print("should this really happen? (attack)")
+
+@rpc("call_local")
+func take_damage(in_id):
+	health -= 1
+	if health <= 0:
+		is_destroyed = true
+		destroyed.emit()
+		print("!!!!! ", in_id, " has been destroyed!")
+		#TODO:next up cooldown timers, 
+			#spotting while attacking, 
+			#delay on recon/attack effect
+			#finish destroyed effect
+			#
+			#get to the ghosts
