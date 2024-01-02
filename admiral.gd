@@ -31,9 +31,8 @@ var fow_timer_instantiated = timer_scene.instantiate()
 var fog_of_war_timers: Dictionary = {}
 
 @onready var admirals = get_parent().get_parent().admirals
-@onready var recon_area = $ReconMission/Area
 var view_distance: Area2D
-var recon: Area2D
+var recon_mission: Area2D
 @onready var attack_area = $AttackMission/Area
 var attack: Area2D
 
@@ -60,17 +59,17 @@ func do_moves(delta):
 		look_at(click_position)
 
 func recon_action():
-	if Input.is_action_pressed("recon_action"):
-		recon.visible = true
-		recon_area.disabled = true
-		recon.look_at(get_global_mouse_position())
+	if Input.is_action_pressed("recon_action") && recon_mission.is_ready():
+		recon_mission.visible = true
+		recon_mission.area.disabled = true
+		recon_mission.look_at(get_global_mouse_position())
 		if Input.is_action_just_pressed("action_click"):
-			recon_area.disabled = false
-			#$Recon.position = Vector2.ZERO
-			#recon timer here
+			recon_mission.area.disabled = false
+			#$recon_mission.position = Vector2.ZERO
+			#recon_mission_timer? (until landing necessary)
 	else:
-		recon.visible = false
-		recon_area.disabled = true
+		recon_mission.visible = false
+		recon_mission.area.disabled = true
 
 func attack_action():
 	if Input.is_action_pressed("attack_action"):
@@ -107,13 +106,13 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	entity_playername = in_playername
 	set_multiplayer_authority(entity_id)
 	view_distance = $ViewDistance
-	recon = $ReconMission
+	recon_mission = $ReconMission
 	attack = $AttackMission
-	recon.visible = false
+	recon_mission.visible = false
 	attack.visible = false
 	if Overseer.debug["pace_up"]:
 		max_speed = max_speed * 2
-	recon.connect("body_entered", _on_recon_body_entered)
+	recon_mission.connect("body_entered", _on_recon_body_entered)
 	attack.connect("body_entered", _on_attack_body_entered)
 	view_distance.connect("body_entered", _on_view_distance_body_entered)
 	view_distance.connect("body_exited", _on_view_distance_body_exited)
@@ -124,7 +123,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		t_color = game_settings["blue"]
 		self.collision_layer = 2
 		view_distance.collision_mask = 12
-		recon.collision_mask = 12
+		recon_mission.collision_mask = 12
 		attack.collision_mask = 12
 	elif local_team == team:
 		blue = true
@@ -132,7 +131,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		t_color = game_settings["blue"]
 		self.collision_layer = 4
 		view_distance.collision_mask = 8
-		recon.collision_mask = 8
+		recon_mission.collision_mask = 8
 		attack.collision_mask = 8
 	else:
 		blue = false
@@ -140,7 +139,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		t_color = game_settings["red"]
 		self.collision_layer = 8
 		view_distance.collision_mask = 16
-		recon.collision_mask = 16
+		recon_mission.collision_mask = 16
 		attack.collision_mask = 16
 	set_visual(blue)
 	if team == -1:

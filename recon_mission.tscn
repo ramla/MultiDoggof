@@ -20,5 +20,8 @@ scale = Vector2(1.5, 1.5)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 
-[node name="Timer" type="Timer" parent="."]
+[node name="CooldownTimer" type="Timer" parent="."]
+wait_time = 1.015
+
+[node name="MissionTimer" type="Timer" parent="."]
 wait_time = 1.015

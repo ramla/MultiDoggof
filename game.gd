@@ -56,7 +56,7 @@ func spawn(new_admirals):
 func handle_disconnected_player(id):
 	if running:
 		$Admirals.remove_child(admirals[id])
-	
+
 func _on_postround_end():
 	$HUD.hide()
 	running = false

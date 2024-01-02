@@ -23,5 +23,9 @@ var game_settings = {
 			"spawn_west" = Vector2(450,320),
 			"fog_of_war_speed" = 2,
 			"max_speed" = 50,
+			"recon_cooldown" = 6,
+			"attack_cooldown" = 14,
+			"recon_squads" = 2,
+			"attack_squads" = 2,
 		},
 	}

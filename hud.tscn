@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://dcfhkjpwaede7"]
+
+[ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
+[ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="2_7irwg"]
+
+[node name="HUD" type="CanvasLayer"]
+
+[node name="ReconIcon" type="Sprite2D" parent="."]
+position = Vector2(548, 0)
+scale = Vector2(2, 2)
+texture = ExtResource("1_v6nix")
+offset = Vector2(0, 16)
+
+[node name="AttackIcon" type="Sprite2D" parent="."]
+position = Vector2(586, 0)
+scale = Vector2(2, 2)
+texture = ExtResource("2_7irwg")
+offset = Vector2(0, 16)
