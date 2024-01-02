@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://dcfhkjpwaede7"]
+[gd_scene load_steps=4 format=3 uid="uid://dcfhkjpwaede7"]
 
+[ext_resource type="Script" path="res://hud.gd" id="1_47ykm"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="2_7irwg"]
 
 [node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_47ykm")
 
 [node name="ReconIcon" type="Sprite2D" parent="."]
 position = Vector2(548, 0)
@@ -16,3 +18,11 @@ position = Vector2(586, 0)
 scale = Vector2(2, 2)
 texture = ExtResource("2_7irwg")
 offset = Vector2(0, 16)
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+offset_left = 512.0
+offset_top = 53.0
+offset_right = 630.0
+offset_bottom = 80.0
+max_value = 3.0
+step = 1.0

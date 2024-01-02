@@ -39,10 +39,8 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 		t2_color = game_settings["blue"]
 	
 	spawn(new_admirals)
-	$HUD.show()
 	running = true
 	#start_round_timer_chain()
-	return
 
 func spawn(new_admirals):
 	for id in new_admirals:
@@ -51,16 +49,13 @@ func spawn(new_admirals):
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
-	return
 
 func handle_disconnected_player(id):
 	if running:
 		$Admirals.remove_child(admirals[id])
 
 func _on_postround_end():
-	$HUD.hide()
 	running = false
 	#TODO:
 #	$Scorekeeper.get_round_results(scoring)
 #	game_over.emit(scoring)
-	pass

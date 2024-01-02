@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://c3ym1pshojv58"]
+[gd_scene load_steps=9 format=3 uid="uid://c3ym1pshojv58"]
 
 [ext_resource type="Script" path="res://admiral.gd" id="1_p1akf"]
 [ext_resource type="Texture2D" uid="uid://bo6r0w1yv88wu" path="res://Assets/HEROS8bit_Dog Idle D.png" id="2_ip6h3"]
 [ext_resource type="PackedScene" uid="uid://brpv0wwkkq08a" path="res://view_distance.tscn" id="3_pav7m"]
 [ext_resource type="PackedScene" uid="uid://dujquj8r863hi" path="res://recon_mission.tscn" id="4_tq24g"]
 [ext_resource type="PackedScene" uid="uid://dpcinvvi3iuq2" path="res://attack_mission.tscn" id="5_rdfb7"]
+[ext_resource type="PackedScene" uid="uid://dcfhkjpwaede7" path="res://hud.tscn" id="6_367wo"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_q7fj7"]
 radius = 6.0
@@ -40,6 +41,8 @@ shape = SubResource("CircleShape2D_q7fj7")
 [node name="ReconMission" parent="." instance=ExtResource("4_tq24g")]
 
 [node name="AttackMission" parent="." instance=ExtResource("5_rdfb7")]
+
+[node name="HUD" parent="." instance=ExtResource("6_367wo")]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_aiu2a")

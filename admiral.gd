@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 signal destroyed
+signal damage_taken(int)
 
 var is_destroyed: bool = true
 
@@ -64,7 +65,7 @@ func recon_action():
 		recon_mission.area.disabled = true
 		recon_mission.look_at(get_global_mouse_position())
 		if Input.is_action_just_pressed("action_click"):
-			recon_mission.area.disabled = false
+			recon_mission.order_recon_mission()
 			#$recon_mission.position = Vector2.ZERO
 			#recon_mission_timer? (until landing necessary)
 	else:
@@ -218,12 +219,12 @@ func _on_attack_body_entered(body):
 @rpc("call_local")
 func take_damage(in_id):
 	health -= 1
+	if in_id == local_id: damage_taken.emit(1)
 	if health <= 0:
 		is_destroyed = true
 		destroyed.emit()
 		print("!!!!! ", in_id, " has been destroyed!")
 		#TODO:next up cooldown timers, 
-			#spotting while attacking, 
 			#delay on recon/attack effect
 			#finish destroyed effect
 			#
