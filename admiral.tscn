@@ -21,7 +21,6 @@ properties/2/replication_mode = 1
 
 [node name="Admiral" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 0
-collision_mask = 0
 script = ExtResource("1_p1akf")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -38,6 +37,3 @@ shape = SubResource("CircleShape2D_q7fj7")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_aiu2a")
-
-[connection signal="body_entered" from="ViewDistance" to="." method="_on_view_distance_body_entered"]
-[connection signal="body_exited" from="ViewDistance" to="." method="_on_view_distance_body_exited"]

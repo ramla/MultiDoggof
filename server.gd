@@ -28,4 +28,5 @@ func peer_disconnected(id):
 func terminate():
 	print("Terminating server")
 	#TODO: disconnect/inform clients before terminating
+	
 	peer.close()
