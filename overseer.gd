@@ -24,8 +24,10 @@ var game_settings = {
 			"fog_of_war_speed" = 2,
 			"max_speed" = 50,
 			"recon_cooldown" = 1,
+			"recon_wings" = 2,
+			"recon_fuel" = 12,
 			"attack_cooldown" = 3,
-			"recon_squads" = 2,
-			"attack_squads" = 2,
+			"attack_wings" = 2,
+			"attack_fuel" = 10,
 		},
 	}

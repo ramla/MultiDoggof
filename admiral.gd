@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-signal destroyed
+signal destroyed(destroyed_id)
 signal damage_taken(int)
 
 var is_destroyed: bool = true
@@ -34,18 +34,32 @@ var fog_of_war_timers: Dictionary = {}
 @onready var admirals = get_parent().get_parent().admirals
 var view_distance: Area2D
 var recon_mission: Area2D
+var attack_mission: Area2D
 @onready var attack_area = $AttackMission/Area
-var attack: Area2D
 
 func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
 
-func _physics_process(delta):
-	do_moves(delta)
+func _unhandled_input(event):
 	if is_player: 
-		recon_action()
-		attack_action()
+		if Input.is_action_pressed("recon_action") && recon_mission.is_ready():
+			recon_mission.plan_recon_mission()
+			if Input.is_action_just_pressed("action_click"):
+				recon_mission.order_recon_mission()
+		else: recon_mission.visible = false
+		if Input.is_action_pressed("attack_action"):
+			attack_mission.plan_attack_mission()
+			if Input.is_action_just_pressed("action_click"):
+				attack_mission.order_attack_mission()
+		else: attack_mission.visible = false
+	#koska ei rpc, ei tu kuvii toisille clienteille?
+	speed_input = Input.get_axis("down", "up")
+	return speed_input
+
+func _physics_process(delta):
+	if !is_destroyed:
+		do_moves(delta)
 
 func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
@@ -59,36 +73,7 @@ func do_moves(delta):
 		move_and_slide()
 		look_at(click_position)
 
-func recon_action():
-	if Input.is_action_pressed("recon_action") && recon_mission.is_ready():
-		recon_mission.visible = true
-		recon_mission.area.disabled = true
-		recon_mission.look_at(get_global_mouse_position())
-		if Input.is_action_just_pressed("action_click"):
-			recon_mission.order_recon_mission()
-			#$recon_mission.position = Vector2.ZERO
-			#recon_mission_timer? (until landing necessary)
-	else:
-		recon_mission.visible = false
-		recon_mission.area.disabled = true
-
-func attack_action():
-	if Input.is_action_pressed("attack_action"):
-		attack.visible = true
-		attack_area.disabled = true
-		attack.look_at(get_global_mouse_position())
-		if Input.is_action_just_pressed("action_click"):
-			attack_area.disabled = false
-	else:
-		attack.visible = false
-		attack_area.disabled = true
-
-func get_input():
-	speed_input = Input.get_axis("down", "up")
-	return speed_input
-
 func get_speed(delta):
-	speed_input = get_input()
 	if speed_input == 0:
 		return(speed)
 	else: 
@@ -106,15 +91,16 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	local_id = in_local_id
 	entity_playername = in_playername
 	set_multiplayer_authority(entity_id)
+	is_destroyed = false
 	view_distance = $ViewDistance
 	recon_mission = $ReconMission
-	attack = $AttackMission
+	attack_mission = $AttackMission
 	recon_mission.visible = false
-	attack.visible = false
+	attack_mission.visible = false
 	if Overseer.debug["pace_up"]:
 		max_speed = max_speed * 2
 	recon_mission.connect("body_entered", _on_recon_body_entered)
-	attack.connect("body_entered", _on_attack_body_entered)
+	attack_mission.connect("body_entered", _on_attack_body_entered)
 	view_distance.connect("body_entered", _on_view_distance_body_entered)
 	view_distance.connect("body_exited", _on_view_distance_body_exited)
 	print(view_distance)
@@ -125,7 +111,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 2
 		view_distance.collision_mask = 12
 		recon_mission.collision_mask = 12
-		attack.collision_mask = 12
+		attack_mission.collision_mask = 12
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -133,7 +119,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 4
 		view_distance.collision_mask = 8
 		recon_mission.collision_mask = 8
-		attack.collision_mask = 8
+		attack_mission.collision_mask = 8
 	else:
 		blue = false
 		is_enemy = true
@@ -141,8 +127,8 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		self.collision_layer = 8
 		view_distance.collision_mask = 16
 		recon_mission.collision_mask = 16
-		attack.collision_mask = 16
-	set_visual(blue)
+		attack_mission.collision_mask = 16
+	set_visual()
 	if team == -1:
 		spawn = game_settings["admiral"]["spawn_east"] + Vector2(0,randf_range(-100,100))
 	else:
@@ -152,14 +138,22 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		apply_fog_of_war()
 	print("Init done @ ", local_id, ". Self: ", self, ", team: ", team, ", local_team: ", local_team)
 
-func set_visual(is_blue: bool):
+func set_visual():
 	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
 	var nonblue_texture = load("res://Assets/ENEMIES8bit_Blob Idle.png")
+	var destroyed_blue_texture = load("res://Assets/item8BIT_skull_blue.png")
+	var destroyed_nonblue_texture = load("res://Assets/item8BIT_skull_nonblue.png")
 	
-	if is_blue:
-		$Sprite2D["texture"] = blue_texture
+	if !is_destroyed:
+		if blue:
+			$Sprite2D["texture"] = blue_texture
+		else:
+			$Sprite2D["texture"] = nonblue_texture
 	else:
-		$Sprite2D["texture"] = nonblue_texture
+		if blue:
+			$Sprite2D["texture"] = destroyed_blue_texture
+		else:
+			$Sprite2D["texture"] = destroyed_nonblue_texture
 
 func apply_fog_of_war():
 	#print("FOW active on ", entity_id, " at ", local_id)
@@ -222,10 +216,16 @@ func take_damage(in_id):
 	if in_id == local_id: damage_taken.emit(1)
 	if health <= 0:
 		is_destroyed = true
-		destroyed.emit()
+		on_destroyed(in_id)
 		print("!!!!! ", in_id, " has been destroyed!")
-		#TODO:next up cooldown timers, 
+		#TODO:next up
 			#delay on recon/attack effect
 			#finish destroyed effect
 			#
 			#get to the ghosts
+@rpc("call_local")
+func on_destroyed(destroyed_id):
+	destroyed.emit(destroyed_id)
+	set_visual()
+		#BUG: nobody get destroyed
+		#	& view distance doesn't stick
