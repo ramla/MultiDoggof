@@ -23,6 +23,7 @@ var game_settings = {
 			"spawn_west" = Vector2(450,320),
 			"fog_of_war_speed" = 2,
 			"max_speed" = 50,
+			"plane_speed_multiplier" = 1,
 			"recon_cooldown" = 1,
 			"recon_wings" = 2,
 			"recon_fuel" = 12,

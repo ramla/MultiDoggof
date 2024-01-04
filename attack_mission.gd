@@ -18,15 +18,18 @@ const REARMING = 7
 var air_wing_state = {}
 var air_wing_fuel = Overseer.game_settings["admiral"]["attack_fuel"]
 
-
 @onready var cooldown_timer = get_node("CooldownTimer")
 @onready var area = get_node("Area")
+@onready var area_timer = get_node("AreaTimer")
 
 func _ready():
 	cooldown_timer.connect("timeout", _on_cooldown_timer_timeout)
 	cooldown_timer.one_shot = true
 	cooldown_timer.wait_time = Overseer.game_settings["admiral"]["attack_cooldown"]
 	cooldown_timer.start()
+	area_timer.connect("timeout", _on_area_timer_timeout)
+	area_timer.one_shot = true
+	area_timer.wait_time = 0.3
 	print("attack_mission init ready!")
 	for wings in air_wing_state:
 		air_wing_state[str()] = 1
@@ -49,8 +52,12 @@ func order_attack_mission():
 		cooldown_timer.start()
 		cooldown_ready = false
 		area.disabled = false
+		area_timer.start()
 		visible = false
 		print("attack mission takes off")
+
+func _on_area_timer_timeout():
+	area.disabled = true
 
 func is_ready():
 	return cooldown_ready

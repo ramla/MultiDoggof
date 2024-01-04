@@ -47,12 +47,20 @@ func _unhandled_input(event):
 			recon_mission.plan_recon_mission()
 			if Input.is_action_just_pressed("action_click"):
 				recon_mission.order_recon_mission()
+				get_window().set_input_as_handled()
+			get_window().set_input_as_handled()
 		else: recon_mission.visible = false
 		if Input.is_action_pressed("attack_action"):
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click"):
 				attack_mission.order_attack_mission()
+				get_window().set_input_as_handled()
+			get_window().set_input_as_handled()
 		else: attack_mission.visible = false
+		if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
+			pass		
+		elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
+			pass
 	#koska ei rpc, ei tu kuvii toisille clienteille?
 	speed_input = Input.get_axis("down", "up")
 	return speed_input
@@ -174,7 +182,8 @@ func _on_view_distance_body_entered(body):
 		admirals[spotted_entity_id].show()
 	else: print("should this really happen? (view_distacne)")
 		#TODO: save direction & speed for ghost estimate?
-
+		#BUG	view distance doesn't stick
+		
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
 	print(spotted_entity_id, " left line of sight of ", entity_id)
@@ -215,17 +224,15 @@ func take_damage(in_id):
 	health -= 1
 	if in_id == local_id: damage_taken.emit(1)
 	if health <= 0:
-		is_destroyed = true
-		on_destroyed(in_id)
-		print("!!!!! ", in_id, " has been destroyed!")
+		destroy.rpc(in_id)
 		#TODO:next up
 			#delay on recon/attack effect
 			#finish destroyed effect
 			#
 			#get to the ghosts
 @rpc("call_local")
-func on_destroyed(destroyed_id):
-	destroyed.emit(destroyed_id)
+func destroy(destroyed_id):
+	is_destroyed = true
 	set_visual()
-		#BUG: nobody get destroyed
-		#	& view distance doesn't stick
+	print("!!!!! ", destroyed_id, " has been destroyed!")
+

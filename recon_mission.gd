@@ -19,6 +19,7 @@ var air_wing_state = {}
 var air_wing_fuel = Overseer.game_settings["admiral"]["recon_fuel"]
 
 
+@onready var animation_node = get_node("AnimationPlayer")
 @onready var cooldown_timer = get_node("CooldownTimer")
 @onready var area = get_node("Area")
 
@@ -27,6 +28,8 @@ func _ready():
 	cooldown_timer.one_shot = true
 	cooldown_timer.wait_time = Overseer.game_settings["admiral"]["recon_cooldown"]
 	cooldown_timer.start()
+	animation_node.connect("animation_finished", _on_animation_finished)
+	animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
 	print("recon_mission init ready!")
 	for wings in air_wing_state:
 		air_wing_state[str()] = 1
@@ -34,6 +37,10 @@ func _ready():
 func _on_cooldown_timer_timeout():
 	print("recon cooldownready")
 	cooldown_ready = true
+
+func _on_animation_finished(anim_name):
+	print("recon mission over")
+	cooldown_timer.start()
 
 func plan_recon_mission():
 	if cooldown_ready:
@@ -46,8 +53,7 @@ func plan_recon_mission():
 
 func order_recon_mission():
 	if cooldown_ready == true:
-		recon_mission_takeoff.emit(cooldown_timer.wait_time)
-		cooldown_timer.start()
+		animation_node.play("recon")
 		cooldown_ready = false
 		area.disabled = false
 		visible = false
