@@ -20,78 +20,88 @@ offset_top = 29.0
 offset_right = 629.0
 offset_bottom = 278.0
 
-[node name="GridContainer2" type="GridContainer" parent="Menu"]
+[node name="GridContainer" type="GridContainer" parent="Menu"]
+layout_mode = 2
+
+[node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="GridContainer" type="GridContainer" parent="Menu/GridContainer2"]
+[node name="GridContainer" type="GridContainer" parent="Menu/GridContainer/GridContainer2"]
 layout_mode = 2
 columns = 3
 
-[node name="JoinButton" type="MenuButton" parent="Menu/GridContainer2/GridContainer"]
+[node name="JoinButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 text = "Join"
 
-[node name="HostButton" type="MenuButton" parent="Menu/GridContainer2/GridContainer"]
+[node name="HostButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 text = "Host"
 
-[node name="NameTextBox" type="LineEdit" parent="Menu/GridContainer2/GridContainer"]
+[node name="NameTextBox" type="LineEdit" parent="Menu/GridContainer/GridContainer2/GridContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 placeholder_text = "I am called..."
 max_length = 16
 
-[node name="AddressTextBox" type="LineEdit" parent="Menu/GridContainer2/GridContainer"]
+[node name="AddressTextBox" type="LineEdit" parent="Menu/GridContainer/GridContainer2/GridContainer"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
 text = "127.0.0.1"
 placeholder_text = "I wish to join IP..."
 max_length = 15
 
-[node name="ReadyButton" type="CheckButton" parent="Menu/GridContainer2/GridContainer"]
+[node name="ReadyButton" type="CheckButton" parent="Menu/GridContainer/GridContainer2/GridContainer"]
 layout_mode = 2
 button_pressed = true
 text = "Hesitate"
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Menu/GridContainer2"]
-custom_minimum_size = Vector2(400, 0)
-layout_mode = 2
-
-[node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer2"]
+[node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer/GridContainer2"]
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 3
 
-[node name="MenuButton" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="MenuButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 layout_mode = 2
 text = "I shall"
 
-[node name="ProgressButton" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="ProgressButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/pressed = SubResource("StyleBoxFlat_yy1td")
 text = "Progress"
 
-[node name="PlayerCount1" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="PlayerCount1" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "0"
 
-[node name="MenuButton2" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="MenuButton2" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 layout_mode = 2
 
-[node name="FurtherButton" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="FurtherButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Further"
 
-[node name="PlayerCount2" type="MenuButton" parent="Menu/GridContainer2/GridContainer2"]
+[node name="PlayerCount2" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "0"
 
-[connection signal="button_up" from="Menu/GridContainer2/GridContainer/JoinButton" to="." method="_on_join_buttonpress"]
-[connection signal="button_up" from="Menu/GridContainer2/GridContainer/HostButton" to="." method="_on_host_buttonpress"]
-[connection signal="toggled" from="Menu/GridContainer2/GridContainer/ReadyButton" to="." method="_on_ready_button_toggled"]
-[connection signal="button_up" from="Menu/GridContainer2/GridContainer2/ProgressButton" to="." method="_on_team_select" binds= [-1]]
-[connection signal="button_up" from="Menu/GridContainer2/GridContainer2/FurtherButton" to="." method="_on_team_select" binds= [1]]
+[node name="Infobox" type="RichTextLabel" parent="Menu/GridContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(400, 530)
+layout_mode = 2
+
+[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer/JoinButton" to="." method="_on_join_buttonpress"]
+[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer/HostButton" to="." method="_on_host_buttonpress"]
+[connection signal="toggled" from="Menu/GridContainer/GridContainer2/GridContainer/ReadyButton" to="." method="_on_ready_button_toggled"]
+[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer2/ProgressButton" to="." method="_on_team_select" binds= [-1]]
+[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer2/FurtherButton" to="." method="_on_team_select" binds= [1]]

@@ -25,9 +25,9 @@ var all_in_team = false
 var team1_count = 0
 var team2_count = 0
 
-@onready var addressbox = $Menu/GridContainer2/GridContainer/AddressTextBox
-@onready var infobox = $Menu/GridContainer2/RichTextLabel
-@onready var namebox = $Menu/GridContainer2/GridContainer/NameTextBox
+@onready var addressbox = %AddressTextBox
+@onready var infobox = %Infobox
+@onready var namebox = %NameTextBox
 
 var peer = ENetMultiplayerPeer.new()
 # A MultiplayerPeer implementation that should be passed to MultiplayerAPI.multiplayer_peer after being initialized as either a client, server, or mesh. Events can then be handled by connecting to MultiplayerAPI signals.
@@ -38,6 +38,7 @@ func _ready():
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	serverinstance.connect("player_disconnected", _on_player_disconnected)
+	serverinstance.connect("put_infoboxline", _on_put_infoboxline)
 	if Overseer.debug["pace_up"]:
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
 		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
@@ -59,23 +60,26 @@ func _process(_delta):
 			team1_count += 1
 		elif player["team"] == 1:
 			team2_count += 1
-	$Menu/GridContainer2/GridContainer2/PlayerCount1.text = str(team1_count)
-	$Menu/GridContainer2/GridContainer2/PlayerCount2.text = str(team2_count)
+	%PlayerCount1.text = str(team1_count)
+	%PlayerCount2.text = str(team2_count)
 	if local_team == -1:
-		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = game_settings["blue"]
-		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = game_settings["red"]
+		%ProgressButton["theme_override_colors/font_color"] = game_settings["blue"]
+		%FurtherButton["theme_override_colors/font_color"] = game_settings["red"]
 	elif local_team == 1:
-		$Menu/GridContainer2/GridContainer2/ProgressButton["theme_override_colors/font_color"] = game_settings["red"]
-		$Menu/GridContainer2/GridContainer2/FurtherButton["theme_override_colors/font_color"] = game_settings["blue"]
+		%ProgressButton["theme_override_colors/font_color"] = game_settings["red"]
+		%FurtherButton["theme_override_colors/font_color"] = game_settings["blue"]
 	else:
 		all_in_team = false
 	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
 		launch(game_settings, playerbase)
 		launched = true
 
+func _on_put_infoboxline(blurt):
+	infobox.text += blurt
+
 func _on_connection_failed():
 	print("Connection failed")
-	infobox.text = infobox.text + "\nConnection failed"
+	infobox.text += infobox.text + "\nConnection failed"
 
 func _on_connected_to_server():
 	if Overseer.debug["quick_launch"]:
@@ -86,8 +90,10 @@ func _on_connected_to_server():
 
 func _on_server_disconnected():
 	print("Disconnected from server")
+	infobox.text += "Disconnected from server"
 	
 func _on_player_disconnected(id):
+	infobox.text += "Player id " + id + "disconnected from server"
 	$Game.handle_disconnected_player(id)
 	pass
 
@@ -98,7 +104,7 @@ func _on_host_buttonpress():
 			local_team = -1
 		add_child(serverinstance)
 		addressbox.text = "Lobby started!"
-		infobox.text = "Server bound to all interfaces: " + str(IP.get_local_addresses())
+		infobox.text += "Server bound to all interfaces: " + str(IP.get_local_addresses())
 		hosting = true
 		local_playername = namebox.text
 		if local_playername == null:
@@ -108,29 +114,23 @@ func _on_host_buttonpress():
 	else:
 		serverinstance.terminate()
 		remove_child(serverinstance)
-		addressbox.text = ""
-		infobox.text = "Lobby closed"
+		addressbox.text = "127.0.0.1"
+		infobox.text += "Lobby closed"
 		hosting = false
 		local_id = 0
 
 func _on_join_buttonpress():
 	if addressbox.text == "":
-		infobox.text = "Address field empty"
+		infobox.text += "Address field empty!"
 		return
 	elif hosting == true:
 		infobox.text += "\nStill hosting! Click \"Host\" to close lobby"
 		return
-	infobox.text = "Connecting to " + (addressbox.text) + ":" + str(port)
+	infobox.text += "Connecting to " + (addressbox.text) + ":" + str(port)
 	peer.create_client(addressbox.text, port)
 	multiplayer.multiplayer_peer = peer
 	local_id = multiplayer.get_unique_id()
 	print("created client, multiplayer.is_server() returns ",multiplayer.is_server())
-
-func upnp_setup():
-	var upnp = UPNP.new()
-	upnp.discover()
-	upnp.add_port_mapping(port)
-	print("Server IP: " + upnp.query_external_address())
 
 func launch(new_game_settings, new_playerbase):
 	$Game.reset(new_game_settings, new_playerbase, local_team, local_id)

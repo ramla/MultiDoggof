@@ -7,17 +7,21 @@ var mission_range
 var cooldown_ready = false
 var recon_wings = Overseer.game_settings["admiral"]["recon_wings"]
 
-#TODO
-const READY_IN_HANGAR = 1
-const READY_ON_DECK = 2
-const TAKING_OFF = 3
-const ON_MISSION = 4
-const WAITING_TO_LAND = 5
-const LANDING = 6
-const REARMING = 7
-var air_wing_state = {}
-var air_wing_fuel = Overseer.game_settings["admiral"]["recon_fuel"]
+#TODO: is_player -checkki, myös attack mission
+#TODO: view_distance sprite, recon / attack spritet ja animaatiot
+#TODO: ghosts spritet ja animaatiot (käytä niitä gpu spraytä!)
 
+#TODO:{
+#const READY_IN_HANGAR = 1
+#const READY_ON_DECK = 2
+#const TAKING_OFF = 3
+#const ON_MISSION = 4
+#const WAITING_TO_LAND = 5
+#const LANDING = 6
+#const REARMING = 7
+var air_wing_state = {}
+#var air_wing_fuel = Overseer.game_settings["admiral"]["recon_fuel"]
+#}
 
 @onready var animation_node = get_node("AnimationPlayer")
 @onready var cooldown_timer = get_node("CooldownTimer")
