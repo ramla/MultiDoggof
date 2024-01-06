@@ -11,8 +11,13 @@ Initial locked in goals before adding major new ones:
 - DONE Movement synced over network. (MOVED TO FUTURE TODO: Simplify movement)
 - DONE Fog of war
 - DONE Reconnaissance action
-- Visible ghosts of acquired information
+- DONE Visible ghosts of acquired information
 - Basic objectives
-- HALFWAY THERE Attack action
+- BUGGY Attack action
 - Scorekeeping
 - Return to lobby
+
+Phase 1.1: for the first playtest
+- Round timers
+- Resources (fuels,munitions)
+- Needs HUD as well

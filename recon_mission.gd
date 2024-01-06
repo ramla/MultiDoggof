@@ -9,7 +9,6 @@ var recon_wings = Overseer.game_settings["admiral"]["recon_wings"]
 
 #TODO: is_player -checkki, myös attack mission
 #TODO: view_distance sprite, recon / attack spritet ja animaatiot
-#TODO: ghosts spritet ja animaatiot (käytä niitä gpu spraytä!)
 
 #TODO:{
 #const READY_IN_HANGAR = 1
@@ -34,6 +33,7 @@ func _ready():
 	cooldown_timer.start()
 	animation_node.connect("animation_finished", _on_animation_finished)
 	animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
+	animation_node["current_animation"] = "recon"
 	print("recon_mission init ready!")
 	for wings in air_wing_state:
 		air_wing_state[str()] = 1
@@ -62,6 +62,7 @@ func order_recon_mission():
 		area.disabled = false
 		visible = false
 		print("recon mission takes off")
+		recon_mission_takeoff.emit(cooldown_timer.wait_time + animation_node["speed_scale"]*animation_node.current_animation_length)
 
 func is_ready():
 	return cooldown_ready

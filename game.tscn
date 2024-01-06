@@ -10,5 +10,7 @@ script = ExtResource("1_y58qk")
 
 [node name="Admirals" type="Node2D" parent="."]
 
+[node name="Ghosts" type="Node2D" parent="."]
+
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("../Admirals")

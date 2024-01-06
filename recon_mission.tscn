@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dujquj8r863hi"]
+[gd_scene load_steps=8 format=3 uid="uid://dujquj8r863hi"]
 
 [ext_resource type="Script" path="res://recon_mission.gd" id="1_d7dpn"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
+[ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="3_7mejn"]
 
 [sub_resource type="Animation" id="Animation_ikq70"]
 resource_name = "recon"
@@ -31,10 +32,41 @@ tracks/1/keys = {
 "values": [Vector2(-1, -1), Vector2(200, -1), Vector2(300, -1), Vector2(190, -1), Vector2(70, -1)]
 }
 
+[sub_resource type="Animation" id="Animation_i3653"]
+resource_name = "attack"
+length = 4.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Area:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Area:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(-1, -1), Vector2(100, -50), Vector2(125, 0), Vector2(100, 50), Vector2(0, -1)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ntplu"]
 _data = {
+"attack": SubResource("Animation_i3653"),
 "recon": SubResource("Animation_ikq70")
 }
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gawng"]
 
 [node name="ReconMission" type="Area2D"]
 collision_layer = 0
@@ -48,18 +80,22 @@ scale = Vector2(4, 4)
 texture = ExtResource("2_fs6xi")
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
-position = Vector2(-1, -1)
-scale = Vector2(0.2, 0.2)
+position = Vector2(0, -1)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 
-[node name="CooldownTimer" type="Timer" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="Area"]
+position = Vector2(58, 0)
+texture = ExtResource("3_7mejn")
 
 [node name="MissionTimer" type="Timer" parent="."]
 wait_time = 1.015
 
+[node name="CooldownTimer" type="Timer" parent="."]
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_ntplu")
+"": SubResource("AnimationLibrary_ntplu"),
+"missionanims": SubResource("AnimationLibrary_gawng")
 }
 speed_scale = 1.5

@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 signal destroyed(destroyed_id)
 signal damage_taken(int)
+signal spotted(spotted_id)
 
 var is_destroyed: bool = true
 
@@ -30,6 +31,7 @@ var is_enemy
 var timer_scene = preload("res://fog_of_war_timer.tscn")
 var fow_timer_instantiated = timer_scene.instantiate()
 var fog_of_war_timers: Dictionary = {}
+var ghost_scene = preload("res://ghost.tscn")
 
 @onready var admirals = get_parent().get_parent().admirals
 var view_distance: Area2D
@@ -41,7 +43,7 @@ func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
 
-func _unhandled_input(event):
+func _unhandled_input(_event):
 	if is_player: 
 		if Input.is_action_pressed("recon_action") && recon_mission.is_ready():
 			recon_mission.plan_recon_mission()
@@ -72,7 +74,7 @@ func _physics_process(delta):
 func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
 		click_position = get_global_mouse_position()
-	
+
 	var target_position = (click_position - position).normalized()
 	speed = get_speed(delta)
 	
@@ -169,53 +171,55 @@ func apply_fog_of_war():
 	if Overseer.debug["wallhack"]:
 		view_distance.get_node("Sprite2D").show()
 
+func ghost_last_known_admiral_location(spotted_entity_id):
+	if entity_id != spotted_entity_id:
+		admirals[spotted_entity_id].show()
+		if !fog_of_war_timers.has(spotted_entity_id):
+			self.add_child(fow_timer_instantiated)
+			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
+			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
+			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
+			print("connected ", spotted_entity_id, " fog of war")
+		fog_of_war_timers[spotted_entity_id].start()
+		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
+	else: print("should this really happen? (reveal_admiral_location)")
+
 func _on_return_fog_of_war(seen_entity_id):
 	print("FOW timer activation on ", entity_id, " at ", local_id)
 	admirals[seen_entity_id].hide()
 	if Overseer.debug["wallhack"]:
 		admirals[seen_entity_id].show()
+	var ghost_instantiated = ghost_scene.instantiate()
+	ghost_instantiated.init(seen_entity_id, admirals[seen_entity_id].position, admirals[seen_entity_id].blue, true)
+	get_parent().get_parent().get_node("Ghosts").add_child(ghost_instantiated)
 
 func _on_view_distance_body_entered(body):
 	var spotted_entity_id = body.entity_id
+	spotted.emit(spotted_entity_id)
 	print(spotted_entity_id, " been spotted by ", entity_id, " (body= ", body, "), body.get_owner() = ", body.get_owner())
 	if entity_id != spotted_entity_id:
 		admirals[spotted_entity_id].show()
 	else: print("should this really happen? (view_distacne)")
 		#TODO: save direction & speed for ghost estimate?
-		#BUG	view distance doesn't stick
+		#BUG: FoW menee päälle vaikka LOS pysyy
 		
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
 	print(spotted_entity_id, " left line of sight of ", entity_id)
-	if entity_id != spotted_entity_id:
-		if !fog_of_war_timers.has(spotted_entity_id):
-			self.add_child(fow_timer_instantiated)
-			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
-			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
-			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			print("connected ", spotted_entity_id, " fog of war")
-		fog_of_war_timers[spotted_entity_id].start()
-		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
+	ghost_last_known_admiral_location(spotted_entity_id)
 
 func _on_recon_body_entered(body):
 	var spotted_entity_id = body.entity_id
 	print(spotted_entity_id, "'s recon spotted ", entity_id)
-	if entity_id != spotted_entity_id:
-		admirals[spotted_entity_id].show()
-		if !fog_of_war_timers.has(spotted_entity_id):
-			self.add_child(fow_timer_instantiated)
-			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
-			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
-			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			print("connected ", spotted_entity_id, " fog of war")
-		fog_of_war_timers[spotted_entity_id].start()
-		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
-	else: print("should this really happen? (recon)")
+	ghost_last_known_admiral_location(spotted_entity_id)
+	spotted.emit(spotted_entity_id)
 
 func _on_attack_body_entered(body):
 	var spotted_entity_id = body.entity_id
 	print(spotted_entity_id, "'s attacker spotted ", entity_id)
-	if entity_id != spotted_entity_id:
+	ghost_last_known_admiral_location(spotted_entity_id)
+	spotted.emit(spotted_entity_id)
+	if !admirals[spotted_entity_id].blue:
 		take_damage.rpc_id(spotted_entity_id, spotted_entity_id)
 	else: print("should this really happen? (attack)")
 
@@ -232,7 +236,6 @@ func take_damage(in_id):
 			#get to the ghosts
 @rpc("call_local")
 func destroy(destroyed_id):
-	is_destroyed = true
-	set_visual()
+	admirals[destroyed_id].is_destroyed = true
+	admirals[destroyed_id].set_visual()
 	print("!!!!! ", destroyed_id, " has been destroyed!")
-

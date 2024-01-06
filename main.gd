@@ -43,7 +43,7 @@ func _ready():
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
 		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
 	ticktimer.connect("timeout", _on_tick)
-	ticktimer.wait_time = 5
+	ticktimer.wait_time = 0.017
 	add_child(ticktimer)
 	ticktimer.start()
 
@@ -93,7 +93,7 @@ func _on_server_disconnected():
 	infobox.text += "Disconnected from server"
 	
 func _on_player_disconnected(id):
-	infobox.text += "Player id " + id + "disconnected from server"
+	infobox.text += "Player id " + str(id) + "disconnected from server"
 	$Game.handle_disconnected_player(id)
 	pass
 
