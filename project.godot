@@ -23,6 +23,10 @@ Overseer="*res://overseer.gd"
 
 gdscript/warnings/renamed_in_godot_4_hint=false
 
+[display]
+
+window/stretch/mode="canvas_items"
+
 [input]
 
 accelerate={

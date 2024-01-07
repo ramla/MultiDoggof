@@ -16,10 +16,10 @@ dest_files=["res://.godot/imported/question_mark_black.png-6c4ba9e726314894bbc5c
 [params]
 
 compress/mode=0
-compress/high_quality=false
-compress/lossy_quality=0.7
+compress/high_quality=true
+compress/lossy_quality=0.13
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1

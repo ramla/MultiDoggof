@@ -40,6 +40,7 @@ var entity_id
 var is_player
 var is_ally
 var is_enemy
+var in_line_of_sight = false
 
 var timer_scene = preload("res://fog_of_war_timer.tscn")
 var fow_timer_instantiated = timer_scene.instantiate()
@@ -124,6 +125,8 @@ func consume_fuel_oil(delta):
 		current_fuel_oil_consumption = ((fuel_oil_consumption_base * speed + fuel_oil_consumption_ineff * (speed - min_speed)) * delta) / fuel_oil_consumption_divider
 		#print("consuming ", current_fuel_oil_consumption, " /delta @ speed ", speed)
 	fuel_oil -= current_fuel_oil_consumption
+	if fuel_oil <= 0:
+		click_position = position
 
 func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	game_settings = in_settings
@@ -175,10 +178,14 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,randf_range(-100,100))
 	global_position = spawn
 	if !is_player:
+		#$AttackMission.queue_free()
+		#$ReconMission.queue_free()
+		%HUD.queue_free()
 		apply_fog_of_war()
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
 
 func set_visual():
+	cprint("setting visual on local_id ", local_id, " for entity_id ", entity_id)
 	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
 	var nonblue_texture = load("res://Assets/ENEMIES8bit_Blob Idle.png")
 	var destroyed_blue_texture = load("res://Assets/item8BIT_skull_blue.png")
@@ -223,6 +230,9 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 
 func _on_return_fog_of_war(seen_entity_id):
 	#cprint(seen_entity_id, "'s FOW timer activation on ", entity_id, " at ", local_id)
+	if admirals[seen_entity_id].in_line_of_sight:
+		spotted.emit(seen_entity_id)
+		return
 	admirals[seen_entity_id].hide()
 	if Overseer.debug["wallhack"]:
 		admirals[seen_entity_id].show()
@@ -239,11 +249,13 @@ func _on_view_distance_body_entered(body):
 	if fog_of_war_timers.has(spotted_entity_id):
 		fog_of_war_timers[spotted_entity_id].stop()
 	admirals[spotted_entity_id].show()
+	admirals[spotted_entity_id].in_line_of_sight = true
 	#TODO: save direction & speed for ghost estimate?
 
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
 	#cprint(spotted_entity_id, " left line of sight of ", entity_id)
+	admirals[spotted_entity_id].in_line_of_sight = false
 	ghost_last_known_admiral_location(spotted_entity_id)
 
 func _on_recon_body_entered(body):
@@ -259,27 +271,35 @@ func _on_attack_body_entered(body):
 	spotted.emit(spotted_entity_id)
 	if !admirals[spotted_entity_id].blue:
 		attack_mission.area.set_deferred("disabled", true) #call_deferred jtnjtn warn/err
-		take_damage.rpc(spotted_entity_id)
+		deal_damage.rpc(spotted_entity_id)
+	#if !admirals[spotted_entity_id].blue:
 		use_munitions()
 
 func use_munitions():
 	munitions -= 1
 	munitions_used.emit()
 
-@rpc("call_local")
-func take_damage(in_id):
-	cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " as entity_id ", entity_id)
-	health -= 1
+@rpc("any_peer", "call_local")
+func deal_damage(in_id):
 	if in_id == local_id: 
+		health -= 1 #tämä vie etäpäältä hiparia
 		damage_taken.emit()
-	elif in_id == entity_id:
-		damage_taken.emit()
-	if health <= 0:
-		destroy.rpc(in_id)
+		if health <= 0:
+			destroy(in_id) #tämä tappaa etämiehen
+	else:
+		admirals[in_id].health -= 1
+		if admirals[in_id].health <= 0:
+			admirals[in_id].destroy(in_id) #tämä tappaa lokaalin proxyn
+	admirals[in_id].cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " from ", entity_id, ". Health is now ", health)
 
-@rpc("call_local")
+@rpc("any_peer", "call_local")
 func destroy(destroyed_id):
-	admirals[destroyed_id].is_destroyed = true
-	admirals[destroyed_id].set_visual()
-	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
+	if destroyed_id == local_id: 
+		admirals[destroyed_id].is_destroyed = true
+		admirals[destroyed_id].set_visual()
+		admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
+	else:
+		is_destroyed = true
+		set_visual()
+		max_speed = min_speed
 	cprint("!!!!! ", destroyed_id, " has been incapacitated!")

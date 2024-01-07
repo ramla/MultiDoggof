@@ -84,7 +84,7 @@ func _on_damage_taken():
 	if get_owner().is_player:
 		health = get_owner().health
 		%ProgressBar["value"] = health
-		print("%HUD drawing damage taken @ ", local_id, "'s new health is ", health)
+		get_owner().cprint(local_id, "'s %HUD drawing damage taken @ ", local_id, "'s new health is ", health)
 
 func _on_munitions_used():
 	munitions -= 1
@@ -98,7 +98,8 @@ func _on_no_munitions():
 func _on_tick():
 	fuel_oil = get_owner().fuel_oil
 	fuel_oil_consumption = get_owner().current_fuel_oil_consumption * 3600
-	#print(fuel_oil_consumption)
+	if fuel_oil <= 0:
+		fuel_oil = 0
 	%FuelOilAmount["text"] = str(fuel_oil)
 	%FuelOilConsumptionAmount["text"] = str(fuel_oil_consumption)
 	if fuel_oil <= 3000 && fuel_oil > 1500:
