@@ -3,17 +3,30 @@ extends CharacterBody2D
 signal destroyed(destroyed_id)
 signal damage_taken(int)
 signal spotted(spotted_id)
+signal munitions_used(amount)
+signal cprint_signal(String)
 
 var is_destroyed: bool = true
 
-#later get from instantiation call
-var max_speed = 50
 const MAX_ACCEL = 100
 const MAX_DECEL = 50
 const MAX_RATE = PI/10
-var health = 3
+var min_speed = Overseer.game_settings["admiral"]["min_speed"]
+var max_speed = Overseer.game_settings["admiral"]["max_speed"]
 
-var speed = 10
+var health = Overseer.game_settings["admiral"]["health"]
+var fuel_oil = Overseer.game_settings["admiral"]["fuel_oil"]
+var munitions = Overseer.game_settings["admiral"]["munitions"]
+var aviation_fuel = Overseer.game_settings["admiral"]["aviation_fuel"]
+var fuel_oil_consumption_multiplier = Overseer.game_settings["admiral"]["fuel_oil_consumption_multiplier"]
+var fuel_oil_consumption_idle = Overseer.game_settings["admiral"]["fuel_oil_consumption_idle"]
+var fuel_oil_consumption_base = Overseer.game_settings["admiral"]["fuel_oil_consumption_base"]
+var fuel_oil_consumption_ineff = Overseer.game_settings["admiral"]["fuel_oil_consumption_ineff"]
+var fuel_oil_consumption_divider = Overseer.game_settings["admiral"]["fuel_oil_consumption_divider"]
+var current_fuel_oil_consumption = 0
+
+var speed = min_speed
+var previous_speed = min_speed
 var speed_input = 0
 var accel = 0
 var click_position = Vector2.ZERO
@@ -45,14 +58,14 @@ func _ready():
 
 func _unhandled_input(_event):
 	if is_player: 
-		if Input.is_action_pressed("recon_action") && recon_mission.is_ready():
+		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			recon_mission.plan_recon_mission()
 			if Input.is_action_just_pressed("action_click"):
 				recon_mission.order_recon_mission()
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
 		else: recon_mission.visible = false
-		if Input.is_action_pressed("attack_action"):
+		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click"):
 				attack_mission.order_attack_mission()
@@ -64,16 +77,21 @@ func _unhandled_input(_event):
 		elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
 			pass
 	#koska ei rpc, ei tu kuvii toisille clienteille?
-	speed_input = Input.get_axis("down", "up")
+	speed_input = Input.get_axis("decelerate", "accelerate")
 	return speed_input
 
 func _physics_process(delta):
-	if !is_destroyed:
-		do_moves(delta)
+	#if !is_destroyed:
+	if is_player:
+		consume_fuel_oil(delta)
+	do_moves(delta)
 
 func do_moves(delta):
 	if Input.is_action_pressed("move_click"):
 		click_position = get_global_mouse_position()
+		speed = previous_speed
+	elif Input.is_action_just_pressed("stop"):
+		click_position = position
 
 	var target_position = (click_position - position).normalized()
 	speed = get_speed(delta)
@@ -82,6 +100,9 @@ func do_moves(delta):
 		velocity = target_position * speed
 		move_and_slide()
 		look_at(click_position)
+		previous_speed = speed
+	else: 
+		speed = 0
 
 func get_speed(delta):
 	if speed_input == 0:
@@ -92,8 +113,17 @@ func get_speed(delta):
 		else:
 			speed += (delta * speed_input * MAX_DECEL)
 
-	speed = clamp(speed, 10, max_speed)
+	speed = clamp(speed, min_speed, max_speed)
 	return(speed)
+
+func consume_fuel_oil(delta):
+	if speed < min_speed - 1 :
+		current_fuel_oil_consumption = fuel_oil_consumption_idle * delta
+		#print("consuming ", current_fuel_oil_consumption, " /delta while idling (min_speed - speed = ", min_speed - speed)
+	else:
+		current_fuel_oil_consumption = ((fuel_oil_consumption_base * speed + fuel_oil_consumption_ineff * (speed - min_speed)) * delta) / fuel_oil_consumption_divider
+		#print("consuming ", current_fuel_oil_consumption, " /delta @ speed ", speed)
+	fuel_oil -= current_fuel_oil_consumption
 
 func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	game_settings = in_settings
@@ -113,7 +143,6 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	attack_mission.connect("body_entered", _on_attack_body_entered)
 	view_distance.connect("body_entered", _on_view_distance_body_entered)
 	view_distance.connect("body_exited", _on_view_distance_body_exited)
-	print(view_distance)
 	if local_id == entity_id:
 		blue = true
 		is_player = true
@@ -122,6 +151,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		view_distance.collision_mask = 12
 		recon_mission.collision_mask = 12
 		attack_mission.collision_mask = 12
+		%HUD.init(health, munitions, fuel_oil, aviation_fuel, local_id)
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -146,7 +176,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	global_position = spawn
 	if !is_player:
 		apply_fog_of_war()
-	print("Init done @ ", local_id, ". Self: ", self, ", team: ", team, ", local_team: ", local_team)
+	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
 
 func set_visual():
 	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
@@ -165,8 +195,16 @@ func set_visual():
 		else:
 			$Sprite2D["texture"] = destroyed_nonblue_texture
 
+func cprint(arg0, _arg1 = "", _arg2 = "", _arg3 = "", _arg4 = "", _arg5 = "", _arg6 = "", _arg7 = "", _arg8 = "", _arg9 = "", _arg10 = "", _arg11 = "", _arg12 = ""):
+	if is_player:
+		var x = [arg0, _arg1, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8, _arg9, _arg10, _arg11, _arg12]
+		var output = ""
+		for arg in x:
+			output += str(arg)
+		cprint_signal.emit(output)
+
 func apply_fog_of_war():
-	#print("FOW active on ", entity_id, " at ", local_id)
+	cprint("FOW active on "+ str(entity_id)+ " at "+ str(local_id))
 	hide()
 	if Overseer.debug["wallhack"]:
 		view_distance.get_node("Sprite2D").show()
@@ -175,17 +213,16 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 	if entity_id != spotted_entity_id:
 		admirals[spotted_entity_id].show()
 		if !fog_of_war_timers.has(spotted_entity_id):
-			self.add_child(fow_timer_instantiated)
+			add_child(fow_timer_instantiated)
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
 			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			print("connected ", spotted_entity_id, " fog of war")
+			cprint("connected ", spotted_entity_id, " fog of war")
 		fog_of_war_timers[spotted_entity_id].start()
-		print(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
-	else: print("should this really happen? (reveal_admiral_location)")
+		cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 
 func _on_return_fog_of_war(seen_entity_id):
-	print("FOW timer activation on ", entity_id, " at ", local_id)
+	cprint(seen_entity_id, "'s FOW timer activation on ", entity_id, " at ", local_id)
 	admirals[seen_entity_id].hide()
 	if Overseer.debug["wallhack"]:
 		admirals[seen_entity_id].show()
@@ -195,47 +232,56 @@ func _on_return_fog_of_war(seen_entity_id):
 
 func _on_view_distance_body_entered(body):
 	var spotted_entity_id = body.entity_id
+	if entity_id == spotted_entity_id:
+		return
 	spotted.emit(spotted_entity_id)
-	print(spotted_entity_id, " been spotted by ", entity_id, " (body= ", body, "), body.get_owner() = ", body.get_owner())
-	if entity_id != spotted_entity_id:
-		admirals[spotted_entity_id].show()
-	else: print("should this really happen? (view_distacne)")
-		#TODO: save direction & speed for ghost estimate?
-		#BUG: FoW menee päälle vaikka LOS pysyy
-		
+	cprint(spotted_entity_id, " entered ", entity_id, "'s Line of Sight")
+	if fog_of_war_timers.has(spotted_entity_id):
+		fog_of_war_timers[spotted_entity_id].stop()
+	admirals[spotted_entity_id].show()
+	#TODO: save direction & speed for ghost estimate?
+
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
-	print(spotted_entity_id, " left line of sight of ", entity_id)
+	cprint(spotted_entity_id, " left line of sight of ", entity_id)
 	ghost_last_known_admiral_location(spotted_entity_id)
 
 func _on_recon_body_entered(body):
 	var spotted_entity_id = body.entity_id
-	print(spotted_entity_id, "'s recon spotted ", entity_id)
+	cprint(entity_id, "'s recon spotted ", spotted_entity_id)
 	ghost_last_known_admiral_location(spotted_entity_id)
 	spotted.emit(spotted_entity_id)
 
 func _on_attack_body_entered(body):
 	var spotted_entity_id = body.entity_id
-	print(spotted_entity_id, "'s attacker spotted ", entity_id)
+	cprint(entity_id, "'s attacker spotted ", spotted_entity_id)
 	ghost_last_known_admiral_location(spotted_entity_id)
 	spotted.emit(spotted_entity_id)
 	if !admirals[spotted_entity_id].blue:
+		attack_mission.area.set_deferred("disabled", true) #call_deferred jtnjtn warn/err
 		take_damage.rpc_id(spotted_entity_id, spotted_entity_id)
-	else: print("should this really happen? (attack)")
+		use_munitions(1)
 
-@rpc("call_local")
+func use_munitions(amount):
+	munitions -= amount
+	munitions_used.emit(amount)
+
+@rpc
 func take_damage(in_id):
+	cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " as entity_id ", entity_id)
 	health -= 1
-	if in_id == local_id: damage_taken.emit(1)
+	if in_id == local_id: 
+		damage_taken.emit(1)
+		%HUD._on_damage_taken(1)
+		cprint("took damage")
+	#elif in_id == entity_id:
+		#damage_taken.emit(1)
 	if health <= 0:
 		destroy.rpc(in_id)
-		#TODO:next up
-			#delay on recon/attack effect
-			#finish destroyed effect
-			#
-			#get to the ghosts
-@rpc("call_local")
+
+@rpc
 func destroy(destroyed_id):
 	admirals[destroyed_id].is_destroyed = true
 	admirals[destroyed_id].set_visual()
-	print("!!!!! ", destroyed_id, " has been destroyed!")
+	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
+	cprint("!!!!! ", destroyed_id, " has been incapacitated!")

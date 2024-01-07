@@ -52,8 +52,8 @@ func spawn(new_admirals):
 		admirals[id].connect("spotted", _on_spotted)
 
 func handle_disconnected_player(id):
-	if running:
-		$Admirals.remove_child(admirals[id])
+	#if running:
+	$Admirals.remove_child(admirals[id])
 
 func _on_postround_end():
 	running = false

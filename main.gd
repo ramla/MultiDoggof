@@ -43,9 +43,9 @@ func _ready():
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
 		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
 	ticktimer.connect("timeout", _on_tick)
-	ticktimer.wait_time = 0.017
+	ticktimer.wait_time = 60
 	add_child(ticktimer)
-	ticktimer.start()
+	#ticktimer.start()
 
 func _process(_delta):
 	all_ready = true
@@ -73,6 +73,7 @@ func _process(_delta):
 	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
 		launch(game_settings, playerbase)
 		launched = true
+		ticktimer.start()
 
 func _on_put_infoboxline(blurt):
 	infobox.text += blurt
@@ -194,7 +195,7 @@ func get_team_least_players():
 
 func _on_tick():
 	tick += 1
-	#print("tick ", tick)
+	print("tick ", tick)
 	#print(": lobbyists @ ", local_id, ": ", playerbase)
 	
 func _on_ready_button_toggled(toggle_position):

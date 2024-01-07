@@ -1,8 +1,28 @@
-[gd_scene load_steps=4 format=3 uid="uid://dcfhkjpwaede7"]
+[gd_scene load_steps=6 format=3 uid="uid://dcfhkjpwaede7"]
 
 [ext_resource type="Script" path="res://hud.gd" id="1_47ykm"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="2_7irwg"]
+
+[sub_resource type="Animation" id="Animation_pmp50"]
+resource_name = "no_munitions"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("GridContainer4/GridContainer/MunitionsAmount:vertical_alignment")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [2, 0, 2, 0, 2, 0, 2, 0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_sk352"]
+_data = {
+"no_munitions": SubResource("Animation_pmp50")
+}
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_47ykm")
@@ -13,16 +33,150 @@ scale = Vector2(2, 2)
 texture = ExtResource("1_v6nix")
 offset = Vector2(0, 16)
 
+[node name="Label" type="Label" parent="ReconIcon"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -11.0
+offset_right = 31.0
+offset_bottom = 13.0
+grow_vertical = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 10
+text = "R"
+vertical_alignment = 2
+
 [node name="AttackIcon" type="Sprite2D" parent="."]
 position = Vector2(586, 0)
 scale = Vector2(2, 2)
 texture = ExtResource("2_7irwg")
 offset = Vector2(0, 16)
 
+[node name="Label" type="Label" parent="AttackIcon"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -11.0
+offset_right = 31.0
+offset_bottom = 13.0
+grow_vertical = 0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 10
+text = "E"
+vertical_alignment = 2
+
 [node name="ProgressBar" type="ProgressBar" parent="."]
+unique_name_in_owner = true
 offset_left = 512.0
 offset_top = 53.0
 offset_right = 630.0
 offset_bottom = 80.0
 max_value = 3.0
 step = 1.0
+
+[node name="GridContainer4" type="GridContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="GridContainer" type="GridContainer" parent="GridContainer4"]
+layout_mode = 2
+columns = 2
+
+[node name="MunitionsAmount" type="Label" parent="GridContainer4/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "6"
+vertical_alignment = 2
+
+[node name="MunitionsLabel" type="Label" parent="GridContainer4/GridContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Munitions"
+
+[node name="GridContainer3" type="GridContainer" parent="GridContainer4"]
+layout_mode = 2
+columns = 2
+
+[node name="AviationFuelAmount" type="Label" parent="GridContainer4/GridContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
+[node name="AviationFuelLabel" type="Label" parent="GridContainer4/GridContainer3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Aviation fuel"
+
+[node name="GridContainer2" type="GridContainer" parent="GridContainer4"]
+layout_mode = 2
+columns = 2
+
+[node name="FuelOilAmount" type="Label" parent="GridContainer4/GridContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "135315"
+
+[node name="FuelOilLabel" type="Label" parent="GridContainer4/GridContainer2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Fuel oil"
+
+[node name="GridContainer4" type="GridContainer" parent="GridContainer4"]
+layout_mode = 2
+columns = 2
+
+[node name="FuelOilConsumptionAmount" type="Label" parent="GridContainer4/GridContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "135315"
+visible_characters = 8
+visible_characters_behavior = 1
+visible_ratio = 1.33333
+
+[node name="FuelOilConsumptionLabel" type="Label" parent="GridContainer4/GridContainer4"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.682353, 0, 1)
+theme_override_font_sizes/font_size = 12
+text = "Fuel oil / minute"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {
+"": SubResource("AnimationLibrary_sk352")
+}
+
+[node name="LocalID" type="Label" parent="."]
+unique_name_in_owner = true
+offset_left = 365.0
+offset_top = 4.0
+offset_right = 405.0
+offset_bottom = 27.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+
+[node name="LocalIDLabel" type="Label" parent="LocalID"]
+layout_mode = 0
+offset_left = -74.0
+offset_right = -8.0
+offset_bottom = 23.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+text = "Local ID:"
+
+[node name="HudTextBox" type="RichTextLabel" parent="."]
+unique_name_in_owner = true
+offset_left = 695.0
+offset_top = 31.0
+offset_right = 1152.0
+offset_bottom = 419.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+text = "[right]eh tai näi?[/right]"
+scroll_following = true

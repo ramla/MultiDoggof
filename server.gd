@@ -27,13 +27,13 @@ func upnp_setup():
 
 func peer_connected(id):
 	print("Client connected: ", id)
-	put_infoboxline.emit("Client connected: ", id)
+	put_infoboxline.emit("Client connected: " + str(id))
 
 func peer_disconnected(id):
 	player_disconnected.emit(id)
 	#TODO: $Game.retire_admiral(id)
 	print("Client disconnected: ", id)
-	put_infoboxline.emit("Client disconnected: ", id)
+	put_infoboxline.emit("Client disconnected: " + str(id))
 	
 func terminate():
 	print("Terminating server")
