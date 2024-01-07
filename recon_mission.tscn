@@ -1,36 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://dujquj8r863hi"]
+[gd_scene load_steps=7 format=3 uid="uid://dujquj8r863hi"]
 
 [ext_resource type="Script" path="res://recon_mission.gd" id="1_d7dpn"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="3_7mejn"]
-
-[sub_resource type="Animation" id="Animation_i3653"]
-resource_name = "attack"
-length = 4.0
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Area:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1)]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("Area:position")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(-1, -1), Vector2(100, -50), Vector2(125, 0), Vector2(100, 50), Vector2(0, -1)]
-}
 
 [sub_resource type="Animation" id="Animation_ikq70"]
 resource_name = "recon"
@@ -42,10 +14,10 @@ tracks/0/path = NodePath("Area:scale")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 1, 2, 2.1, 3, 4),
+"times": PackedFloat32Array(0, 0.6, 1.9, 2, 3, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(0.2, 0.2), Vector2(1, 2.5), Vector2(1, 2.5), Vector2(-1, 2.5), Vector2(-1, 2.5), Vector2(-0.5, 0.5)]
+"values": [Vector2(0.2, 0.2), Vector2(0.8, 1.8), Vector2(0.8, 1.8), Vector2(-0.8, 1.8), Vector2(-0.8, 1.8), Vector2(-0.5, 0.5)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -54,15 +26,14 @@ tracks/1/path = NodePath("Area:position")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 2, 2.1, 3, 4),
+"times": PackedFloat32Array(0, 1.9, 2, 3.5, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(-1, -1), Vector2(200, -1), Vector2(300, -1), Vector2(190, -1), Vector2(70, -1)]
+"values": [Vector2(-1, -1), Vector2(140, -1), Vector2(220, -1), Vector2(100, -1), Vector2(35, -1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ntplu"]
 _data = {
-"attack": SubResource("Animation_i3653"),
 "recon": SubResource("Animation_ikq70")
 }
 
@@ -81,6 +52,7 @@ texture = ExtResource("2_fs6xi")
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
 position = Vector2(-1, -1)
+scale = Vector2(0.2, 0.2)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 

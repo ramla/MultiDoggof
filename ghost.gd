@@ -5,7 +5,7 @@ var nonblue_texture = preload("res://Assets/question_mark_red.png")
 var unconfirmed_texture = preload("res://Assets/question_mark_black.png")
 var self_id
 var game_speed_multiplier: float = Overseer.game_settings["admiral"]["game_speed_multiplier"]
-const SAFETY_MARGIN_MULTIPLIER: float = 0.2
+const SAFETY_MARGIN_MULTIPLIER: float = 0.5
 var safety_margin: float = SAFETY_MARGIN_MULTIPLIER
 
 

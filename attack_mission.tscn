@@ -17,7 +17,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1), Vector2(1, 1)]
+"values": [Vector2(0.7, 0.7), Vector2(0.7, 0.7), Vector2(0.7, 0.7), Vector2(0.7, 0.7), Vector2(0.7, 0.7)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -29,7 +29,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 1.4, 2, 2.6, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(-1, -1), Vector2(100, -50), Vector2(125, 0), Vector2(100, 50), Vector2(0, -1)]
+"values": [Vector2(-40, -1), Vector2(100, -50), Vector2(125, 0), Vector2(100, 50), Vector2(-40, -1)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ncioc"]
@@ -49,7 +49,8 @@ scale = Vector2(4, 4)
 texture = ExtResource("2_ocqwc")
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
-position = Vector2(42.2857, -22)
+position = Vector2(-40, -1)
+scale = Vector2(0.7, 0.7)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 

@@ -84,10 +84,10 @@ func _physics_process(delta):
 	#if !is_destroyed:
 	if is_player:
 		consume_fuel_oil(delta)
-	do_moves(delta)
+		do_moves(delta)
 
 func do_moves(delta):
-	if Input.is_action_pressed("move_click"):
+	if Input.is_action_pressed("move_click") && fuel_oil > 0:
 		click_position = get_global_mouse_position()
 		speed = previous_speed
 	elif Input.is_action_just_pressed("stop"):
@@ -204,7 +204,7 @@ func cprint(arg0, _arg1 = "", _arg2 = "", _arg3 = "", _arg4 = "", _arg5 = "", _a
 		cprint_signal.emit(output)
 
 func apply_fog_of_war():
-	cprint("FOW active on "+ str(entity_id)+ " at "+ str(local_id))
+	#cprint("FOW active on "+ str(entity_id)+ " at "+ str(local_id))
 	hide()
 	if Overseer.debug["wallhack"]:
 		view_distance.get_node("Sprite2D").show()
@@ -217,12 +217,12 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
 			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			cprint("connected ", spotted_entity_id, " fog of war")
+			#cprint("connected ", spotted_entity_id, " fog of war")
 		fog_of_war_timers[spotted_entity_id].start()
-		cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
+		#cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 
 func _on_return_fog_of_war(seen_entity_id):
-	cprint(seen_entity_id, "'s FOW timer activation on ", entity_id, " at ", local_id)
+	#cprint(seen_entity_id, "'s FOW timer activation on ", entity_id, " at ", local_id)
 	admirals[seen_entity_id].hide()
 	if Overseer.debug["wallhack"]:
 		admirals[seen_entity_id].show()
@@ -235,7 +235,7 @@ func _on_view_distance_body_entered(body):
 	if entity_id == spotted_entity_id:
 		return
 	spotted.emit(spotted_entity_id)
-	cprint(spotted_entity_id, " entered ", entity_id, "'s Line of Sight")
+	#cprint(spotted_entity_id, " entered ", entity_id, "'s Line of Sight")
 	if fog_of_war_timers.has(spotted_entity_id):
 		fog_of_war_timers[spotted_entity_id].stop()
 	admirals[spotted_entity_id].show()
@@ -243,7 +243,7 @@ func _on_view_distance_body_entered(body):
 
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
-	cprint(spotted_entity_id, " left line of sight of ", entity_id)
+	#cprint(spotted_entity_id, " left line of sight of ", entity_id)
 	ghost_last_known_admiral_location(spotted_entity_id)
 
 func _on_recon_body_entered(body):
@@ -259,27 +259,25 @@ func _on_attack_body_entered(body):
 	spotted.emit(spotted_entity_id)
 	if !admirals[spotted_entity_id].blue:
 		attack_mission.area.set_deferred("disabled", true) #call_deferred jtnjtn warn/err
-		take_damage.rpc_id(spotted_entity_id, spotted_entity_id)
-		use_munitions(1)
+		take_damage.rpc(spotted_entity_id)
+		use_munitions()
 
-func use_munitions(amount):
-	munitions -= amount
-	munitions_used.emit(amount)
+func use_munitions():
+	munitions -= 1
+	munitions_used.emit()
 
-@rpc
+@rpc("call_local")
 func take_damage(in_id):
 	cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " as entity_id ", entity_id)
 	health -= 1
 	if in_id == local_id: 
-		damage_taken.emit(1)
-		%HUD._on_damage_taken(1)
-		cprint("took damage")
-	#elif in_id == entity_id:
-		#damage_taken.emit(1)
+		damage_taken.emit()
+	elif in_id == entity_id:
+		damage_taken.emit()
 	if health <= 0:
 		destroy.rpc(in_id)
 
-@rpc
+@rpc("call_local")
 func destroy(destroyed_id):
 	admirals[destroyed_id].is_destroyed = true
 	admirals[destroyed_id].set_visual()

@@ -49,7 +49,7 @@ func spawn(new_admirals):
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
-		admirals[id].connect("spotted", _on_spotted)
+		#admirals[id].connect("spotted", _on_spotted)
 
 func handle_disconnected_player(id):
 	#if running:
@@ -61,5 +61,5 @@ func _on_postround_end():
 #	$Scorekeeper.get_round_results(scoring)
 #	game_over.emit(scoring)
 
-func _on_spotted(in_id):
-	propagate_call("spotted", [in_id])
+#func _on_spotted(in_id):
+#	propagate_call("spotted", [in_id]) #U WOT M8

@@ -56,7 +56,10 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	fuel_oil = in_fuel_oil
 	%FuelOilAmount["text"] = str(fuel_oil)
 	aviation_fuel = in_aviation_fuel
-	%AviationFuelAmount["text"] = str(aviation_fuel)
+	if aviation_fuel > 0:
+		%AviationFuelAmount["text"] = str(aviation_fuel)
+	else:
+		%AviationFuelAmount["text"] = str(0)
 	%FuelOilConsumptionAmount["text"] = str(fuel_oil_consumption)
 	show()
 
@@ -64,26 +67,27 @@ func _on_cprint(in_text):
 	%HudTextBox["text"] += "[right]" + in_text + "[/right]"
 
 func _on_attack_mission_cooldown_triggered(duration):
-	#print(duration)
+	_on_cprint(str(duration) + "seconds to complete attack mission & rearm")
 	attack_icon.texture = tex_attack_unavailable
 
 func _on_attack_mission_cooldown_over():
 	attack_icon.texture = tex_attack_available
 
 func _on_recon_mission_cooldown_triggered(duration):
+	_on_cprint(str(duration) + "seconds to complete recon mission & rearm")
 	recon_icon.texture = tex_recon_unavailable
 
 func _on_recon_mission_cooldown_over():
 	recon_icon.texture = tex_recon_available
 
-func _on_damage_taken(damage):
-	print("damage taken @ ", damage)
-	health -= damage
-	%ProgressBar["value"] = health
-	print(damage, "damage taken @local_id ", local_id, ". new health is ", health)
+func _on_damage_taken():
+	if get_owner().is_player:
+		health = get_owner().health
+		%ProgressBar["value"] = health
+		print("%HUD drawing damage taken @ ", local_id, "'s new health is ", health)
 
-func _on_munitions_used(amount):
-	munitions -= amount
+func _on_munitions_used():
+	munitions -= 1
 	%MunitionsAmount["text"] = str(munitions)
 	if munitions <= 2:
 		%MunitionsAmount["theme_override_colors/font_color"] = "ff0900"

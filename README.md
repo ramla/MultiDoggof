@@ -19,5 +19,5 @@ Initial locked in goals before adding major new ones:
 
 Phase 1.1: for the first playtest
 - Round timers
-- Resources (fuels,munitions)
-- Needs HUD as well
+- DONE Resources (fuels,munitions)
+- PARTLY Needs HUD as well
