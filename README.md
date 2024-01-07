@@ -13,12 +13,12 @@ Initial locked in goals before adding major new ones:
 - DONE Reconnaissance action
 - DONE Visible ghosts of acquired information
 - Basic objectives
-- BUGGY Attack action
+- DONE Attack action
 - Scorekeeping
 - Return to lobby
 
 bugs important to fix:
-	- receiving end sees no damage information, only the effect of incapacitation
+
 tweaks that feel important:
 	- mission effect area needs a visual cue
 
@@ -27,3 +27,5 @@ Phase 1.1: for the first playtest
 - Round timers
 - DONE Resources (fuels,munitions)
 - PARTLY Needs HUD as well
+
+Phase 2: Proper restructuring and cleanup of code
