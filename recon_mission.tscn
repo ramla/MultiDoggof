@@ -1,7 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://dujquj8r863hi"]
+[gd_scene load_steps=8 format=3 uid="uid://dujquj8r863hi"]
 
 [ext_resource type="Script" path="res://recon_mission.gd" id="1_d7dpn"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
+[ext_resource type="PackedScene" uid="uid://bhxoc4u2xhen7" path="res://effect_recon_plan.tscn" id="2_iu7dm"]
+[ext_resource type="PackedScene" uid="uid://nik0ve2rgkf3" path="res://effect_recon.tscn" id="3_avrvr"]
 
 [sub_resource type="Animation" id="Animation_ikq70"]
 resource_name = "recon"
@@ -43,11 +45,12 @@ collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_d7dpn")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(77, 1)
-rotation = 1.5708
-scale = Vector2(4, 4)
-texture = ExtResource("2_fs6xi")
+[node name="AimingTemplate" parent="." instance=ExtResource("2_iu7dm")]
+modulate = Color(1, 1, 1, 0.329412)
+
+[node name="EffectRecon" parent="." instance=ExtResource("3_avrvr")]
+self_modulate = Color(1, 1, 1, 1)
+position = Vector2(5.30005, -6.49094)
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
 position = Vector2(-1, -1)
@@ -55,17 +58,21 @@ scale = Vector2(0.2, 0.2)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 
-[node name="Sprite2D" type="Sprite2D" parent="Area"]
-position = Vector2(58, 0)
-
 [node name="MissionTimer" type="Timer" parent="."]
 wait_time = 1.015
 
 [node name="CooldownTimer" type="Timer" parent="."]
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+[node name="SpotboxPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_ntplu"),
 "missionanims": SubResource("AnimationLibrary_gawng")
 }
 speed_scale = 1.5
+
+[node name="Icon" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(77, 1)
+rotation = 1.5708
+scale = Vector2(4, 4)
+texture = ExtResource("2_fs6xi")

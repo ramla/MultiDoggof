@@ -2,7 +2,7 @@
 extends Node
 
 var debug = {
-	"quick_launch" = false, #to quickly launch a game from two instances
+	"quick_launch" = true, #to quickly launch a game from two instances
 	"wallhack" = false, #not tested since fixing most of fog of war
 	"pace_up" = false, #doubles some speeds
 	}

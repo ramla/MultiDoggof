@@ -60,11 +60,13 @@ func _unhandled_input(_event):
 	if is_player: 
 		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			recon_mission.plan_recon_mission()
+			#recon_mission.visualize_plan_recon()
 			if Input.is_action_just_pressed("action_click"):
 				recon_mission.order_recon_mission()
+				#recon_mission.visualize_order_recon()
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
-		else: recon_mission.visible = false
+		else: if !recon_mission.effect_running: recon_mission.visible = false
 		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click"):
@@ -177,8 +179,8 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,randf_range(-100,100))
 	global_position = spawn
 	if !is_player:
-		#$AttackMission.queue_free()
-		#$ReconMission.queue_free()
+		$AttackMission.queue_free()
+		$ReconMission.queue_free()
 		%HUD.queue_free()
 		apply_fog_of_war()
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
@@ -269,10 +271,9 @@ func _on_attack_body_entered(body):
 	ghost_last_known_admiral_location(spotted_entity_id)
 	spotted.emit(spotted_entity_id)
 	if !admirals[spotted_entity_id].blue:
-		attack_mission.area.set_deferred("disabled", true) #call_deferred jtnjtn warn/err
+		attack_mission.area.set_deferred("disabled", true)
 		deal_damage.rpc(spotted_entity_id)
-	#if !admirals[spotted_entity_id].blue:
-	use_munitions()
+		use_munitions()
 
 func use_munitions():
 	munitions -= 1
@@ -280,20 +281,21 @@ func use_munitions():
 
 @rpc("any_peer", "call_local", "reliable")
 func deal_damage(in_id):
-	if in_id == local_id: 
-		health -= 1 #tämä vie etäpäältä hiparia
-		damage_taken.emit()
-		admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", health)
-		if health <= 0:
-			destroy(in_id) #tämä tappaa etämiehen
-	else:
-		#korvaa rpc helapoisto metodil?
-		admirals[in_id].health -= 1
-		if admirals[in_id].health <= 0:
-			admirals[in_id].destroy(in_id) #tämä tappaa lokaalin proxyn
-		admirals[in_id].cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " from ", entity_id, ". Health is now ", health)
+	print(self.entity_id, " running deal_damage()")
+	#if in_id == local_id: 
+	admirals[in_id].health -= 1 #tämä vie etäpäältä hiparia
+	admirals[in_id].damage_taken.emit()
+	admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", admirals[in_id].health)
+	if admirals[in_id].health <= 0:
+		destroy.rpc(in_id) #tämä tappaa etämiehen
+	#else:
+		##korvaa rpc helapoisto metodil?
+		#admirals[in_id].health -= 1
+		#if admirals[in_id].health <= 0:
+			#admirals[in_id].destroy.rpc(in_id) #tämä tappaa lokaalin proxyn
+		cprint("marking damage for in_id ", in_id, " from ", entity_id, ". Health is now ", health)
 
-@rpc("any_peer", "call_local")
+@rpc("any_peer", "call_local", "reliable")
 func destroy(destroyed_id):
 	#if destroyed_id == local_id: 
 	admirals[destroyed_id].is_destroyed = true

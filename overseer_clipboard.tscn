@@ -4,3 +4,8 @@
 
 [node name="OverseerClipboard" type="Node2D"]
 script = ExtResource("1_5bquo")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+polygon = PackedVector2Array(240, 40, 220, 100, 240, 100, 260, 0, 240, -100, 220, -100, 240, -40)
