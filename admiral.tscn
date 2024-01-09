@@ -35,6 +35,9 @@ properties/6/replication_mode = 1
 properties/7/path = NodePath("ReconMission:scale")
 properties/7/spawn = true
 properties/7/replication_mode = 1
+properties/8/path = NodePath("ColorRect:auto_translate")
+properties/8/spawn = true
+properties/8/replication_mode = 2
 
 [node name="Admiral" type="CharacterBody2D" groups=["Player"]]
 collision_layer = 0
@@ -60,3 +63,11 @@ visible = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_aiu2a")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+visible = false
+offset_left = 6.0
+offset_top = -47.0
+offset_right = 46.0
+offset_bottom = -7.0
+color = Color(0.396078, 1, 0.376471, 1)

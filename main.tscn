@@ -1,9 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://ktlxrpr5syea"]
+[gd_scene load_steps=3 format=3 uid="uid://ktlxrpr5syea"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_v1c2x"]
 [ext_resource type="PackedScene" uid="uid://dq02d7ku86vxp" path="res://game.tscn" id="2_c63ru"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yy1td"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -17,15 +15,16 @@ visible = false
 layout_mode = 0
 offset_left = 29.0
 offset_top = 29.0
-offset_right = 629.0
-offset_bottom = 278.0
+offset_right = 1121.0
+offset_bottom = 629.0
 
 [node name="GridContainer" type="GridContainer" parent="Menu"]
 layout_mode = 2
+columns = 2
 
 [node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer"]
 layout_mode = 2
-columns = 2
+columns = 3
 
 [node name="GridContainer" type="GridContainer" parent="Menu/GridContainer/GridContainer2"]
 layout_mode = 2
@@ -47,6 +46,7 @@ custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 placeholder_text = "I am called..."
 max_length = 16
+caret_blink = true
 
 [node name="AddressTextBox" type="LineEdit" parent="Menu/GridContainer/GridContainer2/GridContainer"]
 unique_name_in_owner = true
@@ -61,23 +61,28 @@ layout_mode = 2
 button_pressed = true
 text = "Hesitate"
 
+[node name="UPnPButton" type="CheckButton" parent="Menu/GridContainer/GridContainer2/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Not needed for LAN play. Causes delay if unavailable."
+text = "UPnP"
+
 [node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer/GridContainer2"]
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-columns = 3
+columns = 6
 
-[node name="MenuButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="MenuButton" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 layout_mode = 2
 text = "I shall"
 
 [node name="ProgressButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_styles/pressed = SubResource("StyleBoxFlat_yy1td")
 text = "Progress"
 
-[node name="PlayerCount1" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="PlayerCount1" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
@@ -90,18 +95,51 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Further"
 
-[node name="PlayerCount2" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="PlayerCount2" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
+
+[node name="PlayerListTitleBox" type="GridContainer" parent="Menu/GridContainer"]
+layout_mode = 2
+columns = 7
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/GridContainer/PlayerListTitleBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer"]
+layout_mode = 2
+
+[node name="AdmiralLabel" type="Label" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+text = "Admiral"
+
+[node name="TeamLabel" type="Label" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+text = "Team"
+
+[node name="HesitatingLabel" type="Label" parent="Menu/GridContainer/PlayerListTitleBox/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Hesitating
+"
 
 [node name="Infobox" type="RichTextLabel" parent="Menu/GridContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(400, 530)
 layout_mode = 2
 
+[node name="PlayerList" type="GridContainer" parent="Menu/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
 [connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer/JoinButton" to="." method="_on_join_buttonpress"]
 [connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer/HostButton" to="." method="_on_host_buttonpress"]
 [connection signal="toggled" from="Menu/GridContainer/GridContainer2/GridContainer/ReadyButton" to="." method="_on_ready_button_toggled"]
-[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer2/ProgressButton" to="." method="_on_team_select" binds= [-1]]
-[connection signal="button_up" from="Menu/GridContainer/GridContainer2/GridContainer2/FurtherButton" to="." method="_on_team_select" binds= [1]]

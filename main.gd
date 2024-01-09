@@ -3,6 +3,8 @@ extends Control
 
 var server = preload("res://server.tscn")
 var serverinstance = server.instantiate()
+var lobby_player = preload("res://lobby_player.tscn")
+var lobby_players = {}
 
 var local_id = 0
 var local_osid = OS.get_unique_id()
@@ -18,6 +20,7 @@ var tick: int = -1
 var game_settings = Overseer.game_settings
 var port = game_settings["port"]
 var default_team = 0
+var upnp = false
 var hosting = false
 var launched = false
 var all_ready = false
@@ -39,12 +42,17 @@ func _ready():
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 	serverinstance.connect("player_disconnected", _on_player_disconnected)
 	serverinstance.connect("put_infoboxline", _on_put_infoboxline)
+	
+	%UPnPButton.connect("toggled", _on_upnp_button_toggled)
+	%ProgressButton.connect("button_down", _on_team_select_progress)
+	%FurtherButton.connect("button_down", _on_team_select_further)
+	
 	if Overseer.debug["pace_up"]:
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
 		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
-	ticktimer.connect("timeout", _on_tick)
-	ticktimer.wait_time = 60
-	add_child(ticktimer)
+	#ticktimer.connect("timeout", _on_tick)
+	#ticktimer.wait_time = 60
+	#add_child(ticktimer)
 	#ticktimer.start()
 
 func _process(_delta):
@@ -73,7 +81,7 @@ func _process(_delta):
 	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
 		launch(game_settings, playerbase)
 		launched = true
-		ticktimer.start()
+		#ticktimer.start()
 
 func _on_put_infoboxline(blurt):
 	infobox.text += blurt
@@ -86,7 +94,7 @@ func _on_connected_to_server():
 	if Overseer.debug["quick_launch"]:
 		local_team = 1
 		local_ready = true
-	announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
+	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
 	infobox.text += "\nJoined lobby"
 
 func _on_server_disconnected():
@@ -96,7 +104,6 @@ func _on_server_disconnected():
 func _on_player_disconnected(id):
 	infobox.text += "Player id " + str(id) + "disconnected from server"
 	$Game.handle_disconnected_player(id)
-	pass
 
 func _on_host_buttonpress():
 	if not hosting:
@@ -107,7 +114,7 @@ func _on_host_buttonpress():
 		addressbox.text = "Lobby started!"
 		infobox.text += "Server bound to all interfaces: " + str(IP.get_local_addresses())
 		hosting = true
-		local_playername = namebox.text
+		local_playername = namebox["text"]
 		if local_playername == null:
 			local_playername = "Hostcuck"
 		local_id = multiplayer.get_unique_id()
@@ -131,7 +138,7 @@ func _on_join_buttonpress():
 	peer.create_client(addressbox.text, port)
 	multiplayer.multiplayer_peer = peer
 	local_id = multiplayer.get_unique_id()
-	print("created client, multiplayer.is_server() returns ",multiplayer.is_server())
+	#print("created client, multiplayer.is_server() returns ",multiplayer.is_server())
 
 func launch(new_game_settings, new_playerbase):
 	$Game.reset(new_game_settings, new_playerbase, local_team, local_id)
@@ -144,22 +151,40 @@ func _on_game_over(scoring):
 	$Menu.show()
 	
 @rpc("any_peer")
-func announce_player(multi_id, os_id, playername, is_ready: bool = false, team: int = get_team_least_players()):
+func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = get_team_least_players()):
+	var playername
 	if Overseer.debug["quick_launch"]:
-		is_ready = true
-	if playername == "":
-		playername = "Landcuck " + str(multi_id)
-	update_player(multi_id,os_id,playername.left(16),is_ready,team)
-
+		in_is_ready = true
+	if in_playername == "":
+		if in_multi_id != 1: playername = "Landcuck " + str(in_multi_id)
+		else: playername = "Hostcuck"
+	else: playername = in_playername
+	playername = playername.left(16)
+	if in_multi_id == local_id:
+		in_team = local_team
+	update_player(in_multi_id,in_os_id,playername,in_is_ready,in_team)
+	#print(local_id, " updated player ", in_multi_id, " ", playername.left(16), " ", in_team)
+	
 	if hosting:
 		for pl_id in playerbase:
 			var player = playerbase[pl_id]
 			announce_player.rpc(pl_id, player["os_id"], player["playername"], player["is_ready"], player["team"])
-			print("announced multi_id: ", multi_id, " == ", pl_id, " ", player["playername"], " ", player["os_id"], " ", player["is_ready"], " ", player["team"])
+			#print("announced multi_id: ", in_multi_id, " == ", pl_id, " ", player["playername"], " ", player["os_id"], " ", player["is_ready"], " ", player["team"])
 
-func update_player(multi_id, os_id, playername, is_ready = false, team = get_team_least_players()):
-	if playername == "":
-		playername = "Hostcuck"
+func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = get_team_least_players()):
+	if in_playername == "" && hosting:
+		in_playername = "Hostcuck"
+	
+	if in_team == 0:
+		in_team = get_team_least_players()
+	
+	if not in_multi_id in playerbase:
+		var new_lobby_player = lobby_player.instantiate()
+		%PlayerList.add_child(new_lobby_player)
+		lobby_players[in_multi_id] = new_lobby_player
+	lobby_players[in_multi_id].update(in_playername, in_is_ready, in_team, local_team)
+	for id in lobby_players:
+		lobby_players[id].refresh_team_color(local_team)
 
 	#tarvii for id in playerbase
 	#if playerbase[os_id].get("playername",0) == playername:
@@ -169,16 +194,16 @@ func update_player(multi_id, os_id, playername, is_ready = false, team = get_tea
 		#var new = {"playername" = playername, "os_id" = os_id, "ready" = ready, "team" = team}
 		#playerbase[multi_id].update(new)
 
-	playerbase[multi_id] = {
-		"os_id" = os_id,
-		"playername" = playername,
-		"is_ready" = is_ready,
-		"team" = team
+	playerbase[in_multi_id] = {
+		"os_id" = in_os_id,
+		"playername" = in_playername,
+		"is_ready" = in_is_ready,
+		"team" = in_team
 		}
-	#
-#@rpc("any_peer")
-#func announce_message(multi_id, message):
-	#pass
+
+@rpc("any_peer")
+func announce_message(multi_id, message):
+	infobox.text += playerbase[multi_id]["playername"] + ": " + str(message)
 
 func get_team_least_players():
 	var teamdelta = 0
@@ -193,11 +218,14 @@ func get_team_least_players():
 		print("default_team = ", default_team)
 	return default_team
 
-func _on_tick():
-	tick += 1
-	print("tick ", tick)
+#func _on_tick():
+	#tick += 1
+	#print("tick ", tick)
 	#print(": lobbyists @ ", local_id, ": ", playerbase)
-	
+
+func _on_upnp_button_toggled(toggle_position):
+	upnp = toggle_position
+
 func _on_ready_button_toggled(toggle_position):
 	local_ready = !toggle_position
 	if hosting:
@@ -205,10 +233,22 @@ func _on_ready_button_toggled(toggle_position):
 	else:
 		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
 
-func _on_team_select(team):
-	local_team = team
+func _on_team_select_progress():
+	local_team = -1
 	local_playername = namebox.text
 	if hosting:
-		announce_player(local_id, local_osid, local_playername, local_ready, local_team)
+		announce_player(local_id, local_osid, namebox.text, local_ready, local_team)
+		#print(local_id, " announced player ", local_id, " ", namebox.text, " ", local_team, "progressbutton")
 	else:
-		announce_player.rpc_id(1, local_id, local_osid, local_playername, local_ready, local_team)
+		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
+		#print("host announced player ", local_id, " ", namebox.text, " ", local_team, "progressbutton")
+		
+func _on_team_select_further():
+	local_team = 1
+	local_playername = namebox.text
+	if hosting:
+		announce_player(local_id, local_osid, namebox.text, local_ready, local_team)
+		#print(local_id, " announced player ", local_id, " ", namebox.text, " ", local_team, "furtherbutton")
+	else:
+		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
+		#print("host announced player ", local_id, " ", namebox.text, " ", local_team, "furtherbutton")

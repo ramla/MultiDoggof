@@ -51,8 +51,9 @@ func spawn(new_admirals):
 		admirals[id] = admiral_instance
 
 func handle_disconnected_player(id):
-	#if running:
-	$Admirals.remove_child(admirals[id])
+	if running:
+		$Admirals.remove_child(admirals[id])
+	get_owner().playerbase.erase(id)
 
 func _on_postround_end():
 	running = false

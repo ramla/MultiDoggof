@@ -43,7 +43,6 @@ var is_enemy
 var in_line_of_sight = false
 
 var timer_scene = preload("res://fog_of_war_timer.tscn")
-var fow_timer_instantiated = timer_scene.instantiate()
 var fog_of_war_timers: Dictionary = {}
 var ghost_scene = preload("res://ghost.tscn")
 
@@ -220,6 +219,7 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 	if entity_id != spotted_entity_id:
 		admirals[spotted_entity_id].show()
 		if !fog_of_war_timers.has(spotted_entity_id):
+			var fow_timer_instantiated = timer_scene.instantiate()
 			add_child(fow_timer_instantiated)
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
@@ -250,7 +250,6 @@ func _on_view_distance_body_entered(body):
 		fog_of_war_timers[spotted_entity_id].stop()
 	admirals[spotted_entity_id].show()
 	admirals[spotted_entity_id].in_line_of_sight = true
-	#TODO: save direction & speed for ghost estimate?
 
 func _on_view_distance_body_exited(body):
 	var spotted_entity_id = body.entity_id
@@ -273,33 +272,35 @@ func _on_attack_body_entered(body):
 		attack_mission.area.set_deferred("disabled", true) #call_deferred jtnjtn warn/err
 		deal_damage.rpc(spotted_entity_id)
 	#if !admirals[spotted_entity_id].blue:
-		use_munitions()
+	use_munitions()
 
 func use_munitions():
 	munitions -= 1
 	munitions_used.emit()
 
-@rpc("any_peer", "call_local")
+@rpc("any_peer", "call_local", "reliable")
 func deal_damage(in_id):
 	if in_id == local_id: 
 		health -= 1 #tämä vie etäpäältä hiparia
 		damage_taken.emit()
+		admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", health)
 		if health <= 0:
 			destroy(in_id) #tämä tappaa etämiehen
 	else:
+		#korvaa rpc helapoisto metodil?
 		admirals[in_id].health -= 1
 		if admirals[in_id].health <= 0:
 			admirals[in_id].destroy(in_id) #tämä tappaa lokaalin proxyn
-	admirals[in_id].cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " from ", entity_id, ". Health is now ", health)
+		admirals[in_id].cprint("taking damage with in_id ", in_id, " @ local_id ", local_id, " from ", entity_id, ". Health is now ", health)
 
 @rpc("any_peer", "call_local")
 func destroy(destroyed_id):
-	if destroyed_id == local_id: 
-		admirals[destroyed_id].is_destroyed = true
-		admirals[destroyed_id].set_visual()
-		admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
-	else:
-		is_destroyed = true
-		set_visual()
-		max_speed = min_speed
+	#if destroyed_id == local_id: 
+	admirals[destroyed_id].is_destroyed = true
+	admirals[destroyed_id].set_visual()
+	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
+	#else:
+	#	is_destroyed = true
+	#	set_visual()
+	#	max_speed = min_speed
 	cprint("!!!!! ", destroyed_id, " has been incapacitated!")

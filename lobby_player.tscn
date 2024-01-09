@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://ml5qsjxn62ee"]
+
+[ext_resource type="Script" path="res://lobby_player.gd" id="1_aewsn"]
+
+[node name="LobbyPlayer" type="HBoxContainer"]
+offset_right = 11.0
+offset_bottom = 23.0
+script = ExtResource("1_aewsn")
+
+[node name="Playername" type="Label" parent="."]
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+
+[node name="Team" type="Label" parent="."]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[node name="Hesitating" type="Label" parent="."]
+layout_mode = 2

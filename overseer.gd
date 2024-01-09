@@ -1,14 +1,12 @@
 
 extends Node
 
-#TODO: lataa tiedostosta
-#TODO: tallenna tiedostoon jos serveri
-
 var debug = {
-	"quick_launch" = true, #to quickly launch a game from two instances
-	"wallhack" = false,
-	"pace_up" = false,
+	"quick_launch" = false, #to quickly launch a game from two instances
+	"wallhack" = false, #not tested since fixing most of fog of war
+	"pace_up" = false, #doubles some speeds
 	}
+
 var game_settings = {
 	"pre_round_length" = 5,
 	"round_length" = 15,
@@ -29,12 +27,12 @@ var game_settings = {
 			"recon_cooldown" = 1,
 			"recon_wings" = 2,
 			"recon_fuel" = 25,
-			"attack_cooldown" = 0, #4
+			"attack_cooldown" = 1, #4
 			"attack_wings" = 2,
 			"attack_fuel" = 100,
 			"health" = 3,
 			"fuel_oil" = 20000,
-			"munitions" = 5,
+			"munitions" = 10,
 			"aviation_fuel" = 1500,
 			"fuel_oil_consumption_multiplier" = 1,
 			"fuel_oil_consumption_idle" = 10,
