@@ -20,11 +20,11 @@ Initial locked in goals before adding major new ones:
 bugs important to fix:
 
 tweaks that feel important:
-	- mission effect area needs a visual cue
+	- BUGGY mission effect area needs a visual cue (things don't always appear)
 
 
 Phase 1.1: for the first playtest
-- Round timers
+- DONE Round timers (except HUD timer info)
 - DONE Resources (fuels,munitions)
 - PARTLY Needs HUD as well
 
