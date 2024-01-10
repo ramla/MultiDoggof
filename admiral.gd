@@ -7,6 +7,8 @@ signal munitions_used(amount)
 signal cprint_signal(String)
 
 var is_destroyed: bool = true
+var is_disconnected: bool = true
+var on_round_timer = false
 
 const MAX_ACCEL = 100
 const MAX_DECEL = 50
@@ -57,7 +59,7 @@ func _ready():
 	click_position = Vector2(position.x, position.y)
 
 func _unhandled_input(_event):
-	if is_player: 
+	if is_player && on_round_timer: 
 		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			recon_mission.plan_recon_mission()
 			#recon_mission.visualize_plan_recon()
@@ -84,7 +86,7 @@ func _unhandled_input(_event):
 
 func _physics_process(delta):
 	#if !is_destroyed:
-	if is_player:
+	if is_player && on_round_timer:
 		consume_fuel_oil(delta)
 		do_moves(delta)
 
@@ -179,11 +181,17 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,randf_range(-100,100))
 	global_position = spawn
 	if !is_player:
-		$AttackMission.queue_free()
-		$ReconMission.queue_free()
 		%HUD.queue_free()
 		apply_fog_of_war()
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
+
+func start_round():
+	on_round_timer = true
+	cprint("Round started!")
+	
+func start_post_round():
+	cprint("Round over!")
+	on_round_timer = false
 
 func set_visual():
 	cprint("setting visual on local_id ", local_id, " for entity_id ", entity_id)
@@ -202,6 +210,9 @@ func set_visual():
 			$Sprite2D["texture"] = destroyed_blue_texture
 		else:
 			$Sprite2D["texture"] = destroyed_nonblue_texture
+
+func disconnect_admiral():
+	is_disconnected = true
 
 func cprint(arg0, _arg1 = "", _arg2 = "", _arg3 = "", _arg4 = "", _arg5 = "", _arg6 = "", _arg7 = "", _arg8 = "", _arg9 = "", _arg10 = "", _arg11 = "", _arg12 = ""):
 	if is_player:
@@ -287,13 +298,7 @@ func deal_damage(in_id):
 	admirals[in_id].damage_taken.emit()
 	admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", admirals[in_id].health)
 	if admirals[in_id].health <= 0:
-		destroy.rpc(in_id) #tämä tappaa etämiehen
-	#else:
-		##korvaa rpc helapoisto metodil?
-		#admirals[in_id].health -= 1
-		#if admirals[in_id].health <= 0:
-			#admirals[in_id].destroy.rpc(in_id) #tämä tappaa lokaalin proxyn
-		cprint("marking damage for in_id ", in_id, " from ", entity_id, ". Health is now ", health)
+		destroy.rpc(in_id) #tämä tappaa etämiehen, mutta tarviiko olla RPC?
 
 @rpc("any_peer", "call_local", "reliable")
 func destroy(destroyed_id):
@@ -301,8 +306,4 @@ func destroy(destroyed_id):
 	admirals[destroyed_id].is_destroyed = true
 	admirals[destroyed_id].set_visual()
 	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
-	#else:
-	#	is_destroyed = true
-	#	set_visual()
-	#	max_speed = min_speed
 	cprint("!!!!! ", destroyed_id, " has been incapacitated!")

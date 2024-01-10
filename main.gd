@@ -11,11 +11,11 @@ var local_osid = OS.get_unique_id()
 var local_playername: String
 var local_ready = false
 var local_team = 0
+var start_timer = Timer.new()
+var ticktimer = Timer.new()
 
 var playerbase = {}
-
-var ticktimer: Timer = Timer.new()
-var tick: int = -1
+var last_round_playerbase = {}
 
 var game_settings = Overseer.game_settings
 var port = game_settings["port"]
@@ -27,6 +27,8 @@ var all_ready = false
 var all_in_team = false
 var team1_count = 0
 var team2_count = 0
+var countdown: int
+
 
 @onready var addressbox = %AddressTextBox
 @onready var infobox = %Infobox
@@ -43,6 +45,9 @@ func _ready():
 	serverinstance.connect("player_disconnected", _on_player_disconnected)
 	serverinstance.connect("put_infoboxline", _on_put_infoboxline)
 	
+	$Game.connect("game_over", _on_game_over)
+	print($Game, " connected")
+	
 	%UPnPButton.connect("toggled", _on_upnp_button_toggled)
 	%ProgressButton.connect("button_down", _on_team_select_progress)
 	%FurtherButton.connect("button_down", _on_team_select_further)
@@ -50,24 +55,42 @@ func _ready():
 	if Overseer.debug["pace_up"]:
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
 		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
-	#ticktimer.connect("timeout", _on_tick)
-	#ticktimer.wait_time = 60
-	#add_child(ticktimer)
-	#ticktimer.start()
-
+	
+	add_child(start_timer)
+	start_timer.one_shot = true
+	start_timer.wait_time = 3
+	start_timer.connect("timeout", _on_start_timer_timeout)
+	add_child(ticktimer)
+	ticktimer.wait_time = .5
+	ticktimer.connect("timeout", _on_tick)
+	ticktimer.start()
+	
 func _process(_delta):
+	if start_timer.is_stopped():
+		%MotivationalLabel["text"] = "Do not hesitate"
+	else:
+		countdown = start_timer.time_left
+		%MotivationalLabel["text"] = "Starting in " + str(countdown)
+
+func are_we_there_yet():
 	all_ready = true
-	all_in_team = true
-	team1_count = 0
-	team2_count = 0
 	for id in playerbase:
 		var player = playerbase[id]
 		if !player["is_ready"]:
 			all_ready = false
+
+func team_count():
+	team1_count = 0
+	team2_count = 0
+	all_in_team = true
+	for id in playerbase:
+		var player = playerbase[id]
 		if player["team"] == -1:
 			team1_count += 1
 		elif player["team"] == 1:
 			team2_count += 1
+	if team1_count + team2_count != len(playerbase):
+		all_in_team = false
 	%PlayerCount1.text = str(team1_count)
 	%PlayerCount2.text = str(team2_count)
 	if local_team == -1:
@@ -76,12 +99,6 @@ func _process(_delta):
 	elif local_team == 1:
 		%ProgressButton["theme_override_colors/font_color"] = game_settings["red"]
 		%FurtherButton["theme_override_colors/font_color"] = game_settings["blue"]
-	else:
-		all_in_team = false
-	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1:
-		launch(game_settings, playerbase)
-		launched = true
-		#ticktimer.start()
 
 func _on_put_infoboxline(blurt):
 	infobox.text += blurt
@@ -145,11 +162,12 @@ func launch(new_game_settings, new_playerbase):
 	$Menu.hide()
 	$Game.show()
 	
-func _on_game_over(scoring):
+func _on_game_over():
+	if hosting:
+		unready.rpc()
 	$Game.hide()
-	$Menu.display_score(scoring)
 	$Menu.show()
-	
+
 @rpc("any_peer")
 func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = get_team_least_players()):
 	var playername
@@ -166,16 +184,17 @@ func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = f
 	#print(local_id, " updated player ", in_multi_id, " ", playername.left(16), " ", in_team)
 	
 	if hosting:
-		for pl_id in playerbase:
-			var player = playerbase[pl_id]
-			announce_player.rpc(pl_id, player["os_id"], player["playername"], player["is_ready"], player["team"])
+		for id in playerbase:
+			var player = playerbase[id]
+			announce_player.rpc(id, player["os_id"], player["playername"], player["is_ready"], player["team"])
 			#print("announced multi_id: ", in_multi_id, " == ", pl_id, " ", player["playername"], " ", player["os_id"], " ", player["is_ready"], " ", player["team"])
 
 func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = get_team_least_players()):
 	if in_playername == "" && hosting:
 		in_playername = "Hostcuck"
-	
-	if in_team == 0:
+	if in_multi_id == local_id:
+		local_team = in_team
+	if hosting && in_team == 0:
 		in_team = get_team_least_players()
 	
 	if not in_multi_id in playerbase:
@@ -212,16 +231,11 @@ func get_team_least_players():
 		teamdelta += player["team"]
 	if teamdelta >= 0:
 		default_team = -1
-		print("default_team = ", default_team)
+		#print("default_team = ", default_team)
 	else:
 		default_team = 1
-		print("default_team = ", default_team)
+		#print("default_team = ", default_team)
 	return default_team
-
-#func _on_tick():
-	#tick += 1
-	#print("tick ", tick)
-	#print(": lobbyists @ ", local_id, ": ", playerbase)
 
 func _on_upnp_button_toggled(toggle_position):
 	upnp = toggle_position
@@ -252,3 +266,41 @@ func _on_team_select_further():
 	else:
 		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
 		#print("host announced player ", local_id, " ", namebox.text, " ", local_team, "furtherbutton")
+
+func _on_start_timer_timeout():
+	launch(game_settings, playerbase)
+	launched = true
+	ticktimer.stop()
+
+func _on_tick():
+	
+	are_we_there_yet()
+	team_count()
+	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1 && start_timer.is_stopped():
+		start_timer.start()
+		print("where other tick at? (start timer started)")
+	elif !start_timer.is_stopped():
+		return
+	else:
+		start_timer.stop()
+		print("is here?")
+
+@rpc("call_local")
+func unready():
+	%ReadyButton.button_pressed = false
+	local_ready = false
+	all_ready = false
+	all_in_team = false
+	launched = false
+	last_round_playerbase = playerbase
+	playerbase.clear()
+	lobby_players.clear()
+	for lobbyist in %PlayerList.get_children():
+		%PlayerList.remove_child(lobbyist)
+	if hosting:
+		request_announce_player.rpc()
+	ticktimer.start()
+
+@rpc("authority")
+func request_announce_player():
+	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)

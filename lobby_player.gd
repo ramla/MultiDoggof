@@ -16,16 +16,16 @@ func update(in_playername, in_ready, in_team, in_local_team):
 		$Hesitating.text = ""
 	else:
 		$Hesitating.text = "Yes"
-	if in_team == 0:
+	if team == 0:
 		$Team.text = "Centrist"
 		$Team["theme_override_colors/font_color"] = Color(1,1,1,1)
-	elif in_team == -1:
+	elif team == -1:
 		$Team.text = "Progress"
 		if in_local_team == -1:
 			$Team["theme_override_colors/font_color"] = blue
 		if in_local_team == 1:
 			$Team["theme_override_colors/font_color"] = red
-	elif in_team == 1:
+	elif team == 1:
 		$Team.text = "Further"
 		if in_local_team == -1:
 			$Team["theme_override_colors/font_color"] = blue

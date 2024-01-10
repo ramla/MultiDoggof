@@ -57,6 +57,7 @@ placeholder_text = "I wish to join IP..."
 max_length = 15
 
 [node name="ReadyButton" type="CheckButton" parent="Menu/GridContainer/GridContainer2/GridContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 button_pressed = true
 text = "Hesitate"
@@ -67,38 +68,46 @@ layout_mode = 2
 tooltip_text = "Not needed for LAN play. Causes delay if unavailable."
 text = "UPnP"
 
-[node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer/GridContainer2"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu/GridContainer/GridContainer2"]
+layout_mode = 2
+
+[node name="GridContainer2" type="GridContainer" parent="Menu/GridContainer/GridContainer2/VBoxContainer"]
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 6
 
-[node name="MenuButton" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="MenuButton" type="Label" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 layout_mode = 2
-text = "I shall"
+text = "Team:"
 
-[node name="ProgressButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="ProgressButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Progress"
 
-[node name="PlayerCount1" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="PlayerCount1" type="Label" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
 
-[node name="MenuButton2" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="MenuButton2" type="MenuButton" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 layout_mode = 2
 
-[node name="FurtherButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="FurtherButton" type="MenuButton" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Further"
 
-[node name="PlayerCount2" type="Label" parent="Menu/GridContainer/GridContainer2/GridContainer2"]
+[node name="PlayerCount2" type="Label" parent="Menu/GridContainer/GridContainer2/VBoxContainer/GridContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "0"
+
+[node name="MotivationalLabel" type="Label" parent="Menu/GridContainer/GridContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
 
 [node name="PlayerListTitleBox" type="GridContainer" parent="Menu/GridContainer"]
 layout_mode = 2

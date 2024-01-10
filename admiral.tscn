@@ -17,26 +17,27 @@ properties/0/replication_mode = 1
 properties/1/path = NodePath(".:rotation")
 properties/1/spawn = true
 properties/1/replication_mode = 2
-properties/2/path = NodePath("AttackMission:disable_mode")
+properties/2/path = NodePath("AttackMission:position")
 properties/2/spawn = true
 properties/2/replication_mode = 1
-properties/3/path = NodePath("AttackMission:position")
+properties/3/path = NodePath("AttackMission:scale")
 properties/3/spawn = true
 properties/3/replication_mode = 1
-properties/4/path = NodePath("AttackMission:scale")
+properties/4/path = NodePath("ReconMission:position")
 properties/4/spawn = true
 properties/4/replication_mode = 1
-properties/5/path = NodePath("ReconMission:disable_mode")
+properties/5/path = NodePath("ReconMission:scale")
 properties/5/spawn = true
-properties/5/replication_mode = 2
-properties/6/path = NodePath("ReconMission:position")
+properties/5/replication_mode = 1
+properties/6/path = NodePath("AttackMission:disable_mode")
 properties/6/spawn = true
-properties/6/replication_mode = 1
-properties/7/path = NodePath("ReconMission:scale")
+properties/6/replication_mode = 2
+properties/7/path = NodePath("ReconMission:disable_mode")
 properties/7/spawn = true
-properties/7/replication_mode = 1
+properties/7/replication_mode = 2
 
 [node name="Admiral" type="CharacterBody2D" groups=["Player"]]
+texture_filter = 1
 collision_layer = 0
 script = ExtResource("1_p1akf")
 

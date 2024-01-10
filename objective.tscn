@@ -1,0 +1,79 @@
+[gd_scene load_steps=12 format=3 uid="uid://bvvrn2ng35y3j"]
+
+[ext_resource type="Script" path="res://objective.gd" id="1_7oevi"]
+[ext_resource type="Texture2D" uid="uid://b5c0uk1rngltg" path="res://Assets/item8BIT_shield.png" id="2_fqrbj"]
+[ext_resource type="Texture2D" uid="uid://c2lamok6dgmcm" path="res://Assets/item8BIT_bomb.png" id="3_ggllm"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n8kpd"]
+
+[sub_resource type="Gradient" id="Gradient_1b6hr"]
+offsets = PackedFloat32Array(0, 0.782609, 1)
+colors = PackedColorArray(0.0962047, 0.0962048, 0.0962047, 1, 0.410594, 0.410594, 0.410594, 1, 0.435192, 0.435192, 0.435192, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_masch"]
+gradient = SubResource("Gradient_1b6hr")
+
+[sub_resource type="Curve" id="Curve_d1unh"]
+max_value = 16.76
+_data = [Vector2(0, 4.96326), 0.0, 0.0, 0, 0, Vector2(0.288382, 7.55279), 0.0, 0.0, 0, 0, Vector2(0.607884, 9.56687), 0.0, 0.0, 0, 0, Vector2(1, 16.76), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_74jg5"]
+curve = SubResource("Curve_d1unh")
+
+[sub_resource type="Curve" id="Curve_ykq1r"]
+min_value = 20.56
+max_value = 200.0
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.541494, -6.00858), 0.0, 0.0, 0, 0, Vector2(0.778008, 55.2158), 0.0, 0.0, 0, 0, Vector2(1, 58.2963), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_e2l2t"]
+curve = SubResource("Curve_ykq1r")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_0fy7s"]
+particle_flag_disable_z = true
+emission_shape = 1
+emission_sphere_radius = 2.85
+direction = Vector3(0.3, -1, 0)
+spread = 23.824
+initial_velocity_min = 90.0
+initial_velocity_max = 120.0
+gravity = Vector3(20, -35.67, 0)
+radial_accel_min = -35.82
+radial_accel_max = -31.37
+tangential_accel_curve = SubResource("CurveTexture_e2l2t")
+damping_min = 16.965
+damping_max = 20.635
+scale_curve = SubResource("CurveTexture_74jg5")
+color_ramp = SubResource("GradientTexture1D_masch")
+turbulence_enabled = true
+turbulence_noise_scale = 5.0
+turbulence_noise_speed = Vector3(2, 2, 2)
+
+[node name="Objective" type="StaticBody2D"]
+script = ExtResource("1_7oevi")
+
+[node name="Defend" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = ExtResource("2_fqrbj")
+
+[node name="Attack" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = ExtResource("3_ggllm")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+visible = false
+scale = Vector2(2, 2)
+shape = SubResource("CircleShape2D_n8kpd")
+
+[node name="Smoke" type="GPUParticles2D" parent="."]
+visible = false
+position = Vector2(-3, 13)
+amount = 25
+process_material = SubResource("ParticleProcessMaterial_0fy7s")
+lifetime = 6.0
+trail_enabled = true

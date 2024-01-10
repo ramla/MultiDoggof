@@ -20,49 +20,73 @@ var attack_wings = Overseer.game_settings["admiral"]["attack_wings"]
 #const REARMING = 7
 #var air_wing_state = {}
 var aviation_fuel_consumption = Overseer.game_settings["admiral"]["attack_fuel"]
+var effect_running = false
 
-@onready var animation_node = get_node("AnimationPlayer")
+@onready var effect_attack = get_node("EffectAttack/PlaneEmitter")
+@onready var hurtbox_animation_node = get_node("HurtboxPlayer")
 @onready var cooldown_timer = get_node("CooldownTimer")
 @onready var area = get_node("Area")
 @onready var mission_timer = get_node("MissionTimer")
+@onready var attack_visual_area = get_node("Area/ReconVisualArea/Polygon2D")
+@onready var attack_poly = area["polygon"]
 
 func _ready():
 	cooldown_timer.connect("timeout", _on_cooldown_timer_timeout)
 	cooldown_timer.one_shot = true
 	cooldown_timer.wait_time = Overseer.game_settings["admiral"]["attack_cooldown"]
 	cooldown_timer.start()
-	animation_node.connect("animation_finished", _on_animation_finished)
-	animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
-	animation_node["current_animation"] = "attack"
-	mission_duration = animation_node["speed_scale"] * animation_node.current_animation_length
-	animation_node.stop()
+	hurtbox_animation_node.connect("animation_finished", _on_animation_finished)
+	hurtbox_animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
+	hurtbox_animation_node["current_animation"] = "attack"
+	mission_duration = hurtbox_animation_node["speed_scale"] * hurtbox_animation_node.current_animation_length
+	hurtbox_animation_node.stop()
 	mission_timer.connect("timeout", _on_mission_timer_timeout)
 	mission_timer.one_shot = true
 	mission_timer.wait_time = mission_duration
 	
+	effect_attack.connect("finished", _on_effect_attack_finished)
+	effect_attack["one_shot"] = true
+	effect_attack["emitting"] = false
+	
 #	print("attack_mission init ready!")
 	#for wings in air_wing_state:
 		#air_wing_state[str()] = 1
-
+func pass_the_poly():
+	attack_visual_area["polygon"] = attack_poly
+	
 func _on_cooldown_timer_timeout():
 	print("attack cooldownready")
 	cooldown_ready = true
 
 func plan_attack_mission():
 	if cooldown_ready:
-		visible = true
+		self.visible = true
 		area.disabled = true
+		$Icon.visible = true
 		look_at(get_global_mouse_position())
+		hurtbox_animation_node["speed_scale"] = 4
+		hurtbox_animation_node.play("attack")
 	elif mission_timer.is_stopped():
 		area.disabled = true
+	else:
+		area.disabled = true
+		$Icon.visible = false
 
 func order_attack_mission():
 	if cooldown_ready == true && get_parent().munitions > 0 && get_parent().aviation_fuel >= aviation_fuel_consumption:
 		area.disabled = false
-		animation_node.play("attack")
+		area.visible = false
+		hurtbox_animation_node["speed_scale"] = 1.5
+		hurtbox_animation_node.stop()
+		hurtbox_animation_node.play("attack")
+		effect_attack.restart()
+		effect_attack["emitting"] = true
+		hurtbox_animation_node.stop()
+		hurtbox_animation_node.play("attack")
 		mission_timer.start()
 		cooldown_ready = false
-		visible = true
+		$Icon.visible = false
+		effect_running = true
 		print("attack mission takes off, mission duration ", str(cooldown_timer.wait_time + mission_duration))
 		attack_mission_takeoff.emit(cooldown_timer.wait_time + mission_duration)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
@@ -75,6 +99,12 @@ func _on_animation_finished(anim_name):
 
 func _on_mission_timer_timeout():
 	area.disabled = true
+
+func _on_effect_attack_finished():
+	$Icon.visible = true
+	self.visible = false
+#	aiming_template_attack.visible = true
+	effect_running = false
 
 func is_ready():
 	return cooldown_ready

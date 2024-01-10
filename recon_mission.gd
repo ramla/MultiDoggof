@@ -23,10 +23,13 @@ var effect_running = false
 
 @onready var spotbox_animation_node = get_node("SpotboxPlayer")
 #@onready var visual_animation_node = get_node("VisualPlayer")
-@onready var aiming_template_recon = get_node("AimingTemplate/PlaneEmitter")
+#@onready var aiming_template_recon = get_node("AimingTemplate/PlaneEmitter")
 @onready var effect_recon = get_node("EffectRecon/PlaneEmitter")
 @onready var cooldown_timer = get_node("CooldownTimer")
 @onready var area = get_node("Area")
+@onready var recon_visual_area = get_node("Area/ReconVisualArea/Polygon2D")
+#@onready var recon_visual_animation = get_node("ReconVisualArea/DummyboxPlayer")
+@onready var recon_poly = area["polygon"]
 
 func _ready():
 	cooldown_timer.connect("timeout", _on_cooldown_timer_timeout)
@@ -40,9 +43,9 @@ func _ready():
 	#visual_animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
 	#visual_animation_node["current_animation"] = "plan_recon"
 	#visual_animation_node.stop()
-	aiming_template_recon.connect("finished", _on_aiming_template_recon_finished)
-	aiming_template_recon["one_shot"] = false
-	aiming_template_recon["emitting"] = false
+#	aiming_template_recon.connect("finished", _on_aiming_template_recon_finished)
+#	aiming_template_recon["one_shot"] = false
+#	aiming_template_recon["emitting"] = false
 	#add_child(anim_timer)
 	#anim_timer["one_shot"] = true
 	#anim_timer.wait_time = 2.67
@@ -50,11 +53,16 @@ func _ready():
 	effect_recon["one_shot"] = true
 	effect_recon["emitting"] = false
 #	print("recon_mission init ready!")
-
+	pass_the_poly()
 	#for wings in air_wing_state:
 		#air_wing_state[str()] = 1
+
 func _process(_delta):
-	look_at(get_global_mouse_position())
+	#look_at(get_global_mouse_position())
+	pass
+
+func pass_the_poly():
+	recon_visual_area["polygon"] = recon_poly
 
 func _on_cooldown_timer_timeout():
 	print("recon cooldownready")
@@ -71,16 +79,19 @@ func plan_recon_mission():
 		self.visible = true
 		area.disabled = true
 		look_at(get_global_mouse_position())
-		aiming_template_recon.visible = true
-		aiming_template_recon["emitting"] = true
+		#aiming_template_recon.visible = true
+		#aiming_template_recon["emitting"] = true
+		spotbox_animation_node["speed_scale"] = 4
+		spotbox_animation_node.play("recon")
 	else:
 		area.disabled = true
-		aiming_template_recon.restart()
+		$Icon.visible = false
+#		aiming_template_recon.restart()
 		#visible = false
 		#aiming_template_recon["emitting"] = false
 
 #func visualize_plan_recon():
-		#if anim_timer.is_stopped:
+		#if anim_timer.is_stopped():
 			#anim_timer.start()
 			#aiming_template_recon["one_shot"] = false
 			#aiming_template_recon["emitting"] = true
@@ -90,10 +101,14 @@ func plan_recon_mission():
 func order_recon_mission():
 	if cooldown_ready == true && get_parent().aviation_fuel >= aviation_fuel_consumption:
 		area.disabled = false
+		area.visible = false
+		spotbox_animation_node["speed_scale"] = 1.5
+		spotbox_animation_node.stop()
 		spotbox_animation_node.play("recon")
-		aiming_template_recon["emitting"] = false
-		aiming_template_recon.visible = false
-		aiming_template_recon.restart()
+		#aiming_template_recon["emitting"] = false
+		#aiming_template_recon.visible = false
+		#aiming_template_recon.restart()
+		effect_recon.restart()
 		effect_recon["emitting"] = true
 		#visual_animation_node.stop()
 		#visual_animation_node.play("plan_recon")
@@ -111,7 +126,7 @@ func _on_aiming_template_recon_finished():
 func _on_effect_recon_finished():
 	$Icon.visible = true
 	self.visible = false
-	aiming_template_recon.visible = true
+#	aiming_template_recon.visible = true
 	effect_running = false
 
 func is_ready():

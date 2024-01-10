@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c0a5gm8cs1cim"]
+
+[node name="ReconVisualArea" type="Node2D"]
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+scale = Vector2(-0.5, 0.5)
+color = Color(0.376471, 0.2, 0.0588235, 0.572549)

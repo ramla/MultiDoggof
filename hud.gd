@@ -19,8 +19,8 @@ var local_id
 
 var ticktimer: Timer = Timer.new()
 
-@onready var recon_icon = $ReconIcon
-@onready var attack_icon = $AttackIcon
+@onready var recon_icon = %ReconIcon
+@onready var attack_icon = %AttackIcon
 @onready var animation_node = %AnimationPlayer
 
 func _ready():
