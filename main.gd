@@ -70,7 +70,7 @@ func _process(_delta):
 		%MotivationalLabel["text"] = "Do not hesitate"
 	else:
 		countdown = start_timer.time_left
-		%MotivationalLabel["text"] = "Starting in " + str(countdown)
+		%MotivationalLabel["text"] = "Starting in " + str(countdown+1)
 
 func are_we_there_yet():
 	all_ready = true
@@ -109,7 +109,7 @@ func _on_connection_failed():
 
 func _on_connected_to_server():
 	if Overseer.debug["quick_launch"]:
-		local_team = 1
+		local_team = get_team_least_players()
 		local_ready = true
 	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
 	infobox.text += "\nJoined lobby"
@@ -126,7 +126,6 @@ func _on_host_buttonpress():
 	if not hosting:
 		if Overseer.debug["quick_launch"]:
 			local_ready = true
-			local_team = -1
 		add_child(serverinstance)
 		addressbox.text = "Lobby started!"
 		infobox.text += "Server bound to all interfaces: " + str(IP.get_local_addresses())
@@ -179,7 +178,7 @@ func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = f
 	else: playername = in_playername
 	playername = playername.left(16)
 	if in_multi_id == local_id:
-		in_team = local_team
+		local_team = in_team
 	update_player(in_multi_id,in_os_id,playername,in_is_ready,in_team)
 	#print(local_id, " updated player ", in_multi_id, " ", playername.left(16), " ", in_team)
 	
@@ -192,8 +191,6 @@ func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = f
 func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = get_team_least_players()):
 	if in_playername == "" && hosting:
 		in_playername = "Hostcuck"
-	if in_multi_id == local_id:
-		local_team = in_team
 	if hosting && in_team == 0:
 		in_team = get_team_least_players()
 	
@@ -226,15 +223,18 @@ func announce_message(multi_id, message):
 
 func get_team_least_players():
 	var teamdelta = 0
+	var randval = randi() % 2
 	for id in playerbase:
 		var player = playerbase[id]
 		teamdelta += player["team"]
-	if teamdelta >= 0:
+	if teamdelta > 0:
 		default_team = -1
-		#print("default_team = ", default_team)
-	else:
+	elif teamdelta < 0:
 		default_team = 1
-		#print("default_team = ", default_team)
+	elif teamdelta == 0 && randval == 0:
+		default_team = -1
+	else: 
+		default_team = 1
 	return default_team
 
 func _on_upnp_button_toggled(toggle_position):
@@ -273,17 +273,14 @@ func _on_start_timer_timeout():
 	ticktimer.stop()
 
 func _on_tick():
-	
 	are_we_there_yet()
 	team_count()
 	if !launched && all_ready && all_in_team && team1_count >= 1 && team2_count >= 1 && start_timer.is_stopped():
 		start_timer.start()
-		print("where other tick at? (start timer started)")
-	elif !start_timer.is_stopped():
+	elif !start_timer.is_stopped() && all_ready:
 		return
 	else:
 		start_timer.stop()
-		print("is here?")
 
 @rpc("call_local")
 func unready():

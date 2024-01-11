@@ -65,11 +65,11 @@ func pass_the_poly():
 	recon_visual_area["polygon"] = recon_poly
 
 func _on_cooldown_timer_timeout():
-	print("recon cooldownready")
+	#print("recon cooldownready")
 	cooldown_ready = true
 
-func _on_animation_finished(anim_name):
-	print(anim_name, " mission over")
+func _on_animation_finished(_anim_name):
+	#print(_anim_name, " mission over")
 	area.disabled = true
 	cooldown_timer.start()
 

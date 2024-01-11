@@ -1,0 +1,45 @@
+[gd_resource type="ParticleProcessMaterial" load_steps=5 format=3 uid="uid://c48p35xfjqba3"]
+
+[sub_resource type="Curve" id="Curve_vsp6y"]
+min_value = -10.0
+max_value = 10.0
+_data = [Vector2(0.251, 0), 0.0, 0.0, 0, 0, Vector2(0.3, 4.5), 80.9952, 80.9952, 0, 0, Vector2(0.5, 10), 0.0, 0.0, 0, 0, Vector2(0.7, 4.5), -80.0, -80.0, 0, 0, Vector2(0.749, 15), -0.47842, 0.0, 0, 0]
+point_count = 5
+
+[sub_resource type="CurveTexture" id="CurveTexture_xju80"]
+curve = SubResource("Curve_vsp6y")
+
+[sub_resource type="Curve" id="Curve_qhxic"]
+min_value = -300.0
+max_value = 200.0
+_data = [Vector2(0.35, 5), 0.0, 343.82, 0, 0, Vector2(0.5, -100), -1096.39, -1096.39, 0, 0, Vector2(0.65, -205), 258.522, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_vhdyk"]
+curve = SubResource("Curve_qhxic")
+
+[resource]
+particle_flag_align_y = true
+particle_flag_disable_z = true
+emission_shape_scale = Vector3(6, 6, 6)
+emission_shape = 3
+emission_box_extents = Vector3(1, 1, 1)
+angle_min = 90.0
+angle_max = 90.0
+inherit_velocity_ratio = 0.5
+direction = Vector3(1, -0.5, 0)
+spread = 0.0
+initial_velocity_min = 100.0
+initial_velocity_max = 100.0
+orbit_velocity_min = -0.016
+orbit_velocity_max = -0.016
+orbit_velocity_curve = SubResource("CurveTexture_xju80")
+radial_velocity_min = 1.0
+radial_velocity_max = 1.0
+radial_velocity_curve = SubResource("CurveTexture_vhdyk")
+gravity = Vector3(0, 0, 0)
+scale_min = 0.05
+scale_max = 0.05
+collision_mode = 1
+collision_friction = 0.0
+collision_bounce = 0.0

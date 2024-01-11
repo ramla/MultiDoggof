@@ -62,27 +62,24 @@ func _unhandled_input(_event):
 	if is_player && on_round_timer: 
 		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			recon_mission.plan_recon_mission()
-			#recon_mission.visualize_plan_recon()
-			if Input.is_action_just_pressed("action_click"):
+			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
 				recon_mission.order_recon_mission()
-				#recon_mission.visualize_order_recon()
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
-		else: if !recon_mission.effect_running: recon_mission.visible = false
 		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
-			if Input.is_action_just_pressed("action_click"):
+			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
 				attack_mission.order_attack_mission()
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
-		else: attack_mission.visible = false
-		if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
-			pass		
-		elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
-			pass
-	#koska ei rpc, ei tu kuvii toisille clienteille?
-	speed_input = Input.get_axis("decelerate", "accelerate")
-	return speed_input
+		if !Input.is_action_pressed("attack_action") && !attack_mission.effect_running:
+			attack_mission.visible = false
+		if !Input.is_action_pressed("recon_action") && !recon_mission.effect_running:
+			recon_mission.visible = false
+		#if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
+			#pass		
+		#elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
+			#pass
 
 func _physics_process(delta):
 	#if !is_destroyed:
@@ -109,6 +106,7 @@ func do_moves(delta):
 		speed = 0
 
 func get_speed(delta):
+	speed_input = Input.get_axis("decelerate", "accelerate")
 	if speed_input == 0:
 		return(speed)
 	else: 
@@ -158,6 +156,8 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		recon_mission.collision_mask = 12
 		attack_mission.collision_mask = 12
 		%HUD.init(health, munitions, fuel_oil, aviation_fuel, local_id)
+		$ViewDistance/CollisionVisual["shape"]["radius"] = game_settings["admiral"]["line_of_sight_radius"]
+		$ViewDistance/LineOfSightVisualized["visible"] = true
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -183,14 +183,17 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	if !is_player:
 		%HUD.queue_free()
 		apply_fog_of_war()
+		#$ViewDistance/LineOfSightVisualized["scale"] = 
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
 
 func start_round():
 	on_round_timer = true
+	%HUD.start_round()
 	cprint("Round started!")
 	
 func start_post_round():
 	cprint("Round over!")
+	%HUD.start_post_round()
 	on_round_timer = false
 
 func set_visual():

@@ -81,7 +81,6 @@ modulate = Color(1, 1, 1, 0.329412)
 
 [node name="EffectRecon" parent="." instance=ExtResource("3_avrvr")]
 self_modulate = Color(1, 1, 1, 1)
-position = Vector2(5.30005, -6.49094)
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
 position = Vector2(35, -1)

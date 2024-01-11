@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://dpcinvvi3iuq2"]
 
 [ext_resource type="Script" path="res://attack_mission.gd" id="1_6r3ls"]
-[ext_resource type="PackedScene" uid="uid://nik0ve2rgkf3" path="res://effect_recon.tscn" id="2_eicfv"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="2_ocqwc"]
+[ext_resource type="PackedScene" uid="uid://dfup68eopyije" path="res://effect_attack.tscn" id="2_tk6hg"]
 [ext_resource type="PackedScene" uid="uid://c0a5gm8cs1cim" path="res://recon_visual_area.tscn" id="3_53pgg"]
 
 [sub_resource type="Animation" id="Animation_n5gqe"]
@@ -43,12 +43,10 @@ collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_6r3ls")
 
-[node name="EffectAttack" parent="." instance=ExtResource("2_eicfv")]
-self_modulate = Color(1, 1, 1, 1)
-position = Vector2(5.30005, -6.49094)
+[node name="EffectAttack" parent="." instance=ExtResource("2_tk6hg")]
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
-position = Vector2(-40, -1)
+position = Vector2(100, -50)
 scale = Vector2(0.7, 0.7)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true

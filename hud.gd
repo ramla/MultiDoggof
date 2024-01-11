@@ -14,10 +14,15 @@ var munitions = 0
 var fuel_oil = 0
 var aviation_fuel = 0
 var fuel_oil_consumption = 0
-
+var prepost_round_time_min: int = Overseer.game_settings["pre_round_length"] / 60
+var prepost_round_time_sec: int = Overseer.game_settings["pre_round_length"] - (round_time_min * 60)
+var round_time_min: int = Overseer.game_settings["round_length"] / 60
+var round_time_sec: int = Overseer.game_settings["round_length"] - (round_time_min * 60)
 var local_id
 
-var ticktimer: Timer = Timer.new()
+var ticktimer = Timer.new()
+var round_timer = Timer.new()
+var prepost_timer = Timer.new()
 
 @onready var recon_icon = %ReconIcon
 @onready var attack_icon = %AttackIcon
@@ -28,8 +33,7 @@ func _ready():
 	ticktimer.wait_time = 0.5
 	add_child(ticktimer)
 	ticktimer.start()
-	pass
-	
+
 func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	attack_mission = self.get_owner().attack_mission
 	attack_mission.connect("attack_mission_takeoff", _on_attack_mission_cooldown_triggered)
@@ -61,7 +65,46 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	else:
 		%AviationFuelAmount["text"] = str(0)
 	%FuelOilConsumptionAmount["text"] = str(fuel_oil_consumption)
+	
+	prepost_timer.connect("timeout", _on_prepost_round_timeout)
+	prepost_timer.wait_time = Overseer.game_settings["pre_round_length"]
+	prepost_timer.one_shot = true
+	add_child(prepost_timer)
+	
+	round_timer.connect("timeout", _on_round_timeout)
+	round_timer.wait_time = Overseer.game_settings["round_length"]
+	round_timer.one_shot = true
+	add_child(round_timer)
+	
+	prepost_timer.start()
 	show()
+
+func _process(_delta):
+	update_timers()
+
+func update_timers():
+	if !get_owner().on_round_timer:
+		%PrePostTime["text"] = str(prepost_round_time_min) + ":" + str(prepost_round_time_sec)
+	%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
+
+func _on_prepost_round_timeout():
+	%PrePostTime["visible"] = false
+	%PrePostLabel["visible"] = false
+	
+func start_round():
+	round_timer.start()
+	%PrePostTime["visible"] = false
+	%PrePostLabel["visible"] = false
+	prepost_timer.wait_time = Overseer.game_settings["post_round_length"]
+
+func _on_round_timeout():
+	%PrePostTime["visible"] = true
+	%PrePostLabel["visible"] = true
+
+func start_post_round():
+	%PrePostTime["visible"] = true
+	%PrePostLabel["visible"] = true
+	prepost_timer.start()
 
 func _on_cprint(in_text):
 	%HudTextBox["text"] += "[right]" + in_text + "[/right]"

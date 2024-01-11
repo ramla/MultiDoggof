@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://brpv0wwkkq08a"]
 
-[ext_resource type="Texture2D" uid="uid://cuuqt4aggnbll" path="res://Assets/item8BIT_lamp.png" id="2_prr7c"]
+[ext_resource type="Texture2D" uid="uid://cnlv8n1wr5wih" path="res://Assets/circle.png" id="1_x7sw6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6oefe"]
 radius = 48.0104
@@ -12,6 +12,7 @@ collision_mask = 0
 [node name="CollisionVisual" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_6oefe")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="LineOfSightVisualized" type="Sprite2D" parent="."]
 visible = false
-texture = ExtResource("2_prr7c")
+scale = Vector2(0.13, 0.13)
+texture = ExtResource("1_x7sw6")

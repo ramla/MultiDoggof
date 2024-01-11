@@ -2,7 +2,7 @@
 extends Node
 
 var debug = {
-	"quick_launch" = true, #to quickly launch a game from two instances. second round is also immediately launched as players are readied automatically
+	"quick_launch" = false, #to quickly launch a game from two instances. second round is also immediately launched as players are readied automatically
 	"wallhack" = false, #not tested since fixing most of fog of war and is acshually maphack
 	"pace_up" = false, #doubles some speeds, not very useful maybe DELETE
 	}
@@ -13,7 +13,10 @@ var game_settings = {
 	"round_length" = 180,
 	"post_round_length" = 5,
 	"game_mode" = 0,
-	"port" = 4868, #Total amount of warships and auxiliary military ships lost during WW2 by Australia, Canada, France, Free France, Germany, Greece, Italy, Empire of Japan, Netherlands, Norway, Soviet Union, United Kingdom, United States, Poland. Source: I made it the fuck up (aka Wikipedia) 
+	"port" = 4868, #Total amount of warships and auxiliary military ships lost during WW2 
+				#by Australia, Canada, France, Free France, Germany, Greece, Italy, Empire of Japan, 
+				#Netherlands, Norway, Soviet Union, United Kingdom, United States, Poland. 
+				#Source: I made it the fuck up (aka Wikipedia) 
 	"max_clients" = 12,
 	"red" = Color(1,0,0,1),
 	"blue" = Color(0,0,1,1),
@@ -24,6 +27,7 @@ var game_settings = {
 			"max_speed" = 25,
 			"game_speed_multiplier" = 1,
 			"plane_speed_multiplier" = 1,
+			"line_of_sight_radius" = 46,
 			"fog_of_war_speed" = 1,
 			"recon_cooldown" = 1,
 			"recon_wings" = 2,

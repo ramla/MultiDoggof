@@ -27,7 +27,7 @@ var effect_running = false
 @onready var cooldown_timer = get_node("CooldownTimer")
 @onready var area = get_node("Area")
 @onready var mission_timer = get_node("MissionTimer")
-@onready var attack_visual_area = get_node("Area/ReconVisualArea/Polygon2D")
+@onready var attack_visual_area = get_node("Area/AttackVisualArea/Polygon2D")
 @onready var attack_poly = area["polygon"]
 
 func _ready():
@@ -61,13 +61,12 @@ func _on_cooldown_timer_timeout():
 func plan_attack_mission():
 	if cooldown_ready:
 		self.visible = true
+		area.visible = true
 		area.disabled = true
 		$Icon.visible = true
 		look_at(get_global_mouse_position())
 		hurtbox_animation_node["speed_scale"] = 4
 		hurtbox_animation_node.play("attack")
-	elif mission_timer.is_stopped():
-		area.disabled = true
 	else:
 		area.disabled = true
 		$Icon.visible = false
@@ -76,13 +75,12 @@ func order_attack_mission():
 	if cooldown_ready == true && get_parent().munitions > 0 && get_parent().aviation_fuel >= aviation_fuel_consumption:
 		area.disabled = false
 		area.visible = false
-		hurtbox_animation_node["speed_scale"] = 1.5
+		hurtbox_animation_node["speed_scale"] = 1
 		hurtbox_animation_node.stop()
 		hurtbox_animation_node.play("attack")
+		effect_attack.get_owner().look_at(get_global_mouse_position())
 		effect_attack.restart()
 		effect_attack["emitting"] = true
-		hurtbox_animation_node.stop()
-		hurtbox_animation_node.play("attack")
 		mission_timer.start()
 		cooldown_ready = false
 		$Icon.visible = false
@@ -93,18 +91,20 @@ func order_attack_mission():
 	elif !get_parent().munitions > 0:
 		no_munitions.emit()
 
-func _on_animation_finished(anim_name):
-	print(anim_name, " mission over")
+func _on_animation_finished(_anim_name):
+	#print(_anim_name, " mission over")
 	cooldown_timer.start()
 
 func _on_mission_timer_timeout():
 	area.disabled = true
+	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
 
 func _on_effect_attack_finished():
-	$Icon.visible = true
 	self.visible = false
-#	aiming_template_attack.visible = true
+	$Icon.visible = true
+	#aiming_template_attack.visible = true
 	effect_running = false
+	print("effect finished")
 
 func is_ready():
 	return cooldown_ready
