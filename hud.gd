@@ -33,6 +33,17 @@ func _ready():
 	ticktimer.wait_time = 0.5
 	add_child(ticktimer)
 	ticktimer.start()
+	
+	prepost_timer.connect("timeout", _on_prepost_round_timeout)
+	prepost_timer.wait_time = Overseer.game_settings["pre_round_length"]
+	prepost_timer.one_shot = true
+	prepost_timer.autostart = true
+	add_child(prepost_timer)
+	
+	round_timer.connect("timeout", _on_round_timeout)
+	round_timer.wait_time = Overseer.game_settings["round_length"]
+	round_timer.one_shot = true
+	add_child(round_timer)
 
 func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	attack_mission = self.get_owner().attack_mission
@@ -65,18 +76,7 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	else:
 		%AviationFuelAmount["text"] = str(0)
 	%FuelOilConsumptionAmount["text"] = str(fuel_oil_consumption)
-	
-	prepost_timer.connect("timeout", _on_prepost_round_timeout)
-	prepost_timer.wait_time = Overseer.game_settings["pre_round_length"]
-	prepost_timer.one_shot = true
-	add_child(prepost_timer)
-	
-	round_timer.connect("timeout", _on_round_timeout)
-	round_timer.wait_time = Overseer.game_settings["round_length"]
-	round_timer.one_shot = true
-	add_child(round_timer)
-	
-	prepost_timer.start()
+	%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
 	show()
 
 func _process(_delta):
@@ -84,8 +84,20 @@ func _process(_delta):
 
 func update_timers():
 	if !get_owner().on_round_timer:
-		%PrePostTime["text"] = str(prepost_round_time_min) + ":" + str(prepost_round_time_sec)
-	%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
+		prepost_round_time_min = prepost_timer.time_left / 60
+		prepost_round_time_sec = prepost_timer.time_left - prepost_round_time_min * 60
+		if prepost_round_time_sec < 10:
+			%PrePostTime["text"] = str(prepost_round_time_min) + ":0" + str(prepost_round_time_sec)
+		else:
+			%PrePostTime["text"] = str(prepost_round_time_min) + ":" + str(prepost_round_time_sec)
+	else:
+		round_time_min = round_timer.time_left / 60
+		round_time_sec = round_timer.time_left - round_time_min * 60
+		if round_time_sec < 10:
+			%RoundTime["text"] = str(round_time_min) + ":0" + str(round_time_sec)
+		else:
+			%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
+		
 
 func _on_prepost_round_timeout():
 	%PrePostTime["visible"] = false
@@ -159,6 +171,7 @@ func _on_tick():
 		%FuelOilConsumptionAmount["theme_override_colors/font_color"] = "ffae00"
 	elif 18000 <= fuel_oil_consumption:
 		%FuelOilConsumptionAmount["theme_override_colors/font_color"] = "ff0900"
+	#print("tikc working yay")
 
 func _on_aviation_fuel_used(amount):
 	aviation_fuel -= amount

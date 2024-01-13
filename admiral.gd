@@ -60,26 +60,29 @@ func _ready():
 
 func _unhandled_input(_event):
 	if is_player && on_round_timer: 
-		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
+		if Input.is_action_just_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			recon_mission.plan_recon_mission()
-			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
-				recon_mission.order_recon_mission()
-				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
+		if Input.is_action_just_pressed("action_click") or Input.is_action_pressed("action_click"):
+			if recon_mission.planning == true:
+				recon_mission.order_recon_mission()
+				#get_window().set_input_as_handled()
+		if !Input.is_action_pressed("recon_action") && !recon_mission.effect_running:
+			#print("cancel_plan_recon_mission(), effect runninig = ", recon_mission.effect_running)
+			recon_mission.cancel_plan_recon_mission()
 		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
 				attack_mission.order_attack_mission()
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
+		
 		if !Input.is_action_pressed("attack_action") && !attack_mission.effect_running:
 			attack_mission.visible = false
-		if !Input.is_action_pressed("recon_action") && !recon_mission.effect_running:
-			recon_mission.visible = false
-		#if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
-			#pass		
-		#elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
-			#pass
+	#if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
+		#pass		
+	#elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
+		#pass
 
 func _physics_process(delta):
 	#if !is_destroyed:

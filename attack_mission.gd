@@ -92,7 +92,7 @@ func order_attack_mission():
 		no_munitions.emit()
 
 func _on_animation_finished(_anim_name):
-	#print(_anim_name, " mission over")
+	print(_anim_name, " mission over")
 	cooldown_timer.start()
 
 func _on_mission_timer_timeout():

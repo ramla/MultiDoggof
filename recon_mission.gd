@@ -20,6 +20,7 @@ var anim_timer = Timer.new()
 #var air_wing_state = {}
 var aviation_fuel_consumption = Overseer.game_settings["admiral"]["recon_fuel"]
 var effect_running = false
+var planning = false
 
 @onready var spotbox_animation_node = get_node("SpotboxPlayer")
 #@onready var visual_animation_node = get_node("VisualPlayer")
@@ -58,8 +59,12 @@ func _ready():
 		#air_wing_state[str()] = 1
 
 func _process(_delta):
-	#look_at(get_global_mouse_position())
-	pass
+	if planning:
+		look_at(get_global_mouse_position())
+		$Icon.visible = true
+	else:
+		self.visible = false
+		$Icon.visible = false
 
 func pass_the_poly():
 	recon_visual_area["polygon"] = recon_poly
@@ -69,12 +74,13 @@ func _on_cooldown_timer_timeout():
 	cooldown_ready = true
 
 func _on_animation_finished(_anim_name):
-	#print(_anim_name, " mission over")
+	print(_anim_name, " mission over (animation finished)")
 	area.disabled = true
 	cooldown_timer.start()
 
 func plan_recon_mission():
 	if cooldown_ready:
+		planning = true
 		$Icon.visible = true
 		self.visible = true
 		area.disabled = true
@@ -83,12 +89,22 @@ func plan_recon_mission():
 		#aiming_template_recon["emitting"] = true
 		spotbox_animation_node["speed_scale"] = 4
 		spotbox_animation_node.play("recon")
+		print("recon visible, icon visible")
 	else:
+		planning = false
 		area.disabled = true
 		$Icon.visible = false
+		#print("Recon icon visible = false, disabled = true")
 #		aiming_template_recon.restart()
 		#visible = false
 		#aiming_template_recon["emitting"] = false
+
+func cancel_plan_recon_mission():
+		planning = false
+		area.disabled = true
+		self.visible = false
+		$Icon.visible = false
+		#print("Recon icon visible = false, disabled = true")
 
 #func visualize_plan_recon():
 		#if anim_timer.is_stopped():
@@ -116,11 +132,14 @@ func order_recon_mission():
 		$Icon.visible = false
 		effect_running = true
 		print("recon mission takes off, mission duration ", str(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length))
+		print("also cooldown reyad = false, icon visible = false, area visible = false, effect running = true")
 		recon_mission_takeoff.emit(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
+		planning = false
 
 func _on_aiming_template_recon_finished():
 	#visual_animation_node.play("plan_recon")
+	print("does this still play?")
 	pass
 
 func _on_effect_recon_finished():
@@ -128,6 +147,7 @@ func _on_effect_recon_finished():
 	self.visible = false
 #	aiming_template_recon.visible = true
 	effect_running = false
+	print("effect_recon_finished: icon visible = true, self.visible = false, effect running = false")
 
 func is_ready():
 	return cooldown_ready

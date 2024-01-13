@@ -114,11 +114,13 @@ columns = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "0"
 
 [node name="MunitionsLabel" type="Label" parent="GridContainer4/GridContainer"]
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Munitions"
 
@@ -129,11 +131,13 @@ columns = 2
 [node name="AviationFuelAmount" type="Label" parent="GridContainer4/GridContainer3"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "1550"
 
 [node name="AviationFuelLabel" type="Label" parent="GridContainer4/GridContainer3"]
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Aviation fuel"
 
@@ -145,11 +149,13 @@ columns = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "20000"
 
 [node name="FuelOilLabel" type="Label" parent="GridContainer4/GridContainer2"]
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Fuel oil"
 
@@ -161,6 +167,7 @@ columns = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "16000"
 visible_characters_behavior = 1
@@ -168,6 +175,7 @@ visible_characters_behavior = 1
 [node name="FuelOilConsumptionLabel" type="Label" parent="GridContainer4/GridContainer4"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.682353, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Fuel oil / minute"
 
@@ -201,7 +209,6 @@ layout_mode = 2
 [node name="LocalIDLabel" type="Label" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 0
 text = "Local ID:"
 
@@ -216,12 +223,14 @@ layout_mode = 2
 [node name="RoundLabel" type="Label" parent="VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 text = "Round:"
 
 [node name="RoundTime" type="Label" parent="VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 text = "88:88"
 horizontal_alignment = 2
 
@@ -231,6 +240,7 @@ layout_mode = 2
 [node name="PrePostLabel" type="Label" parent="VBoxContainer/HBoxContainer3"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 text = "Pre-round:"
 horizontal_alignment = 2
 
@@ -238,5 +248,6 @@ horizontal_alignment = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 text = "88:88"
 horizontal_alignment = 2
