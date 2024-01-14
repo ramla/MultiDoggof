@@ -1,0 +1,38 @@
+class Player
+var multi_id: int
+var os_id: String  #???
+var playername: String
+var is_ready: bool
+enum Team { Undecided, One, Two }
+enum LoadedStatus { Disconnected, Lobby, InGame }
+
+
+class Admiral
+extends Player #?
+var player: PlayerClass
+var/node available_missions {}
+
+
+class Mission
+extends Admiral #?
+var icon
+var action_name
+enum CastClass { PlanAndClick }
+enum AreaClass { Spotbox, Hurtbox }
+enum EffectClass { Sprite, Particle }
+var effect
+
+
+class Theatre
+extends TileMap #? vaiko vain sisältää noden?
+var/node objectives {}
+var spawns
+
+class Objective
+extends Theatre
+var hitpoints
+var destroyed
+var points_worth
+
+class Game
+var players: PlayerClass {}
