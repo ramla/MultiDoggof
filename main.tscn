@@ -3,16 +3,13 @@
 [ext_resource type="Script" path="res://main.gd" id="1_v1c2x"]
 [ext_resource type="PackedScene" uid="uid://dq02d7ku86vxp" path="res://game.tscn" id="2_c63ru"]
 
-[node name="Main" type="Control"]
-layout_mode = 3
-anchors_preset = 0
+[node name="Main" type="Node"]
 script = ExtResource("1_v1c2x")
 
 [node name="Game" parent="." instance=ExtResource("2_c63ru")]
 visible = false
 
 [node name="Menu" type="MarginContainer" parent="."]
-layout_mode = 0
 offset_left = 29.0
 offset_top = 29.0
 offset_right = 1121.0

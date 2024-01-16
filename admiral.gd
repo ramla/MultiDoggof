@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name Admiral
 
 signal destroyed(destroyed_id)
 signal damage_taken(int)
@@ -57,19 +58,20 @@ var attack_mission: Area2D
 func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
+	print("admiral_scene _ready just ran")
 
 func _unhandled_input(_event):
 	if is_player && on_round_timer: 
-		if Input.is_action_just_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
-			recon_mission.plan_recon_mission()
-			get_window().set_input_as_handled()
-		if Input.is_action_just_pressed("action_click") or Input.is_action_pressed("action_click"):
-			if recon_mission.planning == true:
-				recon_mission.order_recon_mission()
+		#if Input.is_action_just_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
+			#recon_mission.plan_recon_mission()
+			#get_window().set_input_as_handled()
+		#if Input.is_action_just_pressed("action_click") or Input.is_action_pressed("action_click"):
+			#if recon_mission.planning == true:
+				#recon_mission.order_recon_mission()
 				#get_window().set_input_as_handled()
-		if !Input.is_action_pressed("recon_action") && !recon_mission.effect_running:
+		#if !Input.is_action_pressed("recon_action") && !recon_mission.effect_running:
 			#print("cancel_plan_recon_mission(), effect runninig = ", recon_mission.effect_running)
-			recon_mission.cancel_plan_recon_mission()
+			#recon_mission.cancel_plan_recon_mission()
 		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
@@ -79,11 +81,21 @@ func _unhandled_input(_event):
 		
 		if !Input.is_action_pressed("attack_action") && !attack_mission.effect_running:
 			attack_mission.visible = false
+			
+		if Input.is_action_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
+			recon_mission.plan_recon_mission()
+			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
+				recon_mission.order_recon_mission(get_global_mouse_position())
+				get_window().set_input_as_handled()
+			get_window().set_input_as_handled()
+		
+		if Input.is_action_just_released("recon_action"):
+			recon_mission.cancel_plan_recon_mission()
 	#if Input.is_action_just_released("action_click") && Input.is_action_pressed("recon_action"):
 		#pass		
 	#elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
 		#pass
-
+	
 func _physics_process(delta):
 	#if !is_destroyed:
 	if is_player && on_round_timer:
@@ -188,6 +200,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		apply_fog_of_war()
 		#$ViewDistance/LineOfSightVisualized["scale"] = 
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
+	print("admiral_scene init() just ran")
 
 func start_round():
 	on_round_timer = true

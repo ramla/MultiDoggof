@@ -49,6 +49,7 @@ func spawn(new_admirals):
 	for id in new_admirals:
 		var admiral = new_admirals[id]
 		var admiral_instance = admiral_scene.instantiate()
+		print("admiral_scene instantiated")
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance

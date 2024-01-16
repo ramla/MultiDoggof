@@ -8,8 +8,8 @@ var debug = {
 	}
 
 var game_settings = {
-	"launch_timer" = 3,
-	"pre_round_length" = 2,
+	"launch_timer" = 3, 
+	"pre_round_length" = 2, #5? 10?
 	"round_length" = 180,
 	"post_round_length" = 5,
 	"game_mode" = 0,

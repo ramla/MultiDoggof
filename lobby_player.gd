@@ -1,4 +1,6 @@
 extends HBoxContainer
+class_name LobbyPlayer
+
 var blue = Color(1,1,1,1)
 var red = Color(1,1,1,1)
 var game_settings = Overseer.game_settings
@@ -33,6 +35,7 @@ func update(in_playername, in_ready, in_team, in_local_team):
 			$Team["theme_override_colors/font_color"] = red
 	else: 
 		$Team.text = "WTF"
+	refresh_team_color(in_local_team)
 
 func refresh_team_color(in_local_team):
 	if in_local_team == 0:

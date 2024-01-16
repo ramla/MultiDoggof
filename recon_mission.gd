@@ -8,6 +8,7 @@ var mission_range
 var cooldown_ready = false
 var recon_wings = Overseer.game_settings["admiral"]["recon_wings"]
 var anim_timer = Timer.new()
+var ordered_position = Vector2.ZERO
 
 #TODO:{
 #const READY_IN_HANGAR = 1
@@ -36,7 +37,8 @@ func _ready():
 	cooldown_timer.connect("timeout", _on_cooldown_timer_timeout)
 	cooldown_timer.one_shot = true
 	cooldown_timer.wait_time = Overseer.game_settings["admiral"]["recon_cooldown"]
-	cooldown_timer.start()
+#	cooldown_timer.start()
+	
 	spotbox_animation_node.connect("animation_finished", _on_animation_finished)
 	spotbox_animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]
 	spotbox_animation_node["current_animation"] = "recon"
@@ -55,6 +57,9 @@ func _ready():
 	effect_recon["emitting"] = false
 #	print("recon_mission init ready!")
 	pass_the_poly()
+	
+	cooldown_ready = true
+	
 	#for wings in air_wing_state:
 		#air_wing_state[str()] = 1
 
@@ -63,36 +68,46 @@ func _process(_delta):
 		look_at(get_global_mouse_position())
 		$Icon.visible = true
 	else:
-		self.visible = false
+		#self.visible = false
 		$Icon.visible = false
+	if !cooldown_ready:
+		area.look_at(ordered_position)
 
 func pass_the_poly():
 	recon_visual_area["polygon"] = recon_poly
 
 func _on_cooldown_timer_timeout():
-	#print("recon cooldownready")
+	print("recon cooldownready")
 	cooldown_ready = true
 
 func _on_animation_finished(_anim_name):
-	print(_anim_name, " mission over (animation finished)")
-	area.disabled = true
-	cooldown_timer.start()
+	print(_anim_name, " animation finished")
+	if !area.disabled:
+		area.disabled = true
+		cooldown_timer.start()
 
 func plan_recon_mission():
 	if cooldown_ready:
 		planning = true
 		$Icon.visible = true
-		self.visible = true
-		area.disabled = true
+		#self.visible = true
+		print("recon visible, icon visible")
+		area.visible = true
 		look_at(get_global_mouse_position())
 		#aiming_template_recon.visible = true
 		#aiming_template_recon["emitting"] = true
 		spotbox_animation_node["speed_scale"] = 4
-		spotbox_animation_node.play("recon")
-		print("recon visible, icon visible")
+		if spotbox_animation_node.is_playing():
+			print("animation already running")
+			return
+		else:
+			spotbox_animation_node.stop()
+			spotbox_animation_node.play("recon")
+			print("starting recon animation")
+			
 	else:
 		planning = false
-		area.disabled = true
+		area.visible = false
 		$Icon.visible = false
 		#print("Recon icon visible = false, disabled = true")
 #		aiming_template_recon.restart()
@@ -100,9 +115,10 @@ func plan_recon_mission():
 		#aiming_template_recon["emitting"] = false
 
 func cancel_plan_recon_mission():
+		print("cancelling plan rrecon")
 		planning = false
-		area.disabled = true
-		self.visible = false
+		area.visible = false
+		#self.visible = false
 		$Icon.visible = false
 		#print("Recon icon visible = false, disabled = true")
 
@@ -114,8 +130,10 @@ func cancel_plan_recon_mission():
 			#visual_animation_node.stop()
 			#visual_animation_node.play("plan_recon")
 
-func order_recon_mission():
+func order_recon_mission(action_click_position):
 	if cooldown_ready == true && get_parent().aviation_fuel >= aviation_fuel_consumption:
+		ordered_position = action_click_position
+		area.look_at(action_click_position)
 		area.disabled = false
 		area.visible = false
 		spotbox_animation_node["speed_scale"] = 1.5

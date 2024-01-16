@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://recon_mission.gd" id="1_d7dpn"]
 [ext_resource type="PackedScene" uid="uid://c0a5gm8cs1cim" path="res://recon_visual_area.tscn" id="2_11jbp"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
-[ext_resource type="PackedScene" uid="uid://bhxoc4u2xhen7" path="res://gitignore/effect_recon_plan.tscn" id="2_iu7dm"]
+[ext_resource type="PackedScene" uid="uid://bhxoc4u2xhen7" path="res://effect_recon_plan.tscn" id="2_iu7dm"]
 [ext_resource type="PackedScene" uid="uid://nik0ve2rgkf3" path="res://effect_recon.tscn" id="3_avrvr"]
 
 [sub_resource type="Animation" id="Animation_ikq70"]
@@ -83,9 +83,8 @@ modulate = Color(1, 1, 1, 0.329412)
 self_modulate = Color(1, 1, 1, 1)
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
-visible = false
-position = Vector2(35, -1)
-scale = Vector2(-0.5, 0.5)
+position = Vector2(-1, -1)
+scale = Vector2(0.2, 0.2)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true
 

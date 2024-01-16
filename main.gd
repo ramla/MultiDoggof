@@ -1,5 +1,5 @@
-
-extends Control
+extends Node
+class_name MainScene
 
 var server = preload("res://server.tscn")
 var serverinstance = server.instantiate()
@@ -46,7 +46,7 @@ func _ready():
 	serverinstance.connect("put_infoboxline", _on_put_infoboxline)
 	
 	$Game.connect("game_over", _on_game_over)
-	print($Game, " connected")
+	print(OS.get_unique_id())
 	
 	%UPnPButton.connect("toggled", _on_upnp_button_toggled)
 	%ProgressButton.connect("button_down", _on_team_select_progress)
