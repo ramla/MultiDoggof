@@ -7,8 +7,10 @@ signal aviation_fuel_used(amount)
 
 var mission_range
 var mission_duration
+var mission_over = true
 var cooldown_ready = false
 var attack_wings = Overseer.game_settings["admiral"]["attack_wings"]
+var ordered_position = Vector2.ZERO
 
 #TODO
 #const READY_IN_HANGAR = 1
@@ -51,6 +53,11 @@ func _ready():
 #	print("attack_mission init ready!")
 	#for wings in air_wing_state:
 		#air_wing_state[str()] = 1
+		
+func _physics_process(_delta):
+	if !mission_over:
+		look_at(ordered_position)
+	
 func pass_the_poly():
 	attack_visual_area["polygon"] = attack_poly
 	
@@ -71,10 +78,11 @@ func plan_attack_mission():
 		area.disabled = true
 		$Icon.visible = false
 
-func order_attack_mission():
+func order_attack_mission(action_click_position):
 	if cooldown_ready == true && get_parent().munitions > 0 && get_parent().aviation_fuel >= aviation_fuel_consumption:
 		area.disabled = false
 		area.visible = false
+		ordered_position = action_click_position
 		hurtbox_animation_node["speed_scale"] = 1
 		hurtbox_animation_node.stop()
 		hurtbox_animation_node.play("attack")
@@ -85,6 +93,7 @@ func order_attack_mission():
 		cooldown_ready = false
 		$Icon.visible = false
 		effect_running = true
+		mission_over = false
 		print("attack mission takes off, mission duration ", str(cooldown_timer.wait_time + mission_duration))
 		attack_mission_takeoff.emit(cooldown_timer.wait_time + mission_duration)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
@@ -98,6 +107,7 @@ func _on_animation_finished(_anim_name):
 func _on_mission_timer_timeout():
 	area.disabled = true
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
+	mission_over = true
 
 func _on_effect_attack_finished():
 	self.visible = false

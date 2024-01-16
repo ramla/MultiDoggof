@@ -75,7 +75,7 @@ func _unhandled_input(_event):
 		if Input.is_action_pressed("attack_action") && attack_mission.is_ready() && !is_destroyed:
 			attack_mission.plan_attack_mission()
 			if Input.is_action_just_pressed("action_click") or Input.is_action_just_released("action_click"):
-				attack_mission.order_attack_mission()
+				attack_mission.order_attack_mission(get_global_mouse_position())
 				get_window().set_input_as_handled()
 			get_window().set_input_as_handled()
 		
