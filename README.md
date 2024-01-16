@@ -15,7 +15,7 @@ Initial locked in goals before adding major new ones:
 - Basic objectives
 - DONE Attack action
 - Scorekeeping
-- Return to lobby
+- BUGGY Return to lobby
 
 bugs important to fix:
 
