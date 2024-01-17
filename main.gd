@@ -217,6 +217,11 @@ func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in
 		"team" = in_team
 		}
 
+@rpc
+func announce_game_settings():
+	#TODO: pass host's game settings to clients
+	pass
+
 @rpc("any_peer")
 func announce_message(multi_id, message):
 	infobox.text += playerbase[multi_id]["playername"] + ": " + str(message)
