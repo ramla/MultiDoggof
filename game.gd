@@ -1,6 +1,7 @@
 extends Node2D
 
 signal game_over
+signal got_them_objectives
 
 var admirals = {}
 var t1_color
@@ -13,23 +14,36 @@ var admiral_scene = preload("res://admiral.tscn")
 var objective_scene = preload("res://objective.tscn")
 var local_id
 var local_team
-var local_objectives
-@onready var hosting = false
+var local_objective_priorities
+var objectives_received = false
+@onready var hosting = false		#ALERT: why on earth is this @onready
 var running = false
+var clients_ready = false
+
 var pre_round_timer = Timer.new()
 var round_timer = Timer.new()
 var post_round_timer = Timer.new()
+var fail_timer = Timer.new()
 
+
+var processtest = false
 
 func _ready():
 	add_child(pre_round_timer)
 	add_child(round_timer)
 	add_child(post_round_timer)
+	add_child(fail_timer)
 	pre_round_timer.connect("timeout", _on_pre_round_timer_timeout)
 	round_timer.connect("timeout", _on_round_timer_timeout)
 	post_round_timer.connect("timeout", _on_post_round_timer_timeout)
+	
+	fail_timer.wait_time = 5
+	print("READY game node")
 
 func _process(_delta):
+	if !processtest:
+		processtest = true
+		print("FIRST game process")
 	pass
 
 func randomize_objectives():
@@ -37,32 +51,46 @@ func randomize_objectives():
 		
 	#randomise 1 priority offensive & priority defensive objective for each team
 	#west,east; base,island,outpost 
-	var t1_objectives = randomize_objective_set().append_array(randomize_objective_set())
-	print("t1 objectives = ", t1_objectives)
-	var t2_objectives = randomize_objective_set().append_array(randomize_objective_set())
-	print("t2 objectives = ", t2_objectives)
-	
+	var obj_set_1 = randomize_objective_set()
+	var obj_set_2 = randomize_objective_set()
+	var obj_set_3 = randomize_objective_set()
+	var obj_set_4 = randomize_objective_set()
+	print(obj_set_1, " ", obj_set_2, " ", obj_set_3, " ", obj_set_4)
+	obj_set_1.append_array(obj_set_2)
+	obj_set_1.append_array(obj_set_3)
+	obj_set_1.append_array(obj_set_4)
+	print("local objective priorities = ", obj_set_1)
+	return obj_set_1
 
 func randomize_objective_set():
 	var objective_set = [false,false,false]
 	var prio_objective_in_set = randi() % 3
-	for i in objective_set:
-		print("objective set iteartion ", i, ", prio_obj = ", prio_objective_in_set)
-		if i == prio_objective_in_set:
-			objective_set[i] = true
+	for n in 3:
+		print("objective set iteartion ", n, ", prio_obj = ", prio_objective_in_set)
+		if n == prio_objective_in_set:
+			objective_set[n] = true
 	return objective_set
 
-@rpc
+@rpc("reliable")
 func distribute_objectives(in_objectives):
-	local_objectives = in_objectives
+	local_objective_priorities = in_objectives
+	print("received objectives ", in_objectives)
+	got_them_objectives.emit()
+	objectives_received = true
 	pass
 
 func load_objectives():
-	for i in game_settings["level"]["objective_spawns"]:
-		var spawn = game_settings["level"]["spawns"][i]
-		objective_scene.init(spawn, game_settings["level"]["hitpoints"], game_settings["level"]["value"])
-		#func init(in_position, in_hitpoints, in_team, in_value, local_team, priority):
-		$Level.add_child(objective_scene)
+	var i = 0
+	for spawnpoint in game_settings["objective"]["spawns"]:
+		var objective_priority = local_objective_priorities[i]
+		var obj_team
+		if spawnpoint.contains("east"): obj_team = -1
+		else: obj_team = 1
+		var objective_instance = objective_scene.instantiate()
+		objective_instance.init(game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority)
+		print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
+		$Level.add_child(objective_instance)
+		i += 1
 	pass
 
 func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
@@ -71,9 +99,6 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 	game_settings = new_game_settings
 	local_team = new_local_team
 	local_id = in_local_id
-	
-	if hosting:
-		randomize_objectives()
 	
 	if local_team == -1:
 		t1_color = game_settings["blue"]
@@ -84,15 +109,27 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 	
 	self.local_id = get_tree().get_multiplayer().get_unique_id()
 	self.hosting = get_tree().get_multiplayer().is_server()
+	
+	print(local_id, " hosting = ", hosting)
+	if hosting:
+		local_objective_priorities = randomize_objectives()
+		#distribute_objectives.rpc(local_objective_priorities)
+		load_objectives()
+	elif objectives_received:
+		load_objectives()
+	else:
+		print("Waiting for host to send objectives data")
+		get_owner().infobox.text += "Waiting for host to send objectives data"
+		await got_them_objectives
+		load_objectives()
 	running = true
-	start_round_timer_chain()
 	spawn(new_admirals)
+	start_round_timer_chain()
 
 func spawn(new_admirals):
 	for id in new_admirals:
 		var admiral = new_admirals[id]
 		var admiral_instance = admiral_scene.instantiate()
-		print("admiral_scene instantiated")
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
@@ -102,12 +139,11 @@ func start_round_timer_chain():
 	round_timer.wait_time = game_settings["round_length"]
 	post_round_timer.wait_time = game_settings["post_round_length"]
 
-	if hosting: print("täälä ollaan!!!!!!!!!!!!!!!!!!!!")
 	pre_round_timer.one_shot = true
 	round_timer.one_shot = true
 	post_round_timer.one_shot = true
 	pre_round_timer.start()
-	
+
 func handle_disconnected_player(id):
 	if running:
 		admirals[id].disconnect_admiral()
@@ -115,6 +151,8 @@ func handle_disconnected_player(id):
 
 func _on_pre_round_timer_timeout():
 	if hosting:
+		fail_timer.start()
+		are_clients_ready()
 		start_round_timer.rpc()
 	pass
 
@@ -142,3 +180,11 @@ func _on_post_round_timer_timeout():
 	#TODO:
 #	$Scorekeeper.get_round_results(scoring)
 
+func are_clients_ready():
+	while !clients_ready && !fail_timer.is_stopped():
+		continue
+	if clients_ready:
+		return true
+	else:
+		return false
+	

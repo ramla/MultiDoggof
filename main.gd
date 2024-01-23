@@ -193,6 +193,7 @@ func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in
 		in_playername = "Hostcuck"
 	if hosting && in_team == 0:
 		in_team = get_team_least_players()
+		local_team = in_team
 	
 	if not in_multi_id in playerbase:
 		var new_lobby_player = lobby_player.instantiate()

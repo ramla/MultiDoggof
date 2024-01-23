@@ -58,7 +58,6 @@ var attack_mission: Area2D
 func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
-	print("admiral_scene _ready just ran")
 
 func _unhandled_input(_event):
 	if is_player && on_round_timer: 
@@ -151,6 +150,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	entity_playername = in_playername
 	set_multiplayer_authority(entity_id)
 	is_destroyed = false
+	is_disconnected = false
 	view_distance = $ViewDistance
 	recon_mission = $ReconMission
 	attack_mission = $AttackMission
@@ -200,7 +200,6 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		apply_fog_of_war()
 		#$ViewDistance/LineOfSightVisualized["scale"] = 
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
-	print("admiral_scene init() just ran")
 
 func start_round():
 	on_round_timer = true
@@ -317,12 +316,15 @@ func deal_damage(in_id):
 	admirals[in_id].damage_taken.emit()
 	admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", admirals[in_id].health)
 	if admirals[in_id].health <= 0:
-		destroy.rpc(in_id) #tämä tappaa etämiehen, mutta tarviiko olla RPC?
+		destroy(in_id)
+#		destroy.rpc(in_id) #tämä tappaa etämiehen, mutta tarviiko olla RPC?
 
-@rpc("any_peer", "call_local", "reliable")
+#@rpc("any_peer", "call_local", "reliable")
 func destroy(destroyed_id):
 	#if destroyed_id == local_id: 
 	admirals[destroyed_id].is_destroyed = true
 	admirals[destroyed_id].set_visual()
 	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
+	#dirty to print on both attacker and attackee
 	cprint("!!!!! ", destroyed_id, " has been incapacitated!")
+	admirals[destroyed_id].cprint("!!!!! ", destroyed_id, " has been incapacitated!")

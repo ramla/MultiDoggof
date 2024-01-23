@@ -22,6 +22,7 @@ var scoring = {}
 func _ready():
 	effect.visible = false
 	effect.emitting = false
+	set_icon()
 	pass
 
 func init(in_position, in_hitpoints, in_team, in_value, local_team, priority):
@@ -31,7 +32,6 @@ func init(in_position, in_hitpoints, in_team, in_value, local_team, priority):
 		blue = true
 	else:
 		blue = false
-	set_icon()
 	
 	health = in_hitpoints
 	if health <= 0: 
