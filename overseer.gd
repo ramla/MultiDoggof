@@ -2,14 +2,14 @@
 extends Node
 
 var debug = {
-	"quick_launch" = true, #to quickly launch a game from two instances. second round is also immediately launched as players are readied automatically
+	"quick_launch" = false, #to quickly launch a game from two instances. second round is also immediately launched as players are readied automatically
 	"wallhack" = false, #not tested since fixing most of fog of war and is acshually maphack
 	"pace_up" = false, #doubles some speeds, not very useful maybe DELETE
 	}
 
 var game_settings = {
 	"launch_timer" = 3, 
-	"pre_round_length" = 2, #5? 10?
+	"pre_round_length" = 5, #5? 10?
 	"round_length" = 180,
 	"post_round_length" = 5,
 	"game_mode" = 0,
@@ -64,3 +64,6 @@ var game_settings = {
 		"priority_multiplier" = 3,
 	},
 	}
+
+func _enter_tree():
+	get_tree().set_multiplayer(LogMultiplayer.new())
