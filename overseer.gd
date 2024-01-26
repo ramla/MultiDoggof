@@ -65,5 +65,7 @@ var game_settings = {
 	},
 	}
 
-func _enter_tree():
-	get_tree().set_multiplayer(LogMultiplayer.new())
+#multiplayer debug features. rpc receives printed
+
+#func _enter_tree():
+	#get_tree().set_multiplayer(LogMultiplayer.new())

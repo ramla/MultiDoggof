@@ -29,12 +29,14 @@ var pre_round_timer = Timer.new()
 var round_timer = Timer.new()
 var post_round_timer = Timer.new()
 var fail_timer = Timer.new()
+var clients_ready_check_timer = Timer.new()
 
 func _ready():
 	add_child(pre_round_timer)
 	add_child(round_timer)
 	add_child(post_round_timer)
 	add_child(fail_timer)
+	add_child(clients_ready_check_timer)
 	pre_round_timer.connect("timeout", _on_pre_round_timer_timeout)
 	round_timer.connect("timeout", _on_round_timer_timeout)
 	post_round_timer.connect("timeout", _on_post_round_timer_timeout)
@@ -42,6 +44,11 @@ func _ready():
 	fail_timer.connect("timeout", _on_fail_timer_timeout)
 	fail_timer.wait_time = 10
 	fail_timer.one_shot = true
+
+	clients_ready_check_timer.connect("timeout", _on_clients_ready_check_timer_timeout)
+	clients_ready_check_timer.wait_time = .2
+
+	connect("ready_for_round", _on_ready_for_round)
 
 func _process(_delta):
 	pass
@@ -135,8 +142,7 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 		distribute_objectives.rpc(local_objective_priorities)
 		load_objectives()
 		print("host waiting for clients to ready objectives")
-		await ready_for_round
-		print("READY FOR ROUND GOT! next up: what?")
+		wait_for_clients_ready()
 	elif objectives_received:
 		load_objectives()
 	else:
@@ -185,11 +191,10 @@ func handle_disconnected_player(id):
 func _on_pre_round_timer_timeout():
 	if hosting:
 		fail_timer.start()
-		print("PRE ROUND OVER")
-		print("FAIL TIMER START")
+		print("PRE ROUND over")
+		print("Fail timer started")
 		if clients_ready:
-			start_round_timer.rpc()
-		
+			fail_timer.stop()
 	else:
 		print(local_id, " waiting for host to rpc start round")
 		admirals[local_id].cprint("Waiting for clients")
@@ -223,13 +228,16 @@ func _on_post_round_timer_timeout():
 
 func _on_fail_timer_timeout():
 	#intent is to return to lobby instead, but for now let's just go ahead and start the round
-	print("FAIL TIMER TIMEOUT")
 	if clients_ready:
-		ready_for_round.emit()
-		start_round_timer.rpc()
+		print("FAIL TIMER TIMEOUT w/ clients_ready == true, starting round")
+		#ready_for_round.emit()
+		#start_round_timer.rpc()
 	else:
 		print("LAUNCH FAILED")
 		admirals[local_id].cprint("GAME LAUNCH FAILED")
+
+func _on_ready_for_round():
+	start_round_timer.rpc()
 
 func are_clients_ready():
 	if !clients_ready:
@@ -241,5 +249,12 @@ func are_clients_ready():
 	#		else: print(i, " is ready!")
 	if clients_ready:
 		ready_for_round.emit()
+		clients_ready_check_timer.stop()
 	print(local_id, " are_clients_ready says ", clients_ready)
-	
+
+func wait_for_clients_ready():
+	clients_ready_check_timer.start()
+
+func _on_clients_ready_check_timer_timeout():
+	are_clients_ready()
+	pass
