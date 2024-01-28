@@ -62,3 +62,5 @@ visible = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_aiu2a")
+
+[editable path="ViewDistance"]

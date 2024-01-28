@@ -18,23 +18,6 @@ func update(in_playername, in_ready, in_team, in_local_team):
 		$Hesitating.text = ""
 	else:
 		$Hesitating.text = "Yes"
-	if team == 0:
-		$Team.text = "Centrist"
-		$Team["theme_override_colors/font_color"] = Color(1,1,1,1)
-	elif team == -1:
-		$Team.text = "Progress"
-		if in_local_team == -1:
-			$Team["theme_override_colors/font_color"] = blue
-		if in_local_team == 1:
-			$Team["theme_override_colors/font_color"] = red
-	elif team == 1:
-		$Team.text = "Further"
-		if in_local_team == -1:
-			$Team["theme_override_colors/font_color"] = blue
-		if in_local_team == 1:
-			$Team["theme_override_colors/font_color"] = red
-	else: 
-		$Team.text = "WTF"
 	refresh_team_color(in_local_team)
 
 func refresh_team_color(in_local_team):
@@ -50,9 +33,9 @@ func refresh_team_color(in_local_team):
 	elif team == 1:
 		$Team.text = "Further"
 		if in_local_team == -1:
-			$Team["theme_override_colors/font_color"] = blue
-		if in_local_team == 1:
 			$Team["theme_override_colors/font_color"] = red
+		if in_local_team == 1:
+			$Team["theme_override_colors/font_color"] = blue
 	else: 
 		$Team.text = "WTF"
 

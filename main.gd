@@ -190,7 +190,8 @@ func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = f
 func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = get_team_least_players()):
 	if in_playername == "" && hosting:
 		in_playername = "Hostcuck"
-	if hosting && in_team == 0:
+	
+	if hosting && in_team == 0: 
 		in_team = get_team_least_players()
 		local_team = in_team
 	
@@ -214,7 +215,7 @@ func announce_game_settings():
 	#TODO: pass host's game settings to clients
 	pass
 
-@rpc("any_peer")
+@rpc("call_local")
 func announce_message(multi_id, message):
 	infobox.text += playerbase[multi_id]["playername"] + ": " + str(message)
 
@@ -224,6 +225,7 @@ func get_team_least_players():
 	for id in playerbase:
 		var player = playerbase[id]
 		teamdelta += player["team"]
+	print("random team value: ", randval, " teamdelta: ", teamdelta)
 	if teamdelta > 0:
 		default_team = -1
 	elif teamdelta < 0:

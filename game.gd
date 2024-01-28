@@ -293,7 +293,7 @@ func proceed_to_next_phase(in_state):
 			init_client_state_checklist(admirals)
 			wait_for_clients_ready()
 		ClientState.Waiting4Round2Start:
-			ready_to_receive = false
+			#ready_to_receive = false
 			init_client_state_checklist(admirals)
 			print("HOST LAUNCHING ?")
 			clients_ready = true

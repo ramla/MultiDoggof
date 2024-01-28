@@ -202,6 +202,12 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
 
 func start_round():
+	#HACK: re-applying fog of war b/c sometimes others are visible outside view distance after spawning
+	for i in admirals:
+		if i != local_id && position.distance_to(admirals[i].position) > $ViewDistance/CollisionVisual["shape"]["radius"] / 2:
+			var admiral = admirals[i]
+			admiral.apply_fog_of_war()
+	
 	on_round_timer = true
 	%HUD.start_round()
 	cprint("Round started!")
@@ -243,8 +249,6 @@ func cprint(arg0, _arg1 = "", _arg2 = "", _arg3 = "", _arg4 = "", _arg5 = "", _a
 func apply_fog_of_war():
 	#cprint("FOW active on "+ str(entity_id)+ " at "+ str(local_id))
 	hide()
-	if Overseer.debug["wallhack"]:
-		view_distance.get_node("Sprite2D").show()
 
 func ghost_last_known_admiral_location(spotted_entity_id):
 	if entity_id != spotted_entity_id:
@@ -265,8 +269,6 @@ func _on_return_fog_of_war(seen_entity_id):
 		spotted.emit(seen_entity_id)
 		return
 	admirals[seen_entity_id].hide()
-	if Overseer.debug["wallhack"]:
-		admirals[seen_entity_id].show()
 	var ghost_instantiated = ghost_scene.instantiate()
 	ghost_instantiated.init(seen_entity_id, admirals[seen_entity_id].position, admirals[seen_entity_id].blue, true)
 	get_parent().get_parent().get_node("Ghosts").add_child(ghost_instantiated)

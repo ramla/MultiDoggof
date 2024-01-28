@@ -3,7 +3,6 @@ extends Node
 
 var debug = {
 	"quick_launch" = false, #to quickly launch a game from two instances. second round is also immediately launched as players are readied automatically
-	"wallhack" = false, #not tested since fixing most of fog of war and is acshually maphack
 	"pace_up" = false, #doubles some speeds, not very useful maybe DELETE
 	}
 
