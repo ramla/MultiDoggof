@@ -255,7 +255,7 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
 			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			#cprint("connected ", spotted_entity_id, " fog of war")
+			cprint(local_id, " connected ", spotted_entity_id, " fog of war timer")
 		fog_of_war_timers[spotted_entity_id].start()
 		#cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 

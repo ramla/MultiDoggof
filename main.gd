@@ -154,10 +154,9 @@ func _on_join_buttonpress():
 	peer.create_client(addressbox.text, port)
 	multiplayer.multiplayer_peer = peer
 	local_id = multiplayer.get_unique_id()
-	#print("created client, multiplayer.is_server() returns ",multiplayer.is_server())
 
 func launch(new_game_settings, new_playerbase):
-	$Game.reset(new_game_settings, new_playerbase, local_team, local_id)
+	$Game.reset(new_game_settings, new_playerbase, local_team)
 	$Menu.hide()
 	$Game.show()
 	
@@ -202,14 +201,6 @@ func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in
 	lobby_players[in_multi_id].update(in_playername, in_is_ready, in_team, local_team)
 	for id in lobby_players:
 		lobby_players[id].refresh_team_color(local_team)
-
-	#tarvii for id in playerbase
-	#if playerbase[os_id].get("playername",0) == playername:
-		#var new = {"multi_id" = multi_id, "playername" = playername}
-		#playerbase[os_id]["multi_id"] = multi_id
-	#else:
-		#var new = {"playername" = playername, "os_id" = os_id, "ready" = ready, "team" = team}
-		#playerbase[multi_id].update(new)
 
 	playerbase[in_multi_id] = {
 		"os_id" = in_os_id,

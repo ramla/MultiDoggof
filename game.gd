@@ -1,16 +1,17 @@
 extends Node2D
 
 signal game_over
-signal got_them_objectives
-signal ready_for_round
 signal basic_init_ready
 
 var admirals = {}
+
 var t1_color
 var t2_color
 
 var game_settings
 #kirjottasko nää vaa sinne overseeriin
+
+var playerbase = {}
 
 var admiral_scene = preload("res://admiral.tscn")
 var objective_scene = preload("res://objective.tscn")
@@ -20,35 +21,41 @@ var local_objective_priorities
 var objectives_received = false
 @onready var hosting = false		#ALERT: why on earth is this @onready
 var running = false
-var ready_for_round_checklist = {}
-var checklist_initialized = false
+var client_state_checklist = {}
+var client_state_queue = {}
+var client_state_checklist_initialized = false
 var checklist_queue = { "1" = true }
 var clients_ready = false
+var ready_to_receive = false
+var status_successfully_sent = false
+
+
+enum ClientState { Lobby, Waiting4Spawn, Waiting4Objectives, Waiting4Round2Start }
+var local_state = ClientState.Lobby
+var expected_state = ClientState.Lobby
 
 var pre_round_timer = Timer.new()
 var round_timer = Timer.new()
 var post_round_timer = Timer.new()
 var fail_timer = Timer.new()
-var clients_ready_check_timer = Timer.new()
+var client_state_check_timer = Timer.new()
 
 func _ready():
 	add_child(pre_round_timer)
 	add_child(round_timer)
 	add_child(post_round_timer)
 	add_child(fail_timer)
-	add_child(clients_ready_check_timer)
+	add_child(client_state_check_timer)
 	pre_round_timer.connect("timeout", _on_pre_round_timer_timeout)
 	round_timer.connect("timeout", _on_round_timer_timeout)
 	post_round_timer.connect("timeout", _on_post_round_timer_timeout)
 	
 	fail_timer.connect("timeout", _on_fail_timer_timeout)
-	fail_timer.wait_time = 10
+	fail_timer.wait_time = .2
 	fail_timer.one_shot = true
 
-	clients_ready_check_timer.connect("timeout", _on_clients_ready_check_timer_timeout)
-	clients_ready_check_timer.wait_time = .2
-
-	connect("ready_for_round", _on_ready_for_round)
+	client_state_check_timer.connect("timeout", _on_client_state_check_timer_timeout)
+	client_state_check_timer.wait_time = .2
 
 func _process(_delta):
 	pass
@@ -80,23 +87,14 @@ func randomize_objective_set():
 
 @rpc("reliable")
 func distribute_objectives(in_objectives):
-	if local_id == null:
-		print("null local_id AWAITING")
-		await basic_init_ready
-		print("basic_init_ready get @ ", local_id)
 	local_objective_priorities = in_objectives
 	print(local_id, " received objectives ", in_objectives)
 	objectives_received = true
-	got_them_objectives.emit()
-
-@rpc("reliable", "any_peer")
-func confirm_received_objectives(confirmant_id):
-	print(local_id, " received objectives confirmation from ", confirmant_id)
-	if checklist_initialized == false:
-		checklist_queue[confirmant_id] = true
-	else:
-		ready_for_round_checklist[confirmant_id] = true
-		are_clients_ready() 
+	load_objectives()
+	local_state = ClientState.Waiting4Round2Start
+	update_client_state.rpc_id(1, local_id, local_state)
+	fail_timer.start()
+	print(local_id, " WAITING for round 2 start")
 
 func load_objectives():
 	var i = 0
@@ -112,18 +110,16 @@ func load_objectives():
 		i += 1
 	print(local_id, " loaded objectives")
 
-func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
+func reset(new_game_settings,new_admirals,new_local_team):
 	self.local_id = get_tree().get_multiplayer().get_unique_id()
-	print(local_id, " + in_local_id == ", in_local_id)
 	self.hosting = get_tree().get_multiplayer().is_server()
 	
 	for n in $Admirals.get_children():
 		$Admirals.remove_child(n)
+	
+	playerbase = new_admirals
 	game_settings = new_game_settings
 	local_team = new_local_team
-	#local_id = in_local_id
-	
-	basic_init_ready.emit()
 	
 	if local_team == -1:
 		t1_color = game_settings["blue"]
@@ -132,46 +128,45 @@ func reset(new_game_settings,new_admirals,new_local_team,in_local_id):
 		t1_color = game_settings["red"]
 		t2_color = game_settings["blue"]
 	
-	spawn(new_admirals)
+	if hosting:
+		fail_timer.wait_time = 5
+		init_client_state_checklist(new_admirals)
+		#spawn(admirals)
+		basic_init_ready.emit()
+		expected_state = ClientState.Waiting4Spawn
+		wait_for_clients_ready()
+		print("HOST WAITING for clients ready to spawn, expected state: ", str(expected_state))
+	else:
+		local_state = ClientState.Waiting4Spawn
+		fail_timer.one_shot = false
+		fail_timer.start()
+		update_client_state.rpc_id(1, local_id, local_state)
+		print(local_id, " called update_client_state ", str(local_state), " (waiting 4 spawn)")
+		
 	start_round_timer_chain()
 
-	print(local_id, " hosting = ", hosting)
-	if hosting:
-		init_ready_for_round_checklist(new_admirals)
-		local_objective_priorities = randomize_objectives()
-		distribute_objectives.rpc(local_objective_priorities)
-		load_objectives()
-		print("host waiting for clients to ready objectives")
-		wait_for_clients_ready()
-	elif objectives_received:
-		load_objectives()
-	else:
-		print(local_id, " waiting for host to send objectives data")
-		get_owner().infobox.text += "Waiting for host to send objectives data"
-		await got_them_objectives
-		load_objectives()
-		confirm_received_objectives.rpc_id(1, local_id)
-
-func spawn(new_admirals):
-	for id in new_admirals:
-		var admiral = new_admirals[id]
+@rpc("reliable", "call_local")
+func spawn():
+	for id in playerbase:
+		var admiral = playerbase[id]
 		var admiral_instance = admiral_scene.instantiate()
 		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
 	print(local_id, " spawned admirals")
+	if !hosting:
+		local_state = ClientState.Waiting4Objectives
+		fail_timer.start()
+		update_client_state.rpc_id(1, local_id, local_state)
+		print(local_id, " called update_client_state ", local_state, " (w/4objectives), fail timer started")
 
-func init_ready_for_round_checklist(in_admirals):
+func init_client_state_checklist(in_admirals):
 	for i in in_admirals:
 		if i != 1:
-			ready_for_round_checklist[i] = false
-	print(ready_for_round_checklist)
-	checklist_initialized = true
-	print(local_id, " rfr checklist initialized w/ false for each client id, list above")
-	for i in checklist_queue:
-		if i != "1":
-			ready_for_round_checklist[i] = true
-	
+			client_state_checklist[i] = null
+	client_state_checklist_initialized = true
+	print(local_id, " ClientState checklist initialized w/ false for each client id.")
+
 func start_round_timer_chain():
 	pre_round_timer.wait_time = game_settings["pre_round_length"]
 	round_timer.wait_time = game_settings["round_length"]
@@ -194,21 +189,25 @@ func _on_pre_round_timer_timeout():
 		print("PRE ROUND over")
 		print("Fail timer started")
 		if clients_ready:
+			print("HOST: clients ready, starting round timer")
 			fail_timer.stop()
-	else:
-		print(local_id, " waiting for host to rpc start round")
-		admirals[local_id].cprint("Waiting for clients")
+			start_round_timer.rpc()
+		else: print("HOST: clients NOT READY, fail timer is our last chance!")
 
 @rpc("call_local", "reliable")
 func start_round_timer():
 	if !running:
+		ready_to_receive = true
+		pre_round_timer.stop()
 		running = true
 		round_timer.start()
+		clients_ready = false
 		admirals[local_id].start_round()
 		print(local_id, " started round timer")
 
 func _on_round_timer_timeout():
-	start_post_round_timer.rpc()
+	if hosting:
+		start_post_round_timer.rpc()
 
 @rpc("call_local","reliable")
 func start_post_round_timer():
@@ -219,6 +218,8 @@ func _on_post_round_timer_timeout():
 	running = false
 	var hud = admirals[local_id].get_node("HUD")
 	hud.visible = false
+	local_state = ClientState.Lobby
+	update_client_state.rpc_id(1, local_id, local_state)
 
 	game_over.emit()
 #	game_over.emit(scoring)
@@ -227,34 +228,80 @@ func _on_post_round_timer_timeout():
 #	$Scorekeeper.get_round_results(scoring)
 
 func _on_fail_timer_timeout():
-	#intent is to return to lobby instead, but for now let's just go ahead and start the round
-	if clients_ready:
-		print("FAIL TIMER TIMEOUT w/ clients_ready == true, starting round")
-		#ready_for_round.emit()
-		#start_round_timer.rpc()
+	if hosting:
+		#intent is to return to lobby instead, but for now let's just go ahead and start the round
+		if clients_ready:
+			print("FAIL TIMER TIMEOUT w/ clients_ready == true, starting round")
+		else:
+			print("LAUNCH FAILED")
+			admirals[local_id].cprint("GAME LAUNCH FAILED")
 	else:
-		print("LAUNCH FAILED")
-		admirals[local_id].cprint("GAME LAUNCH FAILED")
+		if !status_successfully_sent:
+			update_client_state.rpc_id(1, local_id, local_state)
 
 func _on_ready_for_round():
 	start_round_timer.rpc()
 
-func are_clients_ready():
-	if !clients_ready:
-		clients_ready = true
-		for i in ready_for_round_checklist:
-			if ready_for_round_checklist[i] == false:
-				clients_ready = false
-	#			print(i, " is not ready")
-	#		else: print(i, " is ready!")
-	if clients_ready:
-		ready_for_round.emit()
-		clients_ready_check_timer.stop()
-	print(local_id, " are_clients_ready says ", clients_ready)
+func is_all_clients_state(in_expected_state):
+	client_state_check_timer.stop()
+	var all_states_match = true
+	print("HOST checking clients states match? checklist: ", client_state_checklist)
+	for i in client_state_checklist:
+		if client_state_checklist[i] != in_expected_state:
+			all_states_match = false
+	if all_states_match:
+		proceed_to_next_phase(in_expected_state)
+#		clients_ready = false
+		client_state_checklist_initialized = false
+	else: client_state_check_timer.start()
 
 func wait_for_clients_ready():
-	clients_ready_check_timer.start()
+	client_state_check_timer.start()
+	ready_to_receive = true
+	print("HOST started client state check timer, ready to receive = true")
 
-func _on_clients_ready_check_timer_timeout():
-	are_clients_ready()
-	pass
+func _on_client_state_check_timer_timeout():
+	is_all_clients_state(expected_state)
+	print("client_state_check_timer_timeout")
+
+@rpc("any_peer", "reliable")
+func update_client_state(in_client_id, in_client_state: ClientState):
+	if ready_to_receive:
+		print("HOST received & confirming ", in_client_id, " state ", in_client_state)
+		client_state_checklist[in_client_id] = in_client_state
+		confirm_received.rpc_id(in_client_id, in_client_state)
+
+func proceed_to_next_phase(in_state):
+	print("HOST proceeding to next phase, all states matched expected_state ", expected_state)
+	match in_state:
+		ClientState.Lobby:
+			pass
+		ClientState.Waiting4Spawn:
+			ready_to_receive = false
+			spawn.rpc()
+			expected_state = ClientState.Waiting4Objectives
+			print("HOST WAITING for clients to ready for objectives, expected state == ", expected_state)
+			init_client_state_checklist(admirals)
+			wait_for_clients_ready()
+		ClientState.Waiting4Objectives:
+			ready_to_receive = false
+			local_objective_priorities = randomize_objectives()
+			distribute_objectives.rpc(local_objective_priorities)
+			load_objectives()
+			expected_state = ClientState.Waiting4Round2Start
+			print("HOST WAITING for clients to ready for round 2 start, expected state == ", expected_state)
+			init_client_state_checklist(admirals)
+			wait_for_clients_ready()
+		ClientState.Waiting4Round2Start:
+			ready_to_receive = false
+			init_client_state_checklist(admirals)
+			print("HOST LAUNCHING ?")
+			clients_ready = true
+
+@rpc("reliable")
+func confirm_received(received_state):
+	print(local_id, " got host confirmation for state update, received state == ", received_state)
+	if received_state == local_state:
+		status_successfully_sent = true
+		print(local_id, " got host confirmation for state update, fail timer stopped")
+	else: print("received unexpected state confirmation")
