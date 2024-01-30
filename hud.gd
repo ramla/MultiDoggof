@@ -139,7 +139,7 @@ func _on_damage_taken():
 	if get_owner().is_player:
 		health = get_owner().health
 		%ProgressBar["value"] = health
-		get_owner().cprint(local_id, "'s %HUD drawing damage taken @ ", local_id, "'s new health is ", health)
+		#get_owner().cprint(local_id, "'s %HUD drawing damage taken @ ", local_id, "'s new health is ", health)
 
 func _on_munitions_used():
 	munitions -= 1

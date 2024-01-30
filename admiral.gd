@@ -191,9 +191,9 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		attack_mission.collision_mask = 16
 	set_visual()
 	if team == -1:
-		spawn = game_settings["admiral"]["spawn_east"] + Vector2(0,randf_range(-100,100))
+		spawn = game_settings["admiral"]["spawn_east"] + Vector2(0,0)#randf_range(-100,100))
 	else:
-		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,randf_range(-100,100))
+		spawn = game_settings["admiral"]["spawn_west"] + Vector2(0,0)#randf_range(-100,100))
 	global_position = spawn
 	if !is_player:
 		%HUD.queue_free()
@@ -218,7 +218,7 @@ func start_post_round():
 	on_round_timer = false
 
 func set_visual():
-	cprint("setting visual on local_id ", local_id, " for entity_id ", entity_id)
+	#cprint("setting visual on local_id ", local_id, " for entity_id ", entity_id)
 	var blue_texture = load("res://Assets/ENEMIES8bit_NegaBlob Idle.png")
 	var nonblue_texture = load("res://Assets/ENEMIES8bit_Blob Idle.png")
 	var destroyed_blue_texture = load("res://Assets/item8BIT_skull_blue.png")
@@ -259,7 +259,7 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
 			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			cprint(local_id, " connected ", spotted_entity_id, " fog of war timer")
+			cprint(get_playername(local_id), " connected ", get_playername(spotted_entity_id), " fog of war timer")
 		fog_of_war_timers[spotted_entity_id].start()
 		#cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 
@@ -274,36 +274,47 @@ func _on_return_fog_of_war(seen_entity_id):
 	get_parent().get_parent().get_node("Ghosts").add_child(ghost_instantiated)
 
 func _on_view_distance_body_entered(body):
-	var spotted_entity_id = body.entity_id
-	if entity_id == spotted_entity_id:
-		return
-	spotted.emit(spotted_entity_id)
-	#cprint(spotted_entity_id, " entered ", entity_id, "'s Line of Sight")
-	if fog_of_war_timers.has(spotted_entity_id):
-		fog_of_war_timers[spotted_entity_id].stop()
-	admirals[spotted_entity_id].show()
-	admirals[spotted_entity_id].in_line_of_sight = true
+	if body is Admiral:
+		var spotted_entity_id = body.entity_id
+		if entity_id == spotted_entity_id:
+			return
+		spotted.emit(spotted_entity_id)
+		cprint(get_playername(spotted_entity_id), " entered ", get_playername(entity_id), "'s Line of Sight")
+		if fog_of_war_timers.has(spotted_entity_id):
+			fog_of_war_timers[spotted_entity_id].stop()
+		admirals[spotted_entity_id].show()
+		admirals[spotted_entity_id].in_line_of_sight = true
 
 func _on_view_distance_body_exited(body):
-	var spotted_entity_id = body.entity_id
-	#cprint(spotted_entity_id, " left line of sight of ", entity_id)
-	admirals[spotted_entity_id].in_line_of_sight = false
-	ghost_last_known_admiral_location(spotted_entity_id)
+	if body is Admiral:
+		var spotted_entity_id = body.entity_id
+		#cprint(spotted_entity_id, " left line of sight of ", entity_id)
+		admirals[spotted_entity_id].in_line_of_sight = false
+		ghost_last_known_admiral_location(spotted_entity_id)
 
 func _on_recon_body_entered(body):
-	var spotted_entity_id = body.entity_id
-	cprint(entity_id, "'s recon spotted ", spotted_entity_id)
-	ghost_last_known_admiral_location(spotted_entity_id)
-	spotted.emit(spotted_entity_id)
+	if body is Admiral:
+		var spotted_entity_id = body.entity_id
+		cprint(get_playername(entity_id), "'s recon spotted ", get_playername(spotted_entity_id))
+		ghost_last_known_admiral_location(spotted_entity_id)
+		spotted.emit(spotted_entity_id)
 
 func _on_attack_body_entered(body):
-	var spotted_entity_id = body.entity_id
-	cprint(entity_id, "'s attacker spotted ", spotted_entity_id)
-	ghost_last_known_admiral_location(spotted_entity_id)
-	spotted.emit(spotted_entity_id)
-	if !admirals[spotted_entity_id].blue:
+	if body is Admiral:
+		var spotted_entity_id = body.entity_id
+		if !admirals[spotted_entity_id].blue:
+			attack_mission.area.set_deferred("disabled", true)
+			deal_damage.rpc(spotted_entity_id)
+			use_munitions()
+		cprint(get_playername(entity_id), "'s attacker spotted ", get_playername(spotted_entity_id))
+		ghost_last_known_admiral_location(spotted_entity_id)
+		spotted.emit(spotted_entity_id)
+
+	if body is Objective && !body.blue:
 		attack_mission.area.set_deferred("disabled", true)
-		deal_damage.rpc(spotted_entity_id)
+		var objective_id = body.objective_id
+		cprint(get_playername(entity_id), " attacked objective ", objective_id)
+		body.lose_health.rpc(1,entity_id)
 		use_munitions()
 
 func use_munitions():
@@ -312,21 +323,21 @@ func use_munitions():
 
 @rpc("any_peer", "call_local", "reliable")
 func deal_damage(in_id):
-	print(self.entity_id, " running deal_damage()")
-	#if in_id == local_id: 
+	print(self.entity_id, " running deal_damage()") 
 	admirals[in_id].health -= 1 #tämä vie etäpäältä hiparia
 	admirals[in_id].damage_taken.emit()
-	admirals[in_id].cprint("taking damage @ local_id ", local_id, ". Health is now ", admirals[in_id].health)
+	admirals[in_id].cprint(get_playername(in_id), " taking damage. Health is now ", admirals[in_id].health)
 	if admirals[in_id].health <= 0:
 		destroy(in_id)
-#		destroy.rpc(in_id) #tämä tappaa etämiehen, mutta tarviiko olla RPC?
 
-#@rpc("any_peer", "call_local", "reliable")
 func destroy(destroyed_id):
 	#if destroyed_id == local_id: 
 	admirals[destroyed_id].is_destroyed = true
 	admirals[destroyed_id].set_visual()
 	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
 	#dirty to print on both attacker and attackee
-	cprint("!!!!! ", destroyed_id, " has been incapacitated!")
-	admirals[destroyed_id].cprint("!!!!! ", destroyed_id, " has been incapacitated!")
+	cprint("!!!!! ", get_playername(destroyed_id), " has been incapacitated!")
+	admirals[destroyed_id].cprint("!!!!! ", get_playername(destroyed_id), " has been incapacitated!")
+
+func get_playername(in_entity_id):
+	return admirals[in_entity_id].entity_playername

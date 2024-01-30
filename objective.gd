@@ -2,6 +2,7 @@ extends StaticBody2D
 class_name Objective
 
 signal score_objective(points, attributed_to)
+signal objective_destroyed(objective_id)
 
 var health
 var hitpoints_lost = 0
@@ -9,6 +10,7 @@ var blue
 var value
 var local_team
 var destroyed = false
+var objective_id
 
 var priority
 #var priority_objective_enemy = false
@@ -25,24 +27,27 @@ func _ready():
 	effect.visible = false
 	effect.emitting = false
 	set_icon()
-	pass
 
-func init(in_position, in_hitpoints, in_team, in_value, in_local_team, in_priority):
+func init(in_objective_id, in_position, in_hitpoints, in_team, in_value, in_local_team, in_priority):
 	position = in_position
-	
+	objective_id = in_objective_id
 	local_team = in_local_team
-	if in_team == local_team: 
-		blue = true
-		priority = in_priority
-	else:
-		blue = false
+	value = in_value
 	
 	health = in_hitpoints
 	if health <= 0: 
-		destroyed = true
+		destroyed = true	
 	
-	value = in_value
-
+	if in_team == local_team: 
+		blue = true
+		priority = in_priority
+		collision_layer = 4
+		collision_mask = 8
+	else:
+		blue = false
+		collision_layer = 8
+		collision_mask = 16
+	
 func set_icon():
 	if blue:
 		attack_icon.visible = false
@@ -53,6 +58,7 @@ func set_icon():
 		attack_icon.visible = true
 		defend_icon.visible = false
 
+@rpc("any_peer", "call_local")
 func lose_health(damage, attacker_id):
 	health -= damage
 	if health <= 0:
@@ -70,13 +76,15 @@ func get_team_scores():
 	#if priority_objective_t2:
 		#score_ally = -value * hitpoints_lost * priority_multiplier
 	pass
-	
+
 func destroy(attacker_id):
 	effect.visible = true
 	effect.emitting = true
-	collision_node.disabled = true
-	print(attacker_id)
-	pass
+	collision_layer = 4
+	collision_mask = 8
+	
+	objective_destroyed.emit(objective_id)
+	print(attacker_id, " destroyed objective ", objective_id)
 
 func attribute_score(damage, attacker_id):
 	print(attacker_id, damage)

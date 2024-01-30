@@ -13,6 +13,7 @@ var local_ready = false
 var local_team = 0
 var start_timer = Timer.new()
 var ticktimer = Timer.new()
+var orientation_timer = Timer.new()
 
 var playerbase = {}
 var last_round_playerbase = {}
@@ -64,6 +65,9 @@ func _ready():
 	ticktimer.wait_time = .5
 	ticktimer.connect("timeout", _on_tick)
 	ticktimer.start()
+	add_child(orientation_timer)
+	orientation_timer.wait_time = 5
+	orientation_timer.connect("timeout", _on_orientation_timer_timeout)
 	
 func _process(_delta):
 	if start_timer.is_stopped():
@@ -74,8 +78,10 @@ func _process(_delta):
 
 func are_we_there_yet():
 	all_ready = true
+	print("are we there yet?")
 	for id in playerbase:
 		var player = playerbase[id]
+		print(player)
 		if !player["is_ready"]:
 			all_ready = false
 
@@ -283,7 +289,7 @@ func _on_tick():
 
 @rpc("call_local")
 func unready():
-	%ReadyButton.button_pressed = false
+	%ReadyButton.set_pressed(true)
 	local_ready = false
 	all_ready = false
 	all_in_team = false
@@ -293,10 +299,15 @@ func unready():
 	lobby_players.clear()
 	for lobbyist in %PlayerList.get_children():
 		%PlayerList.remove_child(lobbyist)
+	update_player(local_id, local_osid, local_playername, local_ready, local_team)
 	if hosting:
 		request_announce_player.rpc()
-	ticktimer.start()
+	orientation_timer.start()
 
 @rpc("authority")
 func request_announce_player():
 	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
+
+func _on_orientation_timer_timeout():
+	print("ticktimer starting")
+	ticktimer.start()

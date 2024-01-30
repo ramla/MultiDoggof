@@ -98,13 +98,15 @@ func distribute_objectives(in_objectives):
 
 func load_objectives():
 	var i = 0
+	for n in $Level.get_children():
+		$Level.remove_child(n)
 	for spawnpoint in game_settings["objective"]["spawns"]:
 		var objective_priority = local_objective_priorities[i]
 		var obj_team
 		if spawnpoint.contains("east"): obj_team = -1
 		else: obj_team = 1
 		var objective_instance = objective_scene.instantiate()
-		objective_instance.init(game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority)
+		objective_instance.init(i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority)
 		print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
 		$Level.add_child(objective_instance)
 		i += 1
