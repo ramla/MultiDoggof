@@ -57,7 +57,6 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	recon_mission.connect("aviation_fuel_used", _on_aviation_fuel_used)
 	recon_mission_timer = recon_mission.get_node("CooldownTimer")
 	recon_mission_timer.connect("timeout", _on_recon_mission_cooldown_over)
-	get_owner().connect("munitions_used", _on_munitions_used)
 	get_owner().connect("damage_taken", _on_damage_taken)
 	get_owner().connect("cprint_signal", _on_cprint)
 	health = in_health
@@ -141,7 +140,7 @@ func _on_damage_taken():
 		%ProgressBar["value"] = health
 		#get_owner().cprint(local_id, "'s %HUD drawing damage taken @ ", local_id, "'s new health is ", health)
 
-func _on_munitions_used():
+func munitions_used():
 	munitions -= 1
 	%MunitionsAmount["text"] = str(munitions)
 	if munitions <= 2:

@@ -12,21 +12,21 @@ Initial locked in goals before adding major new ones:
 - DONE Fog of war
 - DONE Reconnaissance action
 - DONE Visible ghosts of acquired information
-- STARTED Basic objectives
+- DONE? Basic objectives
 - DONE Attack action
 - Scorekeeping
-- BUGGY Return to lobby
+- SLIGHTLY LESS BUGGY THAN BEFORE Return to lobby
 
 bugs important to fix:
-	- postgame 2p only client gets both players' data and launches alone
-
+	- DONE postgame 2p only client gets both players' data and launches alone
+	- launch countdown in lobby needs to be interrupted on anyone's team change or hesitation
 tweaks that feel important:
-	- BUGGY mission effect area needs a visual cue (things don't always appear)
+	- ½DONE mission effect area needs a visual cue (need to implement for attack as well)
 
 
 Phase 1.1: for the first playtest
 - DONE Round timers
 - DONE Resources (fuels,munitions)
-- PARTLY Needs HUD as well
+- DONE Needs HUD as well
 
 Phase 2: Proper restructuring and cleanup of code

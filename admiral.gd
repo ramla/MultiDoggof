@@ -170,6 +170,7 @@ func init(id, in_playername, team, local_team, in_local_id, in_settings):
 		view_distance.collision_mask = 12
 		recon_mission.collision_mask = 12
 		attack_mission.collision_mask = 12
+		attack_mission.connect("munitions_used", _on_munitions_used)
 		%HUD.init(health, munitions, fuel_oil, aviation_fuel, local_id)
 		$ViewDistance/CollisionVisual["shape"]["radius"] = game_settings["admiral"]["line_of_sight_radius"]
 		$ViewDistance/LineOfSightVisualized["visible"] = true
@@ -302,24 +303,24 @@ func _on_recon_body_entered(body):
 func _on_attack_body_entered(body):
 	if body is Admiral:
 		var spotted_entity_id = body.entity_id
-		if !admirals[spotted_entity_id].blue:
+		if !admirals[spotted_entity_id].blue && attack_mission.munitions_onboard > 0:
 			attack_mission.area.set_deferred("disabled", true)
 			deal_damage.rpc(spotted_entity_id)
-			use_munitions()
+			attack_mission.spend_munitions()
 		cprint(get_playername(entity_id), "'s attacker spotted ", get_playername(spotted_entity_id))
 		ghost_last_known_admiral_location(spotted_entity_id)
 		spotted.emit(spotted_entity_id)
 
-	if body is Objective && !body.blue:
+	if body is Objective && !body.blue && attack_mission.munitions_onboard > 0:
 		attack_mission.area.set_deferred("disabled", true)
 		var objective_id = body.objective_id
 		cprint(get_playername(entity_id), " attacked objective ", objective_id)
 		body.lose_health.rpc(1,entity_id)
-		use_munitions()
+		attack_mission.spend_munitions()
 
-func use_munitions():
+func _on_munitions_used():
 	munitions -= 1
-	munitions_used.emit()
+	%HUD.munitions_used()
 
 @rpc("any_peer", "call_local", "reliable")
 func deal_damage(in_id):

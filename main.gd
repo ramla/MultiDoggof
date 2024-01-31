@@ -59,7 +59,7 @@ func _ready():
 	
 	add_child(start_timer)
 	start_timer.one_shot = true
-	start_timer.wait_time = 3
+	start_timer.wait_time = game_settings["launch_timer"]
 	start_timer.connect("timeout", _on_start_timer_timeout)
 	add_child(ticktimer)
 	ticktimer.wait_time = .5

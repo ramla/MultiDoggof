@@ -3,6 +3,7 @@ class_name Hurtbox
 
 signal attack_mission_takeoff(mission_duration)
 signal no_munitions
+signal munitions_used
 signal aviation_fuel_used(amount)
 
 var mission_range
@@ -11,6 +12,7 @@ var mission_over = true
 var cooldown_ready = false
 var attack_wings = Overseer.game_settings["admiral"]["attack_wings"]
 var ordered_position = Vector2.ZERO
+var munitions_onboard = 0
 
 #TODO
 #const READY_IN_HANGAR = 1
@@ -82,22 +84,31 @@ func order_attack_mission(action_click_position):
 	if cooldown_ready == true && get_parent().munitions > 0 && get_parent().aviation_fuel >= aviation_fuel_consumption:
 		area.disabled = false
 		area.visible = false
+		
 		ordered_position = action_click_position
+		
 		hurtbox_animation_node["speed_scale"] = 1
 		hurtbox_animation_node.stop()
 		hurtbox_animation_node.play("attack")
+		
 		effect_attack.get_owner().look_at(get_global_mouse_position())
 		effect_attack.restart()
 		effect_attack["emitting"] = true
+		
 		mission_timer.start()
+		
 		cooldown_ready = false
 		$Icon.visible = false
 		effect_running = true
 		mission_over = false
+		
+		reserve_munitions()
+		
 		print("attack mission takes off, mission duration ", str(cooldown_timer.wait_time + mission_duration))
 		attack_mission_takeoff.emit(cooldown_timer.wait_time + mission_duration)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
-	elif !get_parent().munitions > 0:
+		
+	elif get_parent().munitions <= 0:
 		no_munitions.emit()
 
 func _on_animation_finished(_anim_name):
@@ -118,3 +129,10 @@ func _on_effect_attack_finished():
 
 func is_ready():
 	return cooldown_ready
+
+func reserve_munitions():
+	munitions_onboard = 1
+
+func spend_munitions():
+	munitions_onboard -= 1
+	munitions_used.emit()
