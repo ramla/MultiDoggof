@@ -43,7 +43,9 @@ var entity_id
 var is_player
 var is_ally
 var is_enemy
+var team
 var in_line_of_sight = false
+@onready var tick = get_parent().get_parent().tick
 
 var timer_scene = preload("res://fog_of_war_timer.tscn")
 var fog_of_war_timers: Dictionary = {}
@@ -54,6 +56,7 @@ var view_distance: Area2D
 var recon_mission: Area2D
 var attack_mission: Area2D
 @onready var attack_area = $AttackMission/Area
+@onready var event_tracker = get_parent().get_parent().get_node("EventTracker")
 
 func _ready():
 	is_destroyed = false
@@ -143,10 +146,11 @@ func consume_fuel_oil(delta):
 	if fuel_oil <= 0:
 		click_position = position
 
-func init(id, in_playername, team, local_team, in_local_id, in_settings):
+func init(id, in_playername, in_team, local_team, in_local_id, in_settings):
 	game_settings = in_settings
 	entity_id = id
 	local_id = in_local_id
+	team = in_team
 	entity_playername = in_playername
 	set_multiplayer_authority(entity_id)
 	is_destroyed = false
@@ -330,6 +334,9 @@ func deal_damage(in_id):
 	admirals[in_id].cprint(get_playername(in_id), " taking damage. Health is now ", admirals[in_id].health)
 	if admirals[in_id].health <= 0:
 		destroy(in_id)
+		score(ScoredEvent.ScoreSource.AdmiralDestroyed)
+	else:
+		score(ScoredEvent.ScoreSource.AdmiralDamaged)
 
 func destroy(destroyed_id):
 	#if destroyed_id == local_id: 
@@ -342,3 +349,19 @@ func destroy(destroyed_id):
 
 func get_playername(in_entity_id):
 	return admirals[in_entity_id].entity_playername
+
+func score(source, in_id = local_id, in_team = team):
+	var scored_event = ScoredEvent.new()
+	var points
+	match source:
+		ScoredEvent.ScoreSource.AdmiralDamaged:
+			points = game_settings["scoring"]["admiral_damaged"]
+		ScoredEvent.ScoreSource.AdmiralDestroyed:
+			points = game_settings["scoring"]["admiral_destroyed"]
+		ScoredEvent.ScoreSource.ObjectiveDamaged:
+			points = game_settings["scoring"]["objective_damaged"]
+		ScoredEvent.ScoreSource.ObjectiveDestroyed:
+			points = game_settings["scoring"]["objective_destroyed"]
+	scored_event.init(tick, points, in_id, in_team, source)
+	event_tracker.store_event(scored_event)
+	

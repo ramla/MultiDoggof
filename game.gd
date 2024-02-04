@@ -28,6 +28,7 @@ var checklist_queue = { "1" = true }
 var clients_ready = false
 var ready_to_receive = false
 var status_successfully_sent = false
+@export var tick: int = 0
 
 
 enum ClientState { Lobby, Waiting4Spawn, Waiting4Objectives, Waiting4Round2Start }
@@ -39,6 +40,7 @@ var round_timer = Timer.new()
 var post_round_timer = Timer.new()
 var fail_timer = Timer.new()
 var client_state_check_timer = Timer.new()
+var ticktimer = Timer.new()
 
 func _ready():
 	add_child(pre_round_timer)
@@ -46,6 +48,8 @@ func _ready():
 	add_child(post_round_timer)
 	add_child(fail_timer)
 	add_child(client_state_check_timer)
+	add_child(ticktimer)
+	
 	pre_round_timer.connect("timeout", _on_pre_round_timer_timeout)
 	round_timer.connect("timeout", _on_round_timer_timeout)
 	post_round_timer.connect("timeout", _on_post_round_timer_timeout)
@@ -56,6 +60,9 @@ func _ready():
 
 	client_state_check_timer.connect("timeout", _on_client_state_check_timer_timeout)
 	client_state_check_timer.wait_time = .2
+	
+	ticktimer.wait_time = .1
+	ticktimer.connect("timeout", _on_tick)
 
 func _process(_delta):
 	pass
@@ -205,6 +212,8 @@ func start_round_timer():
 		round_timer.start()
 		clients_ready = false
 		admirals[local_id].start_round()
+		tick = 0
+		ticktimer.start()
 		print(local_id, " started round timer")
 
 func _on_round_timer_timeout():
@@ -240,6 +249,9 @@ func _on_fail_timer_timeout():
 	else:
 		if !status_successfully_sent:
 			update_client_state.rpc_id(1, local_id, local_state)
+
+func _on_tick():
+	tick += 1
 
 func _on_ready_for_round():
 	start_round_timer.rpc()

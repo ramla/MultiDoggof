@@ -1,0 +1,69 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvhxmoylkgjed"]
+
+[ext_resource type="Script" path="res://score_table.gd" id="1_vfnmr"]
+
+[node name="ScoreTable" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_vfnmr")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_right = 1152.0
+offset_bottom = 648.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer1" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1"]
+layout_mode = 2
+
+[node name="NameContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TotalContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ObjectivesContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PvPContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="NameContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TotalContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ObjectivesContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PvPContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CloseButton" type="MenuButton" parent="CenterContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Close"

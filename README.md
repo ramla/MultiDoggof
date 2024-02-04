@@ -13,8 +13,9 @@ Initial locked in goals before adding major new ones:
 - DONE Reconnaissance action
 - DONE Visible ghosts of acquired information
 - DONE? Basic objectives
+	decide on priority mechanics and implement it
 - DONE Attack action
-- Scorekeeping
+- STARTED Scorekeeping
 - SLIGHTLY LESS BUGGY THAN BEFORE Return to lobby
 
 bugs important to fix:

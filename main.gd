@@ -52,6 +52,7 @@ func _ready():
 	%UPnPButton.connect("toggled", _on_upnp_button_toggled)
 	%ProgressButton.connect("button_down", _on_team_select_progress)
 	%FurtherButton.connect("button_down", _on_team_select_further)
+	%ScoreButton.connect("pressed", _on_score_button_pressed)
 	
 	if Overseer.debug["pace_up"]:
 		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
@@ -169,8 +170,12 @@ func launch(new_game_settings, new_playerbase):
 func _on_game_over():
 	if hosting:
 		unready.rpc()
+
 	$Game.hide()
 	$Menu.show()
+	$ScoreTable.show()
+	$ScoreTable.draw_scores(playerbase)
+	%ScoreButton.show()
 
 @rpc("any_peer")
 func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = get_team_least_players()):
@@ -251,6 +256,9 @@ func _on_ready_button_toggled(toggle_position):
 		announce_player(local_id, local_osid, namebox.text, local_ready, local_team)
 	else:
 		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
+
+func _on_score_button_pressed():
+	$ScoreTable.show()
 
 func _on_team_select_progress():
 	local_team = -1

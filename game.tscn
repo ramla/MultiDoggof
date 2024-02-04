@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dq02d7ku86vxp"]
+[gd_scene load_steps=4 format=3 uid="uid://dq02d7ku86vxp"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_y58qk"]
 [ext_resource type="PackedScene" uid="uid://lwla2t4uganw" path="res://level.tscn" id="2_76n7g"]
+[ext_resource type="Script" path="res://event_tracker.gd" id="3_viscm"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_y58qk")
@@ -14,3 +15,6 @@ script = ExtResource("1_y58qk")
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("../Admirals")
+
+[node name="EventTracker" type="Node" parent="."]
+script = ExtResource("3_viscm")
