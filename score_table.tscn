@@ -16,54 +16,57 @@ layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 648.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
 layout_mode = 2
 
-[node name="VBoxContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer1" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1"]
+[node name="VBoxContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="NameContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+[node name="HBoxContainer1" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1"]
+layout_mode = 2
+
+[node name="NameContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TotalContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+[node name="TotalContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ObjectivesContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+[node name="ObjectivesContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PvPContainer1" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
+[node name="PvPContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="NameContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+[node name="NameContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="TotalContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+[node name="TotalContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="ObjectivesContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+[node name="ObjectivesContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="PvPContainer2" type="VBoxContainer" parent="CenterContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
+[node name="PvPContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="CloseButton" type="MenuButton" parent="CenterContainer"]
+[node name="CloseButton" type="MenuButton" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Close"

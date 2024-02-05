@@ -42,7 +42,8 @@ func create_array():
 		individual_scores_array.insert(i,[id, individual_scores[id], individual_scores_objective[id], individual_scores_pvp[id]])
 
 func sort_desc_by_total(a,b):
-	if a[0][1] > b[0][1]:
+	#if a[0][1] > b[0][1]:
+	if a[1] > b[1]:
 		return true
 	else: return false
 #

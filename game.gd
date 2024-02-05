@@ -233,10 +233,6 @@ func _on_post_round_timer_timeout():
 	update_client_state.rpc_id(1, local_id, local_state)
 
 	game_over.emit()
-#	game_over.emit(scoring)
-
-	#TODO:
-#	$Scorekeeper.get_round_results(scoring)
 
 func _on_fail_timer_timeout():
 	if hosting:

@@ -9,7 +9,7 @@ var debug = {
 var game_settings = {
 	"launch_timer" = 1.7, 
 	"pre_round_length" = 3, #5? 10?
-	"round_length" = 10, #180
+	"round_length" = 180, #180
 	"post_round_length" = 3, #5? 15?
 	"game_mode" = 0,
 	"port" = 4868, #Total amount of warships and auxiliary military ships lost during WW2 
@@ -69,6 +69,5 @@ var game_settings = {
 	}
 
 #multiplayer debug features. rpc receives printed
-
 #func _enter_tree():
 	#get_tree().set_multiplayer(LogMultiplayer.new())

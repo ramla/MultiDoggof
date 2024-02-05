@@ -164,20 +164,20 @@ func _on_join_buttonpress():
 
 func launch(new_game_settings, new_playerbase):
 	$Game.reset(new_game_settings, new_playerbase, local_team)
+	$ScoreTable.update_players(new_playerbase)
 	$Menu.hide()
 	$Game.show()
-	
+
 func _on_game_over():
+	$ScoreTable.show()
+	$ScoreTable.draw_scores()
 	if hosting:
 		unready.rpc()
-
 	$Game.hide()
 	$Menu.show()
-	$ScoreTable.show()
-	$ScoreTable.draw_scores(playerbase)
 	%ScoreButton.show()
 
-@rpc("any_peer")
+@rpc("any_peer", "reliable")
 func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = get_team_least_players()):
 	var playername
 	if Overseer.debug["quick_launch"]:
@@ -221,7 +221,7 @@ func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in
 		"team" = in_team
 		}
 
-@rpc
+@rpc("reliable")
 func announce_game_settings():
 	#TODO: pass host's game settings to clients
 	pass
@@ -295,7 +295,7 @@ func _on_tick():
 	else:
 		start_timer.stop()
 
-@rpc("call_local")
+@rpc("call_local", "reliable")
 func unready():
 	%ReadyButton.set_pressed(true)
 	local_ready = false
@@ -312,7 +312,7 @@ func unready():
 		request_announce_player.rpc()
 	orientation_timer.start()
 
-@rpc("authority")
+@rpc("authority", "reliable")
 func request_announce_player():
 	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
 
