@@ -75,17 +75,17 @@ func plan_recon_mission():
 		planning = true
 		$Icon.visible = true
 		self.visible = true
-		print("recon visible, icon visible")
+		#print("recon visible, icon visible")
 		area.visible = true
 		look_at(get_global_mouse_position())
 		spotbox_animation_node["speed_scale"] = 4
 		if spotbox_animation_node.is_playing():
-			print("animation already running")
+			#print("animation already running")
 			return
 		else:
 			spotbox_animation_node.stop()
 			spotbox_animation_node.play("recon")
-			print("starting recon animation")
+			#print("starting recon animation")
 			
 	else:
 		planning = false
