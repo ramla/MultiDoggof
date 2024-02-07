@@ -45,7 +45,7 @@ var is_ally
 var is_enemy
 var team
 var in_line_of_sight = false
-@onready var tick = get_parent().get_parent().tick
+#@onready var tick = get_parent().get_parent().tick #lol
 
 var timer_scene = preload("res://fog_of_war_timer.tscn")
 var fog_of_war_timers: Dictionary = {}
@@ -62,7 +62,7 @@ func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
 
-func _unhandled_input(_event):
+func _process(_delta):
 	if is_player && on_round_timer: 
 		#if Input.is_action_just_pressed("recon_action") && recon_mission.is_ready() && !is_destroyed:
 			#recon_mission.plan_recon_mission()
@@ -97,7 +97,7 @@ func _unhandled_input(_event):
 		#pass		
 	#elif Input.is_action_just_released("action_click") && Input.is_action_pressed("attack_action"):
 		#pass
-	
+
 func _physics_process(delta):
 	#if !is_destroyed:
 	if is_player && on_round_timer:
@@ -205,6 +205,9 @@ func init(id, in_playername, in_team, local_team, in_local_id, in_settings):
 		apply_fog_of_war()
 		#$ViewDistance/LineOfSightVisualized["scale"] = 
 	#cprint("Init done @ " + str(local_id) + ". Self: " + str(self) + ", team: " + str(team) + ", local_team: " + str(local_team))
+
+func get_tick():
+	return get_parent().get_parent().tick
 
 func start_round():
 	#HACK: re-applying fog of war b/c sometimes others are visible outside view distance after spawning
@@ -316,10 +319,11 @@ func _on_attack_body_entered(body):
 		spotted.emit(spotted_entity_id)
 
 	if body is Objective && !body.blue && attack_mission.munitions_onboard > 0:
+		var damage = 1
 		attack_mission.area.set_deferred("disabled", true)
 		var objective_id = body.objective_id
 		cprint(get_playername(entity_id), " attacked objective ", objective_id)
-		body.lose_health.rpc(1,entity_id)
+		body.lose_health.rpc(damage)
 		attack_mission.spend_munitions()
 
 func _on_munitions_used():
@@ -328,15 +332,18 @@ func _on_munitions_used():
 
 @rpc("any_peer", "call_local", "reliable")
 func deal_damage(in_id):
+	var attacker_id = multiplayer.get_remote_sender_id()
 	print(self.entity_id, " running deal_damage()") 
 	admirals[in_id].health -= 1 #tämä vie etäpäältä hiparia
 	admirals[in_id].damage_taken.emit()
 	admirals[in_id].cprint(get_playername(in_id), " taking damage. Health is now ", admirals[in_id].health)
 	if admirals[in_id].health <= 0:
 		destroy(in_id)
-		score(ScoredEvent.ScoreSource.AdmiralDestroyed)
+		if local_id == attacker_id:
+			score(ScoredEvent.ScoreSource.AdmiralDestroyed)
 	else:
-		score(ScoredEvent.ScoreSource.AdmiralDamaged)
+		if local_id == attacker_id:
+			score(ScoredEvent.ScoreSource.AdmiralDamaged)
 
 func destroy(destroyed_id):
 	#if destroyed_id == local_id: 
@@ -362,6 +369,6 @@ func score(source, in_id = local_id, in_team = team):
 			points = game_settings["scoring"]["objective_damaged"]
 		ScoredEvent.ScoreSource.ObjectiveDestroyed:
 			points = game_settings["scoring"]["objective_destroyed"]
-	scored_event.init(tick, points, in_id, in_team, source)
+	scored_event.init(get_tick(), points, in_id, in_team, source)
 	event_tracker.store_event(scored_event)
 	

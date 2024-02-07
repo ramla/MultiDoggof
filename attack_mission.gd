@@ -101,6 +101,7 @@ func order_attack_mission(action_click_position):
 		$Icon.visible = false
 		effect_running = true
 		mission_over = false
+		print("mission_over = false")
 		
 		reserve_munitions()
 		
@@ -119,6 +120,7 @@ func _on_mission_timer_timeout():
 	area.disabled = true
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
 	mission_over = true
+	print("mission_over = true")
 
 func _on_effect_attack_finished():
 	self.visible = false

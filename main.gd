@@ -47,7 +47,7 @@ func _ready():
 	serverinstance.connect("put_infoboxline", _on_put_infoboxline)
 	
 	$Game.connect("game_over", _on_game_over)
-	print(OS.get_unique_id())
+	#print(OS.get_unique_id())
 	
 	%UPnPButton.connect("toggled", _on_upnp_button_toggled)
 	%ProgressButton.connect("button_down", _on_team_select_progress)
@@ -67,6 +67,7 @@ func _ready():
 	ticktimer.connect("timeout", _on_tick)
 	ticktimer.start()
 	add_child(orientation_timer)
+	orientation_timer.one_shot = true
 	orientation_timer.wait_time = 5
 	orientation_timer.connect("timeout", _on_orientation_timer_timeout)
 	
@@ -79,10 +80,10 @@ func _process(_delta):
 
 func are_we_there_yet():
 	all_ready = true
-	print("are we there yet?")
+	#print("are we there yet?")
 	for id in playerbase:
 		var player = playerbase[id]
-		print(player)
+		#print(player)
 		if !player["is_ready"]:
 			all_ready = false
 
@@ -317,5 +318,5 @@ func request_announce_player():
 	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
 
 func _on_orientation_timer_timeout():
-	print("ticktimer starting")
+	#print("ticktimer starting")
 	ticktimer.start()

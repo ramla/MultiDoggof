@@ -22,6 +22,7 @@ var scoring = {}
 @onready var defend_icon = $Defend
 @onready var attack_icon = $Attack
 @onready var collision_node = $Collision
+@onready var event_tracker = get_parent().get_parent().get_node("EventTracker")
 
 func _ready():
 	effect.visible = false
@@ -58,14 +59,18 @@ func set_icon():
 		attack_icon.visible = true
 		defend_icon.visible = false
 
+func get_tick():
+	return get_parent().get_parent().tick
+
 @rpc("any_peer", "call_local")
-func lose_health(damage, attacker_id):
+func lose_health(damage):
+	var attacker_id = multiplayer.get_remote_sender_id()
 	health -= damage
 	if health <= 0:
 		destroy(attacker_id)
-		attribute_score(damage, attacker_id)
+		attribute_score(damage, attacker_id, ScoredEvent.ScoreSource.ObjectiveDestroyed)
 	else:
-		attribute_score(damage, attacker_id)
+		attribute_score(damage, attacker_id, ScoredEvent.ScoreSource.ObjectiveDamaged)
 
 func get_team_scores():
 	#var score_enemy = value * hitpoints_lost
@@ -86,6 +91,15 @@ func destroy(attacker_id):
 	objective_destroyed.emit(objective_id)
 	print(attacker_id, " destroyed objective ", objective_id)
 
-func attribute_score(damage, attacker_id):
-	print(attacker_id, damage)
-	pass
+func attribute_score(damage, attacker_id, source):
+	if attacker_id == multiplayer.get_unique_id():
+		var scored_event = ScoredEvent.new()
+		var points #= damage * value #not gonna go this way probs
+		match source:
+			ScoredEvent.ScoreSource.ObjectiveDamaged:
+				points = Overseer.game_settings["scoring"]["objective_damaged"]
+			ScoredEvent.ScoreSource.ObjectiveDestroyed:
+				points = Overseer.game_settings["scoring"]["objective_destroyed"]
+		scored_event.init(get_tick(), points, attacker_id, local_team, source)
+		event_tracker.store_event(scored_event)
+	

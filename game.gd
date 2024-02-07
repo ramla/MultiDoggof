@@ -222,6 +222,7 @@ func _on_round_timer_timeout():
 
 @rpc("call_local","reliable")
 func start_post_round_timer():
+	$EventTracker.transmit_events()
 	post_round_timer.start()
 	admirals[local_id].start_post_round()
 
