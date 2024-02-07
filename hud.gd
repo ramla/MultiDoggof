@@ -19,14 +19,19 @@ var prepost_round_time_sec: int = Overseer.game_settings["pre_round_length"] - (
 var round_time_min: int = Overseer.game_settings["round_length"] / 60
 var round_time_sec: int = Overseer.game_settings["round_length"] - (round_time_min * 60)
 var local_id
+var init_done = false
 
 var ticktimer = Timer.new()
 var round_timer = Timer.new()
 var prepost_timer = Timer.new()
 
 @onready var recon_icon = %ReconIcon
+@onready var recon_progbar = %ReconProgressBar
 @onready var attack_icon = %AttackIcon
-@onready var animation_node = %AnimationPlayer
+@onready var attack_progbar = %AttackProgressBar
+@onready var munitions_animation_node = %MunitionsAnimationPlayer
+@onready var recon_animation_node = %ReconAnimationPlayer
+@onready var attack_animation_node = %AttackAnimationPlayer
 
 func _ready():
 	ticktimer.connect("timeout", _on_tick)
@@ -76,6 +81,7 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 		%AviationFuelAmount["text"] = str(0)
 	%FuelOilConsumptionAmount["text"] = str(fuel_oil_consumption)
 	%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
+	init_done = true
 	show()
 
 func _process(_delta):
@@ -96,7 +102,11 @@ func update_timers():
 			%RoundTime["text"] = str(round_time_min) + ":0" + str(round_time_sec)
 		else:
 			%RoundTime["text"] = str(round_time_min) + ":" + str(round_time_sec)
-		
+	if init_done:
+		if !recon_mission_timer.is_stopped():
+			recon_progbar.value = recon_mission_timer.time_left
+		if !attack_mission_timer.is_stopped():
+			attack_progbar.value = attack_mission_timer.time_left
 
 func _on_prepost_round_timeout():
 	%PrePostTime["visible"] = false
@@ -115,6 +125,7 @@ func _on_round_timeout():
 func start_post_round():
 	%PrePostTime["visible"] = true
 	%PrePostLabel["visible"] = true
+	init_done = false
 	prepost_timer.start()
 
 func _on_cprint(in_text):
@@ -123,16 +134,22 @@ func _on_cprint(in_text):
 func _on_attack_mission_cooldown_triggered(duration):
 	_on_cprint(str(duration) + "seconds to complete attack mission & rearm")
 	attack_icon.texture = tex_attack_unavailable
-
+	attack_progbar.max_value = duration
+	attack_progbar.value = duration
+	
 func _on_attack_mission_cooldown_over():
 	attack_icon.texture = tex_attack_available
+	attack_animation_node.play("attack_icon_pop")
 
 func _on_recon_mission_cooldown_triggered(duration):
 	_on_cprint(str(duration) + "seconds to complete recon mission & rearm")
 	recon_icon.texture = tex_recon_unavailable
+	recon_progbar.max_value = duration
+	recon_progbar.value = duration
 
 func _on_recon_mission_cooldown_over():
 	recon_icon.texture = tex_recon_available
+	recon_animation_node.play("recon_icon_pop")
 
 func _on_damage_taken():
 	if get_owner().is_player:
@@ -147,7 +164,7 @@ func munitions_used():
 		%MunitionsAmount["theme_override_colors/font_color"] = "ff0900"
 
 func _on_no_munitions():
-	animation_node.play("no_munitions")
+	munitions_animation_node.play("no_munitions")
 
 func _on_tick():
 	fuel_oil = get_owner().fuel_oil

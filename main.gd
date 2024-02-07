@@ -266,6 +266,8 @@ func _on_score_button_pressed():
 	$ScoreTable.show()
 
 func _on_team_select_progress():
+	if local_team == 1:
+		%ReadyButton.set_pressed(true)
 	local_team = -1
 	local_playername = namebox.text
 	if hosting:
@@ -276,6 +278,8 @@ func _on_team_select_progress():
 		#print("host announced player ", local_id, " ", namebox.text, " ", local_team, "progressbutton")
 		
 func _on_team_select_further():
+	if local_team == -1:
+		%ReadyButton.set_pressed(true)
 	local_team = 1
 	local_playername = namebox.text
 	if hosting:

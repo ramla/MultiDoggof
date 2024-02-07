@@ -15,12 +15,12 @@ Initial locked in goals before adding major new ones:
 - DONE? Basic objectives
 	decide on priority mechanics and implement it
 - DONE Attack action
-- STARTED Scorekeeping
-- SLIGHTLY LESS BUGGY THAN BEFORE Return to lobby
+- MOSTLY DONE Scorekeeping
+- BUGGY Return to lobby
 
 bugs important to fix:
 	- DONE postgame 2p only client gets both players' data and launches alone
-	- launch countdown in lobby needs to be interrupted on anyone's team change or hesitation
+	- DONE launch countdown in lobby needs to be interrupted on anyone's team change or hesitation
 tweaks that feel important:
 	- ½DONE mission effect area needs a visual cue (need to implement for attack as well)
 

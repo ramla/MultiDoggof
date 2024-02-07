@@ -1,8 +1,75 @@
-[gd_scene load_steps=6 format=3 uid="uid://dcfhkjpwaede7"]
+[gd_scene load_steps=13 format=3 uid="uid://dcfhkjpwaede7"]
 
 [ext_resource type="Script" path="res://hud.gd" id="1_47ykm"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="3_hchts"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_iey8a"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6nxa6"]
+bg_color = Color(0.682353, 0.0235294, 0.0862745, 0.709804)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="Animation" id="Animation_hje23"]
+resource_name = "recon_icon_pop"
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%ReconIcon:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(8, 8), Vector2(3, 3)]
+}
+
+[sub_resource type="Animation" id="Animation_e5f7l"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%ReconIcon:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(3, 3)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xjn1k"]
+_data = {
+"RESET": SubResource("Animation_e5f7l"),
+"recon_icon_pop": SubResource("Animation_hje23")
+}
+
+[sub_resource type="Animation" id="Animation_epv3d"]
+resource_name = "attack_icon_pop"
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%AttackIcon:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.15),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(8, 8), Vector2(3, 3)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_dxkiu"]
+_data = {
+"attack_icon_pop": SubResource("Animation_epv3d")
+}
 
 [sub_resource type="Animation" id="Animation_pmp50"]
 resource_name = "no_munitions"
@@ -37,11 +104,25 @@ offset_right = 58.0
 offset_bottom = 72.0
 grow_horizontal = 2
 
-[node name="Node2D" type="Control" parent="HBoxContainer"]
+[node name="ReconIconContainer" type="Control" parent="HBoxContainer"]
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
 
-[node name="ReconIcon" type="Sprite2D" parent="HBoxContainer/Node2D"]
+[node name="ReconProgressBar" type="ProgressBar" parent="HBoxContainer/ReconIconContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 0
+offset_top = -8.0
+offset_right = 56.0
+offset_bottom = 48.0
+theme_override_styles/background = SubResource("StyleBoxEmpty_iey8a")
+theme_override_styles/fill = SubResource("StyleBoxFlat_6nxa6")
+max_value = 1.0
+rounded = true
+fill_mode = 3
+show_percentage = false
+
+[node name="ReconIcon" type="Sprite2D" parent="HBoxContainer/ReconIconContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(28, -28)
@@ -49,7 +130,7 @@ scale = Vector2(3, 3)
 texture = ExtResource("1_v6nix")
 offset = Vector2(0, 16)
 
-[node name="ReconKeyLabel" type="Label" parent="HBoxContainer/Node2D"]
+[node name="ReconKeyLabel" type="Label" parent="HBoxContainer/ReconIconContainer"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -63,11 +144,30 @@ theme_override_font_sizes/font_size = 18
 text = "R"
 vertical_alignment = 2
 
-[node name="Node2D2" type="Control" parent="HBoxContainer"]
+[node name="ReconAnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/ReconIconContainer"]
+unique_name_in_owner = true
+libraries = {
+"": SubResource("AnimationLibrary_xjn1k")
+}
+
+[node name="AttackIconContainer" type="Control" parent="HBoxContainer"]
 custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
 
-[node name="AttackIcon" type="Sprite2D" parent="HBoxContainer/Node2D2"]
+[node name="AttackProgressBar" type="ProgressBar" parent="HBoxContainer/AttackIconContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 56)
+offset_top = -8.0
+offset_right = 56.0
+offset_bottom = 48.0
+theme_override_styles/background = SubResource("StyleBoxEmpty_iey8a")
+theme_override_styles/fill = SubResource("StyleBoxFlat_6nxa6")
+max_value = 1.0
+rounded = true
+fill_mode = 3
+show_percentage = false
+
+[node name="AttackIcon" type="Sprite2D" parent="HBoxContainer/AttackIconContainer"]
 unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(28, -28)
@@ -75,7 +175,7 @@ scale = Vector2(3, 3)
 texture = ExtResource("3_hchts")
 offset = Vector2(0, 16)
 
-[node name="AttackKeyLabel" type="Label" parent="HBoxContainer/Node2D2"]
+[node name="AttackKeyLabel" type="Label" parent="HBoxContainer/AttackIconContainer"]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -88,6 +188,11 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 18
 text = "E"
 vertical_alignment = 2
+
+[node name="AttackAnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/AttackIconContainer"]
+libraries = {
+"": SubResource("AnimationLibrary_dxkiu")
+}
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
 unique_name_in_owner = true
@@ -124,6 +229,12 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Munitions"
 
+[node name="MunitionsAnimationPlayer" type="AnimationPlayer" parent="GridContainer4/GridContainer"]
+unique_name_in_owner = true
+libraries = {
+"": SubResource("AnimationLibrary_sk352")
+}
+
 [node name="GridContainer3" type="GridContainer" parent="GridContainer4"]
 layout_mode = 2
 columns = 2
@@ -152,6 +263,7 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "20000"
+visible_characters = 5
 
 [node name="FuelOilLabel" type="Label" parent="GridContainer4/GridContainer2"]
 layout_mode = 2
@@ -178,12 +290,6 @@ theme_override_colors/font_color = Color(1, 0.682353, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 12
 text = "Fuel oil / minute"
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-unique_name_in_owner = true
-libraries = {
-"": SubResource("AnimationLibrary_sk352")
-}
 
 [node name="HudTextBox" type="RichTextLabel" parent="."]
 unique_name_in_owner = true
