@@ -171,7 +171,7 @@ show_percentage = false
 unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(28, -28)
-scale = Vector2(3, 3)
+scale = Vector2(8, 8)
 texture = ExtResource("3_hchts")
 offset = Vector2(0, 16)
 
@@ -190,6 +190,7 @@ text = "E"
 vertical_alignment = 2
 
 [node name="AttackAnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/AttackIconContainer"]
+unique_name_in_owner = true
 libraries = {
 "": SubResource("AnimationLibrary_dxkiu")
 }
