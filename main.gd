@@ -117,7 +117,8 @@ func _on_connection_failed():
 
 func _on_connected_to_server():
 	if Overseer.debug["quick_launch"]:
-		local_team = get_team_least_players()
+		#commenting all team autoselect code
+		#local_team = get_team_least_players()
 		local_ready = true
 	announce_player.rpc_id(1, local_id, local_osid, namebox["text"], local_ready, local_team)
 	infobox.text += "\nJoined lobby"
@@ -179,7 +180,8 @@ func _on_game_over():
 	%ScoreButton.show()
 
 @rpc("any_peer", "reliable")
-func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = get_team_least_players()):
+#commenting all team autoselect code
+func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = false, in_team: int = 0): #get_team_least_players()):
 	var playername
 	if Overseer.debug["quick_launch"]:
 		in_is_ready = true
@@ -199,13 +201,15 @@ func announce_player(in_multi_id, in_os_id, in_playername, in_is_ready: bool = f
 			announce_player.rpc(id, player["os_id"], player["playername"], player["is_ready"], player["team"])
 			#print("announced multi_id: ", in_multi_id, " == ", pl_id, " ", player["playername"], " ", player["os_id"], " ", player["is_ready"], " ", player["team"])
 
-func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = get_team_least_players()):
+#commenting all team autoselect code
+func update_player(in_multi_id, in_os_id, in_playername, in_is_ready = false, in_team = 0): #get_team_least_players()):
 	if in_playername == "" && hosting:
 		in_playername = "Hostcuck"
 	
-	if hosting && in_team == 0: 
-		in_team = get_team_least_players()
-		local_team = in_team
+	#commenting all team autoselect code
+	#if hosting && in_team == 0: 
+		#in_team = get_team_least_players()
+		#local_team = in_team
 	
 	if not in_multi_id in playerbase:
 		var new_lobby_player = lobby_player.instantiate()
