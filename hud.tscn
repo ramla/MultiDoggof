@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dcfhkjpwaede7"]
+[gd_scene load_steps=14 format=3 uid="uid://dcfhkjpwaede7"]
 
 [ext_resource type="Script" path="res://hud.gd" id="1_47ykm"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
@@ -12,6 +12,22 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="Animation" id="Animation_e5f7l"]
+length = 0.001
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%ReconIcon:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(3, 3)]
+}
 
 [sub_resource type="Animation" id="Animation_hje23"]
 resource_name = "recon_icon_pop"
@@ -27,21 +43,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Vector2(8, 8), Vector2(3, 3)]
-}
-
-[sub_resource type="Animation" id="Animation_e5f7l"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("%ReconIcon:scale")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(3, 3)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xjn1k"]
@@ -66,8 +67,25 @@ tracks/0/keys = {
 "values": [Vector2(8, 8), Vector2(3, 3)]
 }
 
+[sub_resource type="Animation" id="Animation_xx1tl"]
+resource_name = "RESET"
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("%AttackIcon:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(3, 3)]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_dxkiu"]
 _data = {
+"RESET": SubResource("Animation_xx1tl"),
 "attack_icon_pop": SubResource("Animation_epv3d")
 }
 
@@ -157,6 +175,7 @@ layout_mode = 2
 [node name="AttackProgressBar" type="ProgressBar" parent="HBoxContainer/AttackIconContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 56)
+layout_mode = 0
 offset_top = -8.0
 offset_right = 56.0
 offset_bottom = 48.0
@@ -171,7 +190,7 @@ show_percentage = false
 unique_name_in_owner = true
 texture_filter = 1
 position = Vector2(28, -28)
-scale = Vector2(8, 8)
+scale = Vector2(3, 3)
 texture = ExtResource("3_hchts")
 offset = Vector2(0, 16)
 

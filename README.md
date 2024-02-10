@@ -22,7 +22,7 @@ bugs important to fix:
 	- DONE postgame 2p only client gets both players' data and launches alone
 	- DONE launch countdown in lobby needs to be interrupted on anyone's team change or hesitation
 tweaks that feel important:
-	- ½DONE mission effect area needs a visual cue (need to implement for attack as well)
+	- DONE mission effect area needs a visual cue (need to implement for attack as well)
 
 
 Phase 1.1: for the first playtest

@@ -46,7 +46,7 @@ script = ExtResource("1_6r3ls")
 [node name="EffectAttack" parent="." instance=ExtResource("2_tk6hg")]
 
 [node name="Area" type="CollisionPolygon2D" parent="."]
-position = Vector2(100, -50)
+position = Vector2(-40, -1)
 scale = Vector2(0.7, 0.7)
 polygon = PackedVector2Array(1, 1, 19, 40, 100, 51, 120, 21, 120, -19, 100, -50, 19, -40)
 disabled = true

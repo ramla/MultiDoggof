@@ -27,6 +27,7 @@ func _ready():
 	cooldown_timer.connect("timeout", _on_cooldown_timer_timeout)
 	cooldown_timer.one_shot = true
 	cooldown_timer.wait_time = Overseer.game_settings["admiral"]["recon_cooldown"]
+	cooldown_timer.start()
 	
 	spotbox_animation_node.connect("animation_finished", _on_animation_finished)
 	spotbox_animation_node["speed_scale"] = Overseer.game_settings["admiral"]["plane_speed_multiplier"]

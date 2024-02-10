@@ -52,6 +52,8 @@ func _ready():
 	effect_attack["one_shot"] = true
 	effect_attack["emitting"] = false
 	
+	pass_the_poly()
+	
 #	print("attack_mission init ready!")
 	#for wings in air_wing_state:
 		#air_wing_state[str()] = 1
@@ -75,7 +77,11 @@ func plan_attack_mission():
 		$Icon.visible = true
 		look_at(get_global_mouse_position())
 		hurtbox_animation_node["speed_scale"] = 4
-		hurtbox_animation_node.play("attack")
+		if hurtbox_animation_node.is_playing():
+			return
+		else:
+			hurtbox_animation_node.stop()
+			hurtbox_animation_node.play("attack")
 	else:
 		area.disabled = true
 		$Icon.visible = false
@@ -113,19 +119,18 @@ func order_attack_mission(action_click_position):
 		no_munitions.emit()
 
 func _on_animation_finished(_anim_name):
-	print(_anim_name, " mission over")
-	cooldown_timer.start()
+	print(_anim_name, " anim finished")
 
 func _on_mission_timer_timeout():
-	area.disabled = true
+	#area.disabled = true
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
 	mission_over = true
 	print("mission_over = true")
+	cooldown_timer.start()
 
 func _on_effect_attack_finished():
 	self.visible = false
 	$Icon.visible = true
-	#aiming_template_attack.visible = true
 	effect_running = false
 	print("effect finished")
 
