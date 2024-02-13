@@ -74,13 +74,15 @@ func randomize_objectives():
 	#west,east; base,island,outpost 
 	var obj_set_1 = randomize_objective_set()
 	var obj_set_2 = randomize_objective_set()
-	var obj_set_3 = randomize_objective_set()
-	var obj_set_4 = randomize_objective_set()
+	#var obj_set_3 = randomize_objective_set()
+	#var obj_set_4 = randomize_objective_set()
 	#print(obj_set_1, " ", obj_set_2, " ", obj_set_3, " ", obj_set_4)
 	obj_set_1.append_array(obj_set_2)
-	obj_set_1.append_array(obj_set_3)
-	obj_set_1.append_array(obj_set_4)
-	#print(local_id, " objective priorities randomized: ", obj_set_1)
+	obj_set_1.append_array(obj_set_1)
+	obj_set_1.append_array(obj_set_2)
+	#obj_set_1.append_array(obj_set_3)
+	#obj_set_1.append_array(obj_set_4)
+	print(local_id, " objective priorities randomized: ", obj_set_1)
 	return obj_set_1
 
 func randomize_objective_set():
@@ -108,12 +110,17 @@ func load_objectives():
 	for n in $Level.get_children():
 		$Level.remove_child(n)
 	for spawnpoint in game_settings["objective"]["spawns"]:
-		var objective_priority = local_objective_priorities[i]
+		var objective_priority_t1 = local_objective_priorities[i]
+		var objective_priority_t2 = local_objective_priorities[i+6]
+		print("loaded objective priorities ", i, "=", local_objective_priorities[i], " & ", i+6, "=", local_objective_priorities[i+6])
 		var obj_team
-		if spawnpoint.contains("east"): obj_team = -1
-		else: obj_team = 1
+		if spawnpoint.contains("east"):
+			obj_team = -1
+		else:
+			obj_team = 1
 		var objective_instance = objective_scene.instantiate()
-		objective_instance.init(i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority)
+		objective_instance.init(i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
+		print("objective init: ", i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
 		print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
 		$Level.add_child(objective_instance)
 		i += 1
@@ -140,7 +147,6 @@ func reset(new_game_settings,new_admirals,new_local_team):
 	if hosting:
 		fail_timer.wait_time = 5
 		init_client_state_checklist(new_admirals)
-		#spawn(admirals)
 		basic_init_ready.emit()
 		expected_state = ClientState.Waiting4Spawn
 		wait_for_clients_ready()
@@ -297,6 +303,7 @@ func proceed_to_next_phase(in_state):
 		ClientState.Waiting4Objectives:
 			ready_to_receive = false
 			local_objective_priorities = randomize_objectives()
+			print("local_objective_priorities ", local_objective_priorities)
 			distribute_objectives.rpc(local_objective_priorities)
 			load_objectives()
 			expected_state = ClientState.Waiting4Round2Start
