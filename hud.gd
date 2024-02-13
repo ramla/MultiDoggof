@@ -67,7 +67,7 @@ func init(in_health, in_munitions, in_fuel_oil, in_aviation_fuel, in_local_id):
 	health = in_health
 	local_id = in_local_id
 	%LocalID["text"] = str(local_id)
-	print("initialised health: ", health, " @local_id ", local_id)
+	#print("initialised health: ", health, " @local_id ", local_id)
 	%ProgressBar["max_value"] = health
 	%ProgressBar["value"] = health
 	munitions = in_munitions

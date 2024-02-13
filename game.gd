@@ -42,6 +42,11 @@ var fail_timer = Timer.new()
 var client_state_check_timer = Timer.new()
 var ticktimer = Timer.new()
 
+var codename_worker = Codename.new()
+var codename_set_t1
+var codename_set_t2
+var codename_set
+
 func _ready():
 	add_child(pre_round_timer)
 	add_child(round_timer)
@@ -63,6 +68,8 @@ func _ready():
 	
 	ticktimer.wait_time = .1
 	ticktimer.connect("timeout", _on_tick)
+	
+	codename_worker.init()
 
 func _process(_delta):
 	pass
@@ -70,20 +77,21 @@ func _process(_delta):
 func randomize_objectives():
 	#only host runs this
 		
-	#randomise 1 priority offensive & priority defensive objective for each team
+	#randomise 1 priority objective for each side
 	#west,east; base,island,outpost 
 	var obj_set_1 = randomize_objective_set()
 	var obj_set_2 = randomize_objective_set()
-	#var obj_set_3 = randomize_objective_set()
-	#var obj_set_4 = randomize_objective_set()
-	#print(obj_set_1, " ", obj_set_2, " ", obj_set_3, " ", obj_set_4)
 	obj_set_1.append_array(obj_set_2)
 	obj_set_1.append_array(obj_set_1)
-	obj_set_1.append_array(obj_set_2)
-	#obj_set_1.append_array(obj_set_3)
-	#obj_set_1.append_array(obj_set_4)
-	print(local_id, " objective priorities randomized: ", obj_set_1)
+	
+	#print(local_id, " objective priorities randomized: ", obj_set_1)
 	return obj_set_1
+
+func randomize_codenames():
+	codename_set_t1 = codename_worker.get_codename_set(6)
+	codename_set_t2 = codename_worker.get_codename_set(6)
+	#print(local_id, "codename set 1: ", codename_set_t1)
+	#print(local_id, "codename set 2: ", codename_set_t2)
 
 func randomize_objective_set():
 	var objective_set = [false,false,false]
@@ -97,13 +105,18 @@ func randomize_objective_set():
 @rpc("reliable")
 func distribute_objectives(in_objectives):
 	local_objective_priorities = in_objectives
-	print(local_id, " received objectives ", in_objectives)
+	#print(local_id, " received objectives ", in_objectives)
 	objectives_received = true
 	load_objectives()
 	local_state = ClientState.Waiting4Round2Start
 	update_client_state.rpc_id(1, local_id, local_state)
 	fail_timer.start()
 	print(local_id, " WAITING for round 2 start")
+
+@rpc("reliable", "call_local")
+func distribute_codenames(in_codename_set):
+	codename_set = in_codename_set
+	#print("codenames received @ ", local_id)
 
 func load_objectives():
 	var i = 0
@@ -112,16 +125,16 @@ func load_objectives():
 	for spawnpoint in game_settings["objective"]["spawns"]:
 		var objective_priority_t1 = local_objective_priorities[i]
 		var objective_priority_t2 = local_objective_priorities[i+6]
-		print("loaded objective priorities ", i, "=", local_objective_priorities[i], " & ", i+6, "=", local_objective_priorities[i+6])
+		#print("loaded objective priorities ", i, "=", local_objective_priorities[i], " & ", i+6, "=", local_objective_priorities[i+6])
 		var obj_team
 		if spawnpoint.contains("east"):
 			obj_team = -1
 		else:
 			obj_team = 1
 		var objective_instance = objective_scene.instantiate()
-		objective_instance.init(i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
-		print("objective init: ", i, game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
-		print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
+		objective_instance.init(i, codename_set[i], game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
+		#print("objective init: ", i, codename_set[i], game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
+		#print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
 		$Level.add_child(objective_instance)
 		i += 1
 	print(local_id, " loaded objectives")
@@ -201,13 +214,11 @@ func handle_disconnected_player(id):
 func _on_pre_round_timer_timeout():
 	if hosting:
 		fail_timer.start()
-		print("PRE ROUND over")
-		print("Fail timer started")
 		if clients_ready:
-			print("HOST: clients ready, starting round timer")
+			print("HOST: PRE ROUND over. clients ready, starting round timer")
 			fail_timer.stop()
 			start_round_timer.rpc()
-		else: print("HOST: clients NOT READY, fail timer is our last chance!")
+		else: print("HOST: PRE ROUND over. clients NOT READY, fail timer is our last chance!")
 
 @rpc("call_local", "reliable")
 func start_round_timer():
@@ -279,7 +290,7 @@ func wait_for_clients_ready():
 
 func _on_client_state_check_timer_timeout():
 	is_all_clients_state(expected_state)
-	print("client_state_check_timer_timeout")
+	#print("client_state_check_timer_timeout")
 
 @rpc("any_peer", "reliable")
 func update_client_state(in_client_id, in_client_state: ClientState):
@@ -303,7 +314,13 @@ func proceed_to_next_phase(in_state):
 		ClientState.Waiting4Objectives:
 			ready_to_receive = false
 			local_objective_priorities = randomize_objectives()
-			print("local_objective_priorities ", local_objective_priorities)
+			randomize_codenames()
+			#print("local_objective_priorities ", local_objective_priorities)
+			for id in playerbase:
+				if playerbase[id].team == -1:
+					distribute_codenames.rpc_id(id, codename_set_t1)
+				else:
+					distribute_codenames.rpc_id(id, codename_set_t2)
 			distribute_objectives.rpc(local_objective_priorities)
 			load_objectives()
 			expected_state = ClientState.Waiting4Round2Start
@@ -318,8 +335,7 @@ func proceed_to_next_phase(in_state):
 
 @rpc("reliable")
 func confirm_received(received_state):
-	print(local_id, " got host confirmation for state update, received state == ", received_state)
 	if received_state == local_state:
 		status_successfully_sent = true
-		print(local_id, " got host confirmation for state update, fail timer stopped")
-	else: print("received unexpected state confirmation")
+		print(local_id, " got host confirmation for state update: ", received_state, " ==> fail timer stopped") # timer has sth to do with this? anyway it's a succes
+	else: print(local_id, " got host confirmation for state update: ", received_state, " ==> received unexpected state confirmation")

@@ -66,6 +66,9 @@ var game_settings = {
 		"objective_damaged" = 20,
 		"objective_destroyed" = 40
 	},
+	"paths" = {
+		"codenames" = "res://Assets/codename.csv",
+	}
 	}
 
 #multiplayer debug features. rpc receives printed

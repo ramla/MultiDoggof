@@ -11,6 +11,7 @@ var value
 var local_team
 var destroyed = false
 var objective_id
+var codename
 
 var priority_t1
 var priority_t2
@@ -32,13 +33,16 @@ func _ready():
 	effect.visible = false
 	effect.emitting = false
 	set_icon()
-	print("icon set, blue == ", blue, "in_priority_t2 == ", priority_t2)
+	set_codename()
+	#print("icon set, blue == ", blue, "in_priority_t2 == ", priority_t2)
 
-func init(in_objective_id, in_position, in_hitpoints, in_team, in_value, in_local_team, in_priority_t1, in_priority_t2):
+func init(in_objective_id, in_codename, in_position, in_hitpoints, in_team, in_value, in_local_team, in_priority_t1, in_priority_t2):
 	position = in_position
 	objective_id = in_objective_id
 	local_team = in_local_team
 	value = in_value
+	codename = str(in_codename)
+	codename = codename.trim_prefix("[\"").trim_suffix("\"]")
 	
 	priority_t1 = in_priority_t1
 	priority_t2 = in_priority_t2
@@ -73,8 +77,17 @@ func set_icon():
 		attack_icon.visible = true
 		defend_icon.visible = false
 		if priority_enemy:
-			print("objective prio enemy")
 			attack_icon.scale = 1.5 * attack_icon.scale
+
+func set_codename():
+	$Codename["text"] = codename
+	match objective_id:
+		5:
+			$Codename.set_v_grow_direction(Control.GROW_DIRECTION_BEGIN)
+		3:
+			$Codename.set_h_grow_direction(Control.GROW_DIRECTION_BEGIN)
+		2:
+			$Codename.set_h_grow_direction(Control.GROW_DIRECTION_BOTH)
 
 func get_tick():
 	return get_parent().get_parent().tick
@@ -106,7 +119,7 @@ func destroy(attacker_id):
 	collision_mask = 8
 	
 	objective_destroyed.emit(objective_id)
-	print(attacker_id, " destroyed objective ", objective_id)
+	#print(attacker_id, " destroyed objective ", objective_id)
 
 func attribute_score(damage, attacker_id, source):
 	if attacker_id == multiplayer.get_unique_id():

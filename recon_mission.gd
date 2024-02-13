@@ -62,11 +62,11 @@ func pass_the_poly():
 	recon_visual_area["polygon"] = recon_poly
 
 func _on_cooldown_timer_timeout():
-	print("recon cooldownready")
+	#print("recon cooldownready")
 	cooldown_ready = true
 
 func _on_animation_finished(_anim_name):
-	print(_anim_name, " animation finished")
+	#print(_anim_name, " animation finished")
 	if !area.disabled:
 		area.disabled = true
 		cooldown_timer.start()
@@ -94,7 +94,7 @@ func plan_recon_mission():
 		$Icon.visible = false
 
 func cancel_plan_recon_mission():
-		print("cancelling plan rrecon")
+		#print("cancelling plan rrecon")
 		planning = false
 		area.visible = false
 		$Icon.visible = false
@@ -115,8 +115,8 @@ func order_recon_mission(action_click_position):
 		cooldown_ready = false
 		$Icon.visible = false
 		effect_running = true
-		print("recon mission takes off, mission duration ", str(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length))
-		print("also cooldown reyad = false, icon visible = false, area visible = false, effect running = true")
+		#print("recon mission takes off, mission duration ", str(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length))
+		#print("also cooldown reyad = false, icon visible = false, area visible = false, effect running = true")
 		recon_mission_takeoff.emit(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
 		planning = false
@@ -129,7 +129,7 @@ func _on_effect_recon_finished():
 	$Icon.visible = true
 	self.visible = false
 	effect_running = false
-	print("effect_recon_finished: icon visible = true, self.visible = false, effect running = false")
+	#print("effect_recon_finished: icon visible = true, self.visible = false, effect running = false")
 
 func is_ready():
 	return cooldown_ready

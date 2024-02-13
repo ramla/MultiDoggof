@@ -1,8 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://bvvrn2ng35y3j"]
+[gd_scene load_steps=14 format=3 uid="uid://bvvrn2ng35y3j"]
 
 [ext_resource type="Script" path="res://objective.gd" id="1_7oevi"]
 [ext_resource type="Texture2D" uid="uid://b5c0uk1rngltg" path="res://Assets/item8BIT_shield.png" id="2_fqrbj"]
 [ext_resource type="Texture2D" uid="uid://c2lamok6dgmcm" path="res://Assets/item8BIT_bomb.png" id="3_ggllm"]
+[ext_resource type="FontFile" uid="uid://cwq1qg5p405vc" path="res://Assets/veteran_typewriter.ttf" id="4_rheyj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_n8kpd"]
 
@@ -50,30 +51,41 @@ turbulence_enabled = true
 turbulence_noise_scale = 5.0
 turbulence_noise_speed = Vector3(2, 2, 2)
 
+[sub_resource type="LabelSettings" id="LabelSettings_yuqb7"]
+font = ExtResource("4_rheyj")
+font_size = 23
+font_color = Color(0, 0, 0, 1)
+outline_size = 3
+
 [node name="Objective" type="StaticBody2D"]
 script = ExtResource("1_7oevi")
 
 [node name="Defend" type="Sprite2D" parent="."]
-visible = false
 texture_filter = 1
 scale = Vector2(2, 2)
 texture = ExtResource("2_fqrbj")
 
 [node name="Attack" type="Sprite2D" parent="."]
-visible = false
 texture_filter = 1
 scale = Vector2(2, 2)
 texture = ExtResource("3_ggllm")
 
 [node name="Collision" type="CollisionShape2D" parent="."]
-visible = false
 scale = Vector2(2, 2)
 shape = SubResource("CircleShape2D_n8kpd")
 
 [node name="Smoke" type="GPUParticles2D" parent="."]
-visible = false
 position = Vector2(-3, 13)
 amount = 25
 process_material = SubResource("ParticleProcessMaterial_0fy7s")
 lifetime = 6.0
 trail_enabled = true
+
+[node name="Codename" type="Label" parent="."]
+anchors_preset = -1
+offset_left = 12.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = -12.0
+text = "CODENAME"
+label_settings = SubResource("LabelSettings_yuqb7")

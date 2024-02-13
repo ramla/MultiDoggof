@@ -19,6 +19,7 @@ var playerbase = {}
 var last_round_playerbase = {}
 
 var game_settings = Overseer.game_settings
+
 var port = game_settings["port"]
 var default_team = 0
 var upnp = false

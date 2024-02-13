@@ -66,7 +66,7 @@ func pass_the_poly():
 	attack_visual_area["polygon"] = attack_poly
 	
 func _on_cooldown_timer_timeout():
-	print("attack cooldownready")
+	#print("attack cooldownready")
 	cooldown_ready = true
 
 func plan_attack_mission():
@@ -107,11 +107,11 @@ func order_attack_mission(action_click_position):
 		$Icon.visible = false
 		effect_running = true
 		mission_over = false
-		print("mission_over = false")
+		#print("mission_over = false")
 		
 		reserve_munitions()
 		
-		print("attack mission takes off, mission duration ", str(cooldown_timer.wait_time + mission_duration))
+		#print("attack mission takes off, mission duration ", str(cooldown_timer.wait_time + mission_duration))
 		attack_mission_takeoff.emit(cooldown_timer.wait_time + mission_duration)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
 		
@@ -119,20 +119,21 @@ func order_attack_mission(action_click_position):
 		no_munitions.emit()
 
 func _on_animation_finished(_anim_name):
-	print(_anim_name, " anim finished")
+	#print(_anim_name, " anim finished")
+	pass
 
 func _on_mission_timer_timeout():
 	#area.disabled = true
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
 	mission_over = true
-	print("mission_over = true")
+	#print("mission_over = true")
 	cooldown_timer.start()
 
 func _on_effect_attack_finished():
 	self.visible = false
 	$Icon.visible = true
 	effect_running = false
-	print("effect finished")
+	#print("effect finished")
 
 func is_ready():
 	return cooldown_ready
