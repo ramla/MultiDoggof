@@ -1,4 +1,3 @@
-
 extends Node
 
 var debug = {
@@ -9,7 +8,7 @@ var debug = {
 var game_settings = {
 	"launch_timer" = 1.7, 
 	"pre_round_length" = 3, #5? 10?
-	"round_length" = 60, #180
+	"round_length" = 20, #180
 	"post_round_length" = 3, #5? 15?
 	"game_mode" = 0,
 	"port" = 4868, #Total amount of warships and auxiliary military ships lost during WW2 
@@ -19,6 +18,7 @@ var game_settings = {
 	"max_clients" = 12,
 	"red" = Color(1,0,0,1),
 	"blue" = Color(0,0,1,1),
+	"alert_delay" = 2,
 	"objective" = {
 		"spawns" = {
 			"west_base_loc" = Vector2(40,168),

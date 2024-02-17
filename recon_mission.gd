@@ -101,6 +101,8 @@ func cancel_plan_recon_mission():
 
 func order_recon_mission(action_click_position):
 	if cooldown_ready == true && get_parent().aviation_fuel >= aviation_fuel_consumption:
+		get_parent().sfx.play_takeoff()
+		
 		ordered_position = action_click_position
 		area.look_at(action_click_position)
 		area.disabled = false

@@ -88,6 +88,8 @@ func plan_attack_mission():
 
 func order_attack_mission(action_click_position):
 	if cooldown_ready == true && get_parent().munitions > 0 && get_parent().aviation_fuel >= aviation_fuel_consumption:
+		get_parent().sfx.play_takeoff()
+		
 		area.disabled = false
 		area.visible = false
 		

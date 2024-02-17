@@ -4,22 +4,19 @@ extends Control
 var score_sheet
 var playerbase
 @onready var event_tracker = get_parent().get_node("Game/EventTracker")
-
+var label_containers
 func _ready():
 	%CloseButton.connect("pressed", _on_close_button_pressed)
-
-#playerbase[in_multi_id] = {
-		#"os_id" = in_os_id,
-		#"playername" = in_playername,
-		#"is_ready" = in_is_ready,
-		#"team" = in_team
-		#}
+	label_containers = [%NameContainer1, %TotalContainer1, %ObjectivesContainer1, %PvPContainer1, %NameContainer2, %TotalContainer2, %ObjectivesContainer2, %PvPContainer2]
 
 func update_players(in_playerbase):
 	playerbase = in_playerbase
 
 func draw_scores():
 	score_sheet = event_tracker.get_scores(playerbase)
+	for container in label_containers:
+		for label in container.get_children():
+			container.remove_child(label)
 	put_label("Progress", %NameContainer1)
 	put_label("All Admirals", %NameContainer1)
 	put_label("Total", %TotalContainer1)

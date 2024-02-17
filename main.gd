@@ -19,6 +19,7 @@ var playerbase = {}
 var last_round_playerbase = {}
 
 var game_settings = Overseer.game_settings
+var settingsmanager = SettingsManager.new()
 
 var port = game_settings["port"]
 var default_team = 0
@@ -30,7 +31,6 @@ var all_in_team = false
 var team1_count = 0
 var team2_count = 0
 var countdown: int
-
 
 @onready var addressbox = %AddressTextBox
 @onready var infobox = %Infobox
@@ -55,10 +55,6 @@ func _ready():
 	%FurtherButton.connect("button_down", _on_team_select_further)
 	%ScoreButton.connect("pressed", _on_score_button_pressed)
 	
-	if Overseer.debug["pace_up"]:
-		game_settings["admiral"]["max_speed"] = 2 * game_settings["admiral"]["max_speed"]
-		game_settings["admiral"]["fog_of_war_speed"] = game_settings["admiral"]["fog_of_war_speed"] / 2
-	
 	add_child(start_timer)
 	start_timer.one_shot = true
 	start_timer.wait_time = game_settings["launch_timer"]
@@ -71,6 +67,9 @@ func _ready():
 	orientation_timer.one_shot = true
 	orientation_timer.wait_time = 5
 	orientation_timer.connect("timeout", _on_orientation_timer_timeout)
+	
+	namebox.text = settingsmanager.get_setting("user", "name", "")
+	addressbox.text = settingsmanager.get_setting("user", "last_server", "127.0.0.1")
 	
 func _process(_delta):
 	if start_timer.is_stopped():
@@ -164,9 +163,10 @@ func _on_join_buttonpress():
 	peer.create_client(addressbox.text, port)
 	multiplayer.multiplayer_peer = peer
 	local_id = multiplayer.get_unique_id()
+	settingsmanager.set_setting("user", "last_server", addressbox.text)
 
-func launch(new_game_settings, new_playerbase):
-	$Game.reset(new_game_settings, new_playerbase, local_team)
+func launch(new_playerbase):
+	$Game.reset(new_playerbase, local_team)
 	$ScoreTable.update_players(new_playerbase)
 	$Menu.hide()
 	$Game.show()
@@ -262,6 +262,7 @@ func _on_ready_button_toggled(toggle_position):
 		announce_player(local_id, local_osid, namebox.text, local_ready, local_team)
 	else:
 		announce_player.rpc_id(1, local_id, local_osid, namebox.text, local_ready, local_team)
+	settingsmanager.set_setting("user", "name", namebox.text)
 
 func _on_score_button_pressed():
 	$ScoreTable.show()
@@ -291,7 +292,7 @@ func _on_team_select_further():
 		#print("host announced player ", local_id, " ", namebox.text, " ", local_team, "furtherbutton")
 
 func _on_start_timer_timeout():
-	launch(game_settings, playerbase)
+	launch(playerbase)
 	launched = true
 	ticktimer.stop()
 
@@ -329,3 +330,5 @@ func request_announce_player():
 func _on_orientation_timer_timeout():
 	#print("ticktimer starting")
 	ticktimer.start()
+	if hosting:
+		$Game.ready_to_receive = false

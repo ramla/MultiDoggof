@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://jb3stvoss0te"]
+
+[ext_resource type="Script" path="res://sound.gd" id="1_juhxl"]
+[ext_resource type="AudioStream" uid="uid://ddxlig4gus2oh" path="res://Assets/osuvapommitus3.ogg" id="2_50txn"]
+[ext_resource type="AudioStream" uid="uid://c7uq3dsd3fvar" path="res://Assets/takeoff.ogg" id="3_613rt"]
+
+[node name="Sound" type="Node2D"]
+script = ExtResource("1_juhxl")
+
+[node name="BombHit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_50txn")
+volume_db = -3.962
+
+[node name="Takeoff" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_613rt")
+volume_db = -14.362

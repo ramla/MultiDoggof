@@ -82,7 +82,6 @@ lifetime = 6.0
 trail_enabled = true
 
 [node name="Codename" type="Label" parent="."]
-anchors_preset = -1
 offset_left = 12.0
 offset_top = 12.0
 offset_right = -12.0

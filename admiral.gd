@@ -50,6 +50,8 @@ var in_line_of_sight = false
 var timer_scene = preload("res://fog_of_war_timer.tscn")
 var fog_of_war_timers: Dictionary = {}
 var ghost_scene = preload("res://ghost.tscn")
+var sfx_scene = preload("res://sound.tscn")
+var sfx
 
 @onready var admirals = get_parent().get_parent().admirals
 var view_distance: Area2D
@@ -57,6 +59,7 @@ var recon_mission: Area2D
 var attack_mission: Area2D
 @onready var attack_area = $AttackMission/Area
 @onready var event_tracker = get_parent().get_parent().get_node("EventTracker")
+
 
 func _ready():
 	is_destroyed = false
@@ -146,8 +149,8 @@ func consume_fuel_oil(delta):
 	if fuel_oil <= 0:
 		click_position = position
 
-func init(id, in_playername, in_team, local_team, in_local_id, in_settings):
-	game_settings = in_settings
+func init(id, in_playername, in_team, local_team, in_local_id):
+	game_settings = Overseer.game_settings
 	entity_id = id
 	local_id = in_local_id
 	team = in_team
@@ -178,6 +181,9 @@ func init(id, in_playername, in_team, local_team, in_local_id, in_settings):
 		%HUD.init(health, munitions, fuel_oil, aviation_fuel, local_id)
 		$ViewDistance/CollisionVisual["shape"]["radius"] = game_settings["admiral"]["line_of_sight_radius"]
 		$ViewDistance/LineOfSightVisualized["visible"] = true
+		sfx = sfx_scene.instantiate()
+		add_child(sfx)
+		print("admiral node ", self, " sfx node ", sfx)
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -267,7 +273,7 @@ func ghost_last_known_admiral_location(spotted_entity_id):
 			fog_of_war_timers[spotted_entity_id] = fow_timer_instantiated
 			fog_of_war_timers[spotted_entity_id].init(spotted_entity_id)
 			fog_of_war_timers[spotted_entity_id].connect("return_fog_of_war", _on_return_fog_of_war)
-			cprint(get_playername(local_id), " connected ", get_playername(spotted_entity_id), " fog of war timer")
+			#cprint(get_playername(local_id), " connected ", get_playername(spotted_entity_id), " fog of war timer")
 		fog_of_war_timers[spotted_entity_id].start()
 		#cprint(spotted_entity_id, " fog of war timer started on ", entity_id, " @local_id ", local_id)
 
@@ -287,7 +293,7 @@ func _on_view_distance_body_entered(body):
 		if entity_id == spotted_entity_id:
 			return
 		spotted.emit(spotted_entity_id)
-		cprint(get_playername(spotted_entity_id), " entered ", get_playername(entity_id), "'s Line of Sight")
+		cprint(get_playername(spotted_entity_id), " entered line of sight!")
 		if fog_of_war_timers.has(spotted_entity_id):
 			fog_of_war_timers[spotted_entity_id].stop()
 		admirals[spotted_entity_id].show()
@@ -303,7 +309,7 @@ func _on_view_distance_body_exited(body):
 func _on_recon_body_entered(body):
 	if body is Admiral:
 		var spotted_entity_id = body.entity_id
-		cprint(get_playername(entity_id), "'s recon spotted ", get_playername(spotted_entity_id))
+		cprint("Your recon spotted ", get_playername(spotted_entity_id))
 		ghost_last_known_admiral_location(spotted_entity_id)
 		spotted.emit(spotted_entity_id)
 
@@ -314,7 +320,9 @@ func _on_attack_body_entered(body):
 			attack_mission.area.set_deferred("disabled", true)
 			deal_damage.rpc(spotted_entity_id)
 			attack_mission.spend_munitions()
-		cprint(get_playername(entity_id), "'s attacker spotted ", get_playername(spotted_entity_id))
+			cprint("Your attackers struck ", get_playername(spotted_entity_id), "!")
+		else:
+			cprint("Your attackers spotted ", get_playername(spotted_entity_id))
 		ghost_last_known_admiral_location(spotted_entity_id)
 		spotted.emit(spotted_entity_id)
 
@@ -322,9 +330,12 @@ func _on_attack_body_entered(body):
 		var damage = 1
 		attack_mission.area.set_deferred("disabled", true)
 		var objective_id = body.objective_id
-		cprint(get_playername(entity_id), " attacked objective ", objective_id)
+		cprint("Attackers struck ", get_parent().get_parent().objectives[objective_id].codename, "!")
 		body.lose_health.rpc(damage)
 		attack_mission.spend_munitions()
+		for id in admirals:
+			if !admirals[id].blue:
+				transmit_objective_struck.rpc_id(id, objective_id)
 
 func _on_munitions_used():
 	munitions -= 1
@@ -336,7 +347,9 @@ func deal_damage(in_id):
 	print(self.entity_id, " running deal_damage()") 
 	admirals[in_id].health -= 1 #tämä vie etäpäältä hiparia
 	admirals[in_id].damage_taken.emit()
-	admirals[in_id].cprint(get_playername(in_id), " taking damage. Health is now ", admirals[in_id].health)
+	admirals[in_id].cprint("Taking damage! Health is now ", admirals[in_id].health)
+	if is_instance_valid(sfx):
+		sfx.play_bombhit()
 	if admirals[in_id].health <= 0:
 		destroy(in_id)
 		if local_id == attacker_id:
@@ -351,8 +364,8 @@ func destroy(destroyed_id):
 	admirals[destroyed_id].set_visual()
 	admirals[destroyed_id].max_speed = admirals[destroyed_id].min_speed
 	#dirty to print on both attacker and attackee
-	cprint("!!!!! ", get_playername(destroyed_id), " has been incapacitated!")
-	admirals[destroyed_id].cprint("!!!!! ", get_playername(destroyed_id), " has been incapacitated!")
+	cprint(get_playername(destroyed_id), " has been incapacitated!")
+	admirals[destroyed_id].cprint("You have been incapacitated! Limp back to safety if you can")
 
 func get_playername(in_entity_id):
 	return admirals[in_entity_id].entity_playername
@@ -371,4 +384,8 @@ func score(source, in_id = local_id, in_team = team):
 			points = game_settings["scoring"]["objective_destroyed"]
 	scored_event.init(get_tick(), points, in_id, in_team, source)
 	event_tracker.store_event(scored_event)
-	
+
+@rpc("any_peer")
+func transmit_objective_struck(objective_id):
+	var message = "Objective " + get_parent().get_parent().objectives[objective_id].codename + " has been struck by enemy task force!"
+	admirals[local_id].cprint(message)

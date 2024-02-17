@@ -36,8 +36,8 @@ bugs important to fix:
 	- DONE launch countdown in lobby needs to be interrupted on anyone's team change or hesitation
 tweaks that feel important:
 	- DONE mission effect area needs a visual cue (need to implement for attack as well)
-	- make some info available for the other team of an objective getting attacked
-	- randomized codenames for objectives
+	- DONE make some info available for the other team of an objective getting attacked
+	- DONE randomized codenames for objectives
 
 Phase 1.1: for the first playtest
 - DONE Round timers

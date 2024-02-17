@@ -187,7 +187,6 @@ func _on_tick():
 		%FuelOilConsumptionAmount["theme_override_colors/font_color"] = "ffae00"
 	elif 18000 <= fuel_oil_consumption:
 		%FuelOilConsumptionAmount["theme_override_colors/font_color"] = "ff0900"
-	#print("tikc working yay")
 
 func _on_aviation_fuel_used(amount):
 	aviation_fuel -= amount

@@ -9,9 +9,9 @@ var t1_color
 var t2_color
 
 var game_settings
-#kirjottasko nää vaa sinne overseeriin
 
 var playerbase = {}
+var objectives = {}
 
 var admiral_scene = preload("res://admiral.tscn")
 var objective_scene = preload("res://objective.tscn")
@@ -122,6 +122,7 @@ func load_objectives():
 	var i = 0
 	for n in $Level.get_children():
 		$Level.remove_child(n)
+	objectives = {}
 	for spawnpoint in game_settings["objective"]["spawns"]:
 		var objective_priority_t1 = local_objective_priorities[i]
 		var objective_priority_t2 = local_objective_priorities[i+6]
@@ -136,10 +137,11 @@ func load_objectives():
 		#print("objective init: ", i, codename_set[i], game_settings["objective"]["spawns"][spawnpoint], game_settings["objective"]["hitpoints"], obj_team, game_settings["objective"]["value"], local_team, objective_priority_t1, objective_priority_t2)
 		#print(local_id, " objspawn ", spawnpoint, " obj_team ", obj_team, " local_team ", local_team)
 		$Level.add_child(objective_instance)
+		objectives[i] = objective_instance
 		i += 1
 	print(local_id, " loaded objectives")
 
-func reset(new_game_settings,new_admirals,new_local_team):
+func reset(new_admirals,new_local_team):
 	self.local_id = get_tree().get_multiplayer().get_unique_id()
 	self.hosting = get_tree().get_multiplayer().is_server()
 	
@@ -147,7 +149,7 @@ func reset(new_game_settings,new_admirals,new_local_team):
 		$Admirals.remove_child(n)
 	
 	playerbase = new_admirals
-	game_settings = new_game_settings
+	game_settings = Overseer.game_settings
 	local_team = new_local_team
 	
 	if local_team == -1:
@@ -178,7 +180,7 @@ func spawn():
 	for id in playerbase:
 		var admiral = playerbase[id]
 		var admiral_instance = admiral_scene.instantiate()
-		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id, game_settings)
+		admiral_instance.init(id, admiral["playername"], admiral["team"], local_team, local_id)
 		$Admirals.add_child(admiral_instance)
 		admirals[id] = admiral_instance
 	print(local_id, " spawned admirals")
@@ -189,6 +191,7 @@ func spawn():
 		print(local_id, " called update_client_state ", local_state, " (w/4objectives), fail timer started")
 
 func init_client_state_checklist(in_admirals):
+	client_state_checklist = {}
 	for i in in_admirals:
 		if i != 1:
 			client_state_checklist[i] = null
@@ -263,6 +266,7 @@ func _on_fail_timer_timeout():
 	else:
 		if !status_successfully_sent:
 			update_client_state.rpc_id(1, local_id, local_state)
+			print(local_id, " resent client state ", local_state)
 
 func _on_tick():
 	tick += 1

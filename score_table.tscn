@@ -26,6 +26,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="HBoxContainer1" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1"]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="NameContainer1" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer1/HBoxContainer1"]
@@ -48,6 +49,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="NameContainer2" type="VBoxContainer" parent="CenterContainer/VBoxContainer/HBoxContainer/VBoxContainer2/HBoxContainer2"]
@@ -69,4 +71,6 @@ layout_mode = 2
 [node name="CloseButton" type="MenuButton" parent="CenterContainer/VBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
 text = "Close"
