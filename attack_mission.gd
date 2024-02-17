@@ -3,6 +3,7 @@ class_name Hurtbox
 
 signal attack_mission_takeoff(mission_duration)
 signal no_munitions
+signal no_aviation_fuel
 signal munitions_used
 signal aviation_fuel_used(amount)
 
@@ -117,9 +118,12 @@ func order_attack_mission(action_click_position):
 		attack_mission_takeoff.emit(cooldown_timer.wait_time + mission_duration)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
 		
-	elif get_parent().munitions <= 0:
-		no_munitions.emit()
-
+	else:
+		if get_parent().munitions <= 0:
+			print("no munitions")
+			no_munitions.emit()
+		if get_parent().aviation_fuel < aviation_fuel_consumption:
+			no_aviation_fuel.emit()
 func _on_animation_finished(_anim_name):
 	#print(_anim_name, " anim finished")
 	pass

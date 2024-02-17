@@ -4,8 +4,8 @@ func _ready():
 	pass
 
 func make_connections():
-	get_parent().attack_mission.connect("no_munitions", play_no_munitions)
 	get_parent().recon_mission.connect("no_aviation_fuel", play_no_gasoline)
+	get_parent().attack_mission.connect("no_aviation_fuel", play_no_gasoline)
 
 func play_bombhit():
 	$BombHit.play()

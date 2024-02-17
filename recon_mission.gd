@@ -103,6 +103,7 @@ func cancel_plan_recon_mission():
 
 func order_recon_mission(action_click_position):
 	if cooldown_ready == true && get_parent().aviation_fuel >= aviation_fuel_consumption:
+		print(get_parent().aviation_fuel)
 		get_parent().sfx.play_takeoff()
 		
 		ordered_position = action_click_position
@@ -121,12 +122,15 @@ func order_recon_mission(action_click_position):
 		cooldown_ready = false
 		$Icon.visible = false
 		effect_running = true
+		mission_timer.start()
+		
 		#print("recon mission takes off, mission duration ", str(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length))
 		#print("also cooldown reyad = false, icon visible = false, area visible = false, effect running = true")
 		recon_mission_takeoff.emit(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
 		planning = false
 	elif get_parent().aviation_fuel < aviation_fuel_consumption:
+		print("no aviation fuel")
 		no_aviation_fuel.emit()
 
 func _on_mission_timer_timeout():
@@ -134,12 +138,13 @@ func _on_mission_timer_timeout():
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
 	if !spotted_someone:
 		get_parent().sfx.play_recon_not_found()
+	print("recon mission timer timeout")
 
 func _on_effect_recon_finished():
 	$Icon.visible = true
 	self.visible = false
 	effect_running = false
-	#print("effect_recon_finished: icon visible = true, self.visible = false, effect running = false")
+	print("effect_recon_finished: icon visible = true, self.visible = false, effect running = false")
 
 func is_ready():
 	return cooldown_ready

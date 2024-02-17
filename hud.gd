@@ -165,6 +165,7 @@ func munitions_used():
 
 func _on_no_munitions():
 	munitions_animation_node.play("no_munitions")
+	get_parent().sfx.play_no_munitions()
 
 func _on_tick():
 	fuel_oil = get_owner().fuel_oil
@@ -190,6 +191,7 @@ func _on_tick():
 
 func _on_aviation_fuel_used(amount):
 	aviation_fuel -= amount
+	get_parent().aviation_fuel -= amount
 	%AviationFuelAmount["text"] = str(aviation_fuel)
 	if aviation_fuel <= 200:
 		%AviationFuelAmount["theme_override_colors/font_color"] = "ff0900"

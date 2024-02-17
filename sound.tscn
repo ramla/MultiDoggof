@@ -22,7 +22,7 @@ volume_db = -3.962
 
 [node name="Takeoff" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_613rt")
-volume_db = -14.362
+volume_db = -13.867
 
 [node name="AttackNotFound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("4_2ed8j")

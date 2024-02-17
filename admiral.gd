@@ -189,6 +189,7 @@ func init(id, in_playername, in_team, local_team, in_local_id):
 		sfx = sfx_scene.instantiate()
 		add_child(sfx)
 		fuel_oil_sfx_played = false
+		sfx.make_connections()
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -404,5 +405,5 @@ func score(source, in_id = local_id, in_team = team):
 func transmit_objective_struck(objective_id):
 	var message = "Objective " + get_parent().get_parent().objectives[objective_id].codename + " has been struck by enemy task force!"
 	admirals[local_id].cprint(message)
-	if is_instance_valid(sfx):
-		sfx.play_friendly_objective_struck()
+	if is_instance_valid(admirals[local_id].sfx):
+		admirals[local_id].sfx.play_friendly_objective_struck()
