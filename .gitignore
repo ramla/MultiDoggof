@@ -17,3 +17,6 @@ mono_crash.*.json
 #have to do everything yourself
 *.tmp
 gitignore/
+
+#project ignores
+user.cfg
