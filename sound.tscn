@@ -1,8 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://jb3stvoss0te"]
+[gd_scene load_steps=13 format=3 uid="uid://jb3stvoss0te"]
 
 [ext_resource type="Script" path="res://sound.gd" id="1_juhxl"]
 [ext_resource type="AudioStream" uid="uid://ddxlig4gus2oh" path="res://Assets/osuvapommitus3.ogg" id="2_50txn"]
 [ext_resource type="AudioStream" uid="uid://c7uq3dsd3fvar" path="res://Assets/takeoff.ogg" id="3_613rt"]
+[ext_resource type="AudioStream" uid="uid://ghacue4k7gny" path="res://Assets/enemynotfound.ogg" id="4_2ed8j"]
+[ext_resource type="AudioStream" uid="uid://bpmat5hei2eco" path="res://Assets/reconnotfound.ogg" id="5_ply4p"]
+[ext_resource type="AudioStream" uid="uid://cvcm2b8lbfjpe" path="res://Assets/outofmunitions.ogg" id="6_s5472"]
+[ext_resource type="AudioStream" uid="uid://idfk2iyb4d08" path="res://Assets/outoffuel.ogg" id="7_khtyf"]
+[ext_resource type="AudioStream" uid="uid://cke3o6qpi2obi" path="res://Assets/outofgas2.ogg" id="8_2svlw"]
+[ext_resource type="AudioStream" uid="uid://6p6p41dtjkr5" path="res://Assets/gotem.ogg" id="8_igu65"]
+[ext_resource type="AudioStream" uid="uid://b7738j4o7h66" path="res://Assets/enemy1.ogg" id="10_g0fj3"]
+[ext_resource type="AudioStream" uid="uid://ceml4841io402" path="res://Assets/friendly.ogg" id="11_eundj"]
+[ext_resource type="AudioStream" uid="uid://dtu1b3igvqpc1" path="res://Assets/morse.ogg" id="12_7qvfd"]
 
 [node name="Sound" type="Node2D"]
 script = ExtResource("1_juhxl")
@@ -14,3 +23,39 @@ volume_db = -3.962
 [node name="Takeoff" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("3_613rt")
 volume_db = -14.362
+
+[node name="AttackNotFound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_2ed8j")
+volume_db = -6.438
+
+[node name="ReconNotFound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ply4p")
+volume_db = -9.306
+
+[node name="NoMunitions" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_s5472")
+volume_db = -9.41
+
+[node name="NoFuel" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_khtyf")
+volume_db = -10.66
+
+[node name="NoGasoline" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_2svlw")
+volume_db = -6.438
+
+[node name="GotEm" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_igu65")
+volume_db = -19.314
+
+[node name="EnemySpotted" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_g0fj3")
+volume_db = -1.981
+
+[node name="FriendlySpotted" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_eundj")
+volume_db = -4.952
+
+[node name="FriendlyObjectiveStruck" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_7qvfd")
+volume_db = -7.923

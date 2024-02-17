@@ -3,6 +3,7 @@ class_name Spotbox
 
 signal recon_mission_takeoff
 signal aviation_fuel_used(amount)
+signal no_aviation_fuel
 
 var mission_range
 var cooldown_ready = false
@@ -14,6 +15,7 @@ var mission_duration
 var aviation_fuel_consumption = Overseer.game_settings["admiral"]["recon_fuel"]
 var effect_running = false
 var planning = false
+var spotted_someone = false
 
 @onready var spotbox_animation_node = get_node("SpotboxPlayer")
 @onready var effect_recon = get_node("EffectRecon/PlaneEmitter")
@@ -107,6 +109,8 @@ func order_recon_mission(action_click_position):
 		area.look_at(action_click_position)
 		area.disabled = false
 		area.visible = false
+		spotted_someone = false
+		
 		spotbox_animation_node["speed_scale"] = 1.5
 		spotbox_animation_node.stop()
 		spotbox_animation_node.play("recon")
@@ -122,10 +126,14 @@ func order_recon_mission(action_click_position):
 		recon_mission_takeoff.emit(cooldown_timer.wait_time + spotbox_animation_node["speed_scale"]*spotbox_animation_node.current_animation_length)
 		aviation_fuel_used.emit(aviation_fuel_consumption)
 		planning = false
+	elif get_parent().aviation_fuel < aviation_fuel_consumption:
+		no_aviation_fuel.emit()
 
 func _on_mission_timer_timeout():
 	area.disabled = true
 	effect_running = false #hack b/c couldn't get particle emitter to emit "finished"
+	if !spotted_someone:
+		get_parent().sfx.play_recon_not_found()
 
 func _on_effect_recon_finished():
 	$Icon.visible = true

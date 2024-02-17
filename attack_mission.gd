@@ -130,6 +130,8 @@ func _on_mission_timer_timeout():
 	mission_over = true
 	#print("mission_over = true")
 	cooldown_timer.start()
+	if munitions_onboard != 0:
+		get_parent().sfx.play_attack_not_found()
 
 func _on_effect_attack_finished():
 	self.visible = false

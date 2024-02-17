@@ -52,6 +52,7 @@ var fog_of_war_timers: Dictionary = {}
 var ghost_scene = preload("res://ghost.tscn")
 var sfx_scene = preload("res://sound.tscn")
 var sfx
+var fuel_oil_sfx_played = false
 
 @onready var admirals = get_parent().get_parent().admirals
 var view_distance: Area2D
@@ -64,6 +65,7 @@ var attack_mission: Area2D
 func _ready():
 	is_destroyed = false
 	click_position = Vector2(position.x, position.y)
+	
 
 func _process(_delta):
 	if is_player && on_round_timer: 
@@ -148,6 +150,9 @@ func consume_fuel_oil(delta):
 	fuel_oil -= current_fuel_oil_consumption
 	if fuel_oil <= 0:
 		click_position = position
+		if !fuel_oil_sfx_played:
+			sfx.play_no_fuel()
+			fuel_oil_sfx_played = true
 
 func init(id, in_playername, in_team, local_team, in_local_id):
 	game_settings = Overseer.game_settings
@@ -183,7 +188,7 @@ func init(id, in_playername, in_team, local_team, in_local_id):
 		$ViewDistance/LineOfSightVisualized["visible"] = true
 		sfx = sfx_scene.instantiate()
 		add_child(sfx)
-		print("admiral node ", self, " sfx node ", sfx)
+		fuel_oil_sfx_played = false
 	elif local_team == team:
 		blue = true
 		is_ally = true
@@ -312,6 +317,11 @@ func _on_recon_body_entered(body):
 		cprint("Your recon spotted ", get_playername(spotted_entity_id))
 		ghost_last_known_admiral_location(spotted_entity_id)
 		spotted.emit(spotted_entity_id)
+		recon_mission.spotted_someone = true
+		if admirals[spotted_entity_id].blue:
+			sfx.play_friendly_spotted()
+		else:
+			sfx.play_enemy_spotted()
 
 func _on_attack_body_entered(body):
 	if body is Admiral:
@@ -321,8 +331,12 @@ func _on_attack_body_entered(body):
 			deal_damage.rpc(spotted_entity_id)
 			attack_mission.spend_munitions()
 			cprint("Your attackers struck ", get_playername(spotted_entity_id), "!")
+			sfx.play_got_em()
+		elif attack_mission.munitions_onboard <= 0:
+			sfx.play_enemy_spotted()
 		else:
 			cprint("Your attackers spotted ", get_playername(spotted_entity_id))
+			sfx.play_friendly_spotted()
 		ghost_last_known_admiral_location(spotted_entity_id)
 		spotted.emit(spotted_entity_id)
 
@@ -333,6 +347,7 @@ func _on_attack_body_entered(body):
 		cprint("Attackers struck ", get_parent().get_parent().objectives[objective_id].codename, "!")
 		body.lose_health.rpc(damage)
 		attack_mission.spend_munitions()
+		sfx.play_got_em()
 		for id in admirals:
 			if !admirals[id].blue:
 				transmit_objective_struck.rpc_id(id, objective_id)
@@ -389,3 +404,5 @@ func score(source, in_id = local_id, in_team = team):
 func transmit_objective_struck(objective_id):
 	var message = "Objective " + get_parent().get_parent().objectives[objective_id].codename + " has been struck by enemy task force!"
 	admirals[local_id].cprint(message)
+	if is_instance_valid(sfx):
+		sfx.play_friendly_objective_struck()
