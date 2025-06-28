@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://h53xl6hpv0ck"]
 
 [ext_resource type="Texture2D" uid="uid://dpixrwwt7v7ef" path="res://Assets/question_mark_black.png" id="1_h4vpc"]
-[ext_resource type="Script" path="res://ghost.gd" id="1_u6y3u"]
+[ext_resource type="Script" uid="uid://bskarob81ead7" path="res://ghost.gd" id="1_u6y3u"]
 
 [sub_resource type="Curve" id="Curve_kilgc"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]

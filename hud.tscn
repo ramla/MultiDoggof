@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://dcfhkjpwaede7"]
 
-[ext_resource type="Script" path="res://hud.gd" id="1_47ykm"]
+[ext_resource type="Script" uid="uid://cmhrg4mlb40uf" path="res://hud.gd" id="1_47ykm"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="1_v6nix"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="3_hchts"]
 
@@ -47,8 +47,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_xjn1k"]
 _data = {
-"RESET": SubResource("Animation_e5f7l"),
-"recon_icon_pop": SubResource("Animation_hje23")
+&"RESET": SubResource("Animation_e5f7l"),
+&"recon_icon_pop": SubResource("Animation_hje23")
 }
 
 [sub_resource type="Animation" id="Animation_xx1tl"]
@@ -85,8 +85,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_dxkiu"]
 _data = {
-"RESET": SubResource("Animation_xx1tl"),
-"attack_icon_pop": SubResource("Animation_epv3d")
+&"RESET": SubResource("Animation_xx1tl"),
+&"attack_icon_pop": SubResource("Animation_epv3d")
 }
 
 [sub_resource type="Animation" id="Animation_pmp50"]
@@ -106,7 +106,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_sk352"]
 _data = {
-"no_munitions": SubResource("Animation_pmp50")
+&"no_munitions": SubResource("Animation_pmp50")
 }
 
 [node name="HUD" type="CanvasLayer"]
@@ -165,7 +165,7 @@ vertical_alignment = 2
 [node name="ReconAnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/ReconIconContainer"]
 unique_name_in_owner = true
 libraries = {
-"": SubResource("AnimationLibrary_xjn1k")
+&"": SubResource("AnimationLibrary_xjn1k")
 }
 
 [node name="AttackIconContainer" type="Control" parent="HBoxContainer"]
@@ -211,7 +211,7 @@ vertical_alignment = 2
 [node name="AttackAnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/AttackIconContainer"]
 unique_name_in_owner = true
 libraries = {
-"": SubResource("AnimationLibrary_dxkiu")
+&"": SubResource("AnimationLibrary_dxkiu")
 }
 
 [node name="ProgressBar" type="ProgressBar" parent="."]
@@ -252,7 +252,7 @@ text = "Munitions"
 [node name="MunitionsAnimationPlayer" type="AnimationPlayer" parent="GridContainer4/GridContainer"]
 unique_name_in_owner = true
 libraries = {
-"": SubResource("AnimationLibrary_sk352")
+&"": SubResource("AnimationLibrary_sk352")
 }
 
 [node name="GridContainer3" type="GridContainer" parent="GridContainer4"]

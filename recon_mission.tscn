@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://dujquj8r863hi"]
 
-[ext_resource type="Script" path="res://recon_mission.gd" id="1_d7dpn"]
+[ext_resource type="Script" uid="uid://dsh78c4cbx1he" path="res://recon_mission.gd" id="1_d7dpn"]
 [ext_resource type="PackedScene" uid="uid://c0a5gm8cs1cim" path="res://recon_visual_area.tscn" id="2_11jbp"]
 [ext_resource type="Texture2D" uid="uid://deufv1an2r7g4" path="res://Assets/item8BIT_mirror.png" id="2_fs6xi"]
 [ext_resource type="PackedScene" uid="uid://bhxoc4u2xhen7" path="res://effect_recon_plan.tscn" id="2_iu7dm"]
@@ -64,8 +64,8 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ntplu"]
 _data = {
-"recon": SubResource("Animation_ikq70"),
-"recon_dummy": SubResource("Animation_qn3hp")
+&"recon": SubResource("Animation_ikq70"),
+&"recon_dummy": SubResource("Animation_qn3hp")
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_gawng"]

@@ -1,6 +1,6 @@
 [gd_scene load_steps=14 format=3 uid="uid://bvvrn2ng35y3j"]
 
-[ext_resource type="Script" path="res://objective.gd" id="1_7oevi"]
+[ext_resource type="Script" uid="uid://clegd6qgjoo1o" path="res://objective.gd" id="1_7oevi"]
 [ext_resource type="Texture2D" uid="uid://b5c0uk1rngltg" path="res://Assets/item8BIT_shield.png" id="2_fqrbj"]
 [ext_resource type="Texture2D" uid="uid://c2lamok6dgmcm" path="res://Assets/item8BIT_bomb.png" id="3_ggllm"]
 [ext_resource type="FontFile" uid="uid://cwq1qg5p405vc" path="res://Assets/veteran_typewriter.ttf" id="4_rheyj"]
@@ -15,7 +15,7 @@ colors = PackedColorArray(0.0962047, 0.0962048, 0.0962047, 1, 0.410594, 0.410594
 gradient = SubResource("Gradient_1b6hr")
 
 [sub_resource type="Curve" id="Curve_d1unh"]
-max_value = 16.76
+_limits = [0.0, 16.76, 0.0, 1.0]
 _data = [Vector2(0, 4.96326), 0.0, 0.0, 0, 0, Vector2(0.288382, 7.55279), 0.0, 0.0, 0, 0, Vector2(0.607884, 9.56687), 0.0, 0.0, 0, 0, Vector2(1, 16.76), 0.0, 0.0, 0, 0]
 point_count = 4
 
@@ -23,8 +23,7 @@ point_count = 4
 curve = SubResource("Curve_d1unh")
 
 [sub_resource type="Curve" id="Curve_ykq1r"]
-min_value = 20.56
-max_value = 200.0
+_limits = [-6.00858, 200.0, 0.0, 1.0]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.541494, -6.00858), 0.0, 0.0, 0, 0, Vector2(0.778008, 55.2158), 0.0, 0.0, 0, 0, Vector2(1, 58.2963), 0.0, 0.0, 0, 0]
 point_count = 4
 
@@ -77,9 +76,9 @@ shape = SubResource("CircleShape2D_n8kpd")
 [node name="Smoke" type="GPUParticles2D" parent="."]
 position = Vector2(-3, 13)
 amount = 25
-process_material = SubResource("ParticleProcessMaterial_0fy7s")
 lifetime = 6.0
 trail_enabled = true
+process_material = SubResource("ParticleProcessMaterial_0fy7s")
 
 [node name="Codename" type="Label" parent="."]
 offset_left = 12.0

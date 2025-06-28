@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://rsfg0m0wssga"]
 
-[ext_resource type="Script" path="res://mission.gd" id="1_phdqf"]
+[ext_resource type="Script" uid="uid://bo7ujmrvkpxum" path="res://mission.gd" id="1_phdqf"]
 [ext_resource type="PackedScene" uid="uid://dfup68eopyije" path="res://effect_attack.tscn" id="2_tumg8"]
 [ext_resource type="PackedScene" uid="uid://c0a5gm8cs1cim" path="res://recon_visual_area.tscn" id="3_4dvhg"]
 [ext_resource type="Texture2D" uid="uid://dacstcger6tsq" path="res://Assets/item8BIT_bow.png" id="4_asosx"]
@@ -35,7 +35,7 @@ tracks/1/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ncioc"]
 _data = {
-"attack": SubResource("Animation_n5gqe")
+&"attack": SubResource("Animation_n5gqe")
 }
 
 [node name="Mission" type="Area2D"]

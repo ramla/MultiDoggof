@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cvhxmoylkgjed"]
 
-[ext_resource type="Script" path="res://score_table.gd" id="1_vfnmr"]
+[ext_resource type="Script" uid="uid://cd1rbgigdp3sc" path="res://score_table.gd" id="1_vfnmr"]
 
 [node name="ScoreTable" type="Control"]
 layout_mode = 3
